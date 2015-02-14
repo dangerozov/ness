@@ -37,7 +37,7 @@ function love.draw()
 		:each(draw)
 
 	drawPrint("Entities = " .. tostring(#entities), 100, 50)
-	drawPrint(tostring(screen:center().x), 0, 50)
+	drawPrint(tostring(screen.center.x), 0, 50)
 end
 
 function draw(entity)
@@ -68,9 +68,5 @@ function update(entity)
 end
 
 function move(entity)
-
-	local x, y = (entity.bounds:topLeft() + entity.velocity):match();
-
-	entity.bounds.x = x
-	entity.bounds.y = y
+	entity.bounds.topLeft = entity.bounds.topLeft + entity.velocity
 end

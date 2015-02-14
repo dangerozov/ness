@@ -12,7 +12,7 @@ function Plane:init()
 	self.update = updatePlane
 
 	self.bounds = nessy.rectangle(0, 0, self.texture:getWidth(), self.texture:getHeight())
-	self.bounds:center(nessy.viewport():center())
+	self.bounds.center = nessy.viewport().center
 
 	self.weapon = {}
 	self.weapon.maxBullets = 1
@@ -23,7 +23,7 @@ function Plane:init()
 
 	local viewport = nessy.viewport()
 	self.screenBounds = nessy.rectangle(0, 0, viewport.width - 40, viewport.height - 40)
-	self.screenBounds:center(viewport:center())
+	self.screenBounds.center = viewport.center
 
 
 	table.insert(entities, self)
@@ -39,16 +39,16 @@ function Plane:update()
 		self.bounds.left = self.screenBounds.left
 	end
 
-	if (self.bounds:right() > self.screenBounds:right()) then
-		self.bounds:right(self.screenBounds:right())
+	if (self.bounds.right > self.screenBounds.right) then
+		self.bounds.right = self.screenBounds.right
 	end
 
-	if (self.bounds:top() < self.screenBounds:top()) then
-		self.bounds:top(self.screenBounds:top())
+	if (self.bounds.top < self.screenBounds.top) then
+		self.bounds.top = self.screenBounds.top
 	end
 
-	if (self.bounds:bottom() > self.screenBounds:bottom()) then
-		self.bounds:bottom(self.screenBounds:bottom())
+	if (self.bounds.bottom > self.screenBounds.bottom) then
+		self.bounds.bottom = self.screenBounds.bottom
 	end
 
 	if down("j") then self:shoot() end
@@ -68,11 +68,11 @@ function Plane:shoot()
 	bullet.draw = drawTexture
 	bullet.texture = bulletTexture
 	bullet.bounds = nessy.rectangle(0, 0, bullet.texture:getWidth(), bullet.texture:getHeight())
-	bullet.bounds:bottomCenter(self.bounds:topCenter())
+	bullet.bounds.bottomCenter = self.bounds.topCenter
 	bullet.velocity = nessy.point(0, -20)
 
 	bullet.update = function (self) 
-		if self.bounds:bottom() < nessy.viewport():top() then
+		if self.bounds.bottom < nessy.viewport().top then
 			table.remove(entities, 3)
 		end
 	end

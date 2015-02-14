@@ -19,7 +19,7 @@ end
 
 function nessy.draw(entity)
 
-	local x, y = entity.bounds:topLeft():match()
+	local x, y = entity.bounds.topLeft:match()
 	-- nessy.toScreen(entity.bounds:topLeft()):match()	
 
 	
