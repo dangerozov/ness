@@ -1,5 +1,4 @@
 nessy = require("nessy")
-require("entities")
 
 Plane = {
 	zIndex = 1,
@@ -8,10 +7,12 @@ Plane = {
 
 function Plane:init()
 	self.texture = love.graphics.newImage(self.textureName)
-	self.draw = drawTexture
+	self.draw = nessy.draw("scale")
 	self.update = updatePlane
 
 	self.bounds = nessy.rectangle(0, 0, self.texture:getWidth(), self.texture:getHeight())
+	self.bounds.width = self.bounds.width
+	self.bounds.height = self.bounds.height
 	self.bounds.center = nessy.viewport().center
 
 	self.weapon = {}
@@ -25,8 +26,31 @@ function Plane:init()
 	self.screenBounds = nessy.rectangle(0, 0, viewport.width - 40, viewport.height - 40)
 	self.screenBounds.center = viewport.center
 
+	nessy.entities.add(self)
+end
 
-	table.insert(entities, self)
+function callEvery(period, func)
+	local elapsed = 0
+	return function()
+		elapsed = elapsed + love.timer.getDelta()
+		if elapsed > period then
+			elapsed = elapsed - period
+			func()
+		end
+	end
+end
+
+function callEveryCheater(period, func)
+	local elapsed = 0
+	return function()
+		local speed = (previous == down("j") == true and 1 or 3)
+		local delta = love.timer.getDelta() * speed
+		elapsed = elapsed + delta
+		if elapsed > period then
+			elapsed = elapsed - period
+			func()
+		end
+	end
 end
 
 function Plane:update()
@@ -60,12 +84,9 @@ function Plane:shoot()
 	if self.weapon.bullets == 0 then return end
 	self.weapon.bullets = self.weapon.bullets - 1
 
-	--local x, y = self.bounds:topCenter():match()
-
-
 	local bullet = {}
 	bullet.zIndex = 1
-	bullet.draw = drawTexture
+	bullet.draw = nessy.draw("scale")
 	bullet.texture = bulletTexture
 	bullet.bounds = nessy.rectangle(0, 0, bullet.texture:getWidth(), bullet.texture:getHeight())
 	bullet.bounds.bottomCenter = self.bounds.topCenter
@@ -73,16 +94,14 @@ function Plane:shoot()
 
 	bullet.update = function (self) 
 		if self.bounds.bottom < nessy.viewport().top then
-			table.remove(entities, 3)
+			nessy.entities.remove(self)
 		end
 	end
 
-
-	table.insert(entities, bullet)
+	nessy.entities.add(bullet)
 end
 
 function Plane:reload()
-	--if self.weapon.bullets == 0 then self.weapon.bullets = 3 end
 	if self.weapon.bullets < self.weapon.maxBullets then
 		self.weapon.bullets = self.weapon.bullets + 1
 	end
@@ -90,12 +109,4 @@ end
 
 function down(key)
 	return love.keyboard.isDown(key)
-end
-
-function drawTexture(entity)
-
-	nessy.draw(entity)
-
-
-	--love.graphics.draw(entity.texture, x, y)
 end

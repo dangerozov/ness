@@ -85,10 +85,6 @@ function rectangle(x, y, width, height)
 		height = height or 0
 	})
 
-	rectangle.__index = function(self, field)
-		print(field)
-	end
-
 	return rectangle
 end
 

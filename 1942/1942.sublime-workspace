@@ -179,15 +179,7 @@
 			"file": "plane.lua",
 			"settings":
 			{
-				"buffer_size": 2464,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "nessy/rectangle.lua",
-			"settings":
-			{
-				"buffer_size": 2117,
+				"buffer_size": 2722,
 				"line_ending": "Windows"
 			}
 		},
@@ -195,7 +187,7 @@
 			"file": "main.lua",
 			"settings":
 			{
-				"buffer_size": 1350,
+				"buffer_size": 1300,
 				"line_ending": "Windows"
 			}
 		},
@@ -203,7 +195,23 @@
 			"file": "nessy.lua",
 			"settings":
 			{
-				"buffer_size": 2583,
+				"buffer_size": 2105,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "nessy/point.lua",
+			"settings":
+			{
+				"buffer_size": 423,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "water.lua",
+			"settings":
+			{
+				"buffer_size": 1057,
 				"line_ending": "Windows"
 			}
 		}
@@ -284,6 +292,12 @@
 	},
 	"file_history":
 	[
+		"/D/projects/gamedev/nessy/1942/water.lua",
+		"/D/projects/gamedev/nessy/1942/nessy/entities.lua",
+		"/D/projects/gamedev/nessy/1942/underscore.lua",
+		"/D/projects/gamedev/nessy/1942/nessy/rectangle.lua",
+		"/D/projects/gamedev/nessy/1942/entities.lua",
+		"/D/projects/gamedev/nessy/1942/nessy.lua",
 		"/D/projects/gamedev/nes/1942/nessy.lua",
 		"/D/projects/gamedev/nes/1942/water.lua",
 		"/D/projects/work/dotMailerV4-InfiniteLoops/Core/dotMailer.Core/dotMailer.Core.csproj",
@@ -342,7 +356,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 90.0,
 		"where_history":
 		[
 			"<open folders>",
@@ -354,6 +368,11 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"drawTexture",
+			"nessy.entities",
+			"entities",
+			"list",
+			"entities",
 			"value",
 			"\\n",
 			"91e288ed-c721-4f4a-8155-722d5de5d71d",
@@ -476,12 +495,7 @@
 			"_GetSpawnWaypoint",
 			"SetInitialGoalEntity",
 			"\\",
-			"SetInitialGoalEntity",
-			"_GetSpawnWaypoint",
-			"_nCreatureLevel",
-			"dospawn",
-			"--[[",
-			"OnThink"
+			"SetInitialGoalEntity"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -501,7 +515,7 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 4,
 			"sheets":
 			[
 				{
@@ -509,42 +523,15 @@
 					"file": "plane.lua",
 					"settings":
 					{
-						"buffer_size": 2464,
+						"buffer_size": 2722,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1090,
-								1090
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua Dota/Lua.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 210.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "nessy/rectangle.lua",
-					"settings":
-					{
-						"buffer_size": 2117,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								247,
-								247
+								220,
+								220
 							]
 						],
 						"settings":
@@ -559,19 +546,19 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
+					"buffer": 1,
 					"file": "main.lua",
 					"settings":
 					{
-						"buffer_size": 1350,
+						"buffer_size": 1300,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								353,
-								353
+								729,
+								729
 							]
 						],
 						"settings":
@@ -580,25 +567,78 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 210.0,
+						"translation.y": 126.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "nessy.lua",
+					"settings":
+					{
+						"buffer_size": 2105,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								545,
+								545
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dota/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 3,
-					"file": "nessy.lua",
+					"file": "nessy/point.lua",
 					"settings":
 					{
-						"buffer_size": 2583,
+						"buffer_size": 423,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2164,
-								2164
+								386,
+								386
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua Dota/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "water.lua",
+					"settings":
+					{
+						"buffer_size": 1057,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								301,
+								301
 							]
 						],
 						"settings":
@@ -607,7 +647,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 630.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"

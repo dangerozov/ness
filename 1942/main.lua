@@ -1,6 +1,5 @@
 io.stdout:setvbuf("no")
 
-require("entities")
 require("plane")
 require("water")
 
@@ -13,7 +12,6 @@ screen = nessy.rectangle(0, 0, 512, 512)
 function love.load()
 	nessy.debug = true
 
-	--assert(false, tostring(screen.width))
 	love.window.setMode(screen.width, screen.height)
 
 	new(Plane):init()
@@ -29,15 +27,12 @@ function love.keypressed(key)
 end
 
 function love.draw()
-	--love.graphics.translate(camera.x + screen.width / 2, camera.y + screen.height / 2)
-
-	_(entities):chain()
+	_(nessy.entities):chain()
 		:where(has("texture"))
 		:sort(function(ent1, ent2) return ent1.zIndex < ent2.zIndex end)
 		:each(draw)
 
-	drawPrint("Entities = " .. tostring(#entities), 100, 50)
-	drawPrint(tostring(screen.center.x), 0, 50)
+	drawPrint("Entities = " .. tostring(#nessy.entities), 20, 20)
 end
 
 function draw(entity)
@@ -50,17 +45,27 @@ end
 
 function love.update()
 
-	_(entities):chain()
+	_(nessy.entities):chain()
 		:where(has("velocity"))
 		:each(move)
 
-	_(entities):chain()
+	_(nessy.entities):chain()
 		:where(has("update"))
 		:each(update)
 
 	scroll()
 
 	previous = down("j")
+end
+
+function sortByZIndex(left, right)
+	return left.zIndex < right.zIndex
+end
+
+function has(component)
+	return function(entity)
+		return entity[component] ~= nil
+	end
 end
 
 function update(entity)

@@ -1,4 +1,6 @@
 local nessy = {
+	entities = require("nessy.entities"),
+	point = require("nessy.point"),
 	rectangle = require("nessy.rectangle")
 }
 
@@ -17,19 +19,34 @@ function nessy.color(name)
 	end
 end
 
-function nessy.draw(entity)
+function nessy.draw(mode)
+	mode = mode or "scale";
 
-	local x, y = entity.bounds.topLeft:match()
-	-- nessy.toScreen(entity.bounds:topLeft()):match()	
+	return function (entity)
+		local textureWidth = entity.texture:getWidth()
+		local textureHeight = entity.texture:getHeight()
 
-	
+		local scaleX = math.floor(entity.bounds.width / textureWidth)
+		local scaleY = math.floor(entity.bounds.height / textureHeight)
+		--print(tostring(scaleX) .. " x " .. tostring(scaleY))
 
-	if nessy.debug then 
-		nessy.drawRectangle(nessy.rectangle(x, y, entity.texture:getWidth(), entity.texture:getHeight()), "red")
-		nessy.drawRectangle(nessy.rectangle(x, y, entity.bounds.width, entity.bounds.height), "green")
+		if mode == "fill" then
+			--print("from " .. tostring(entity.bounds.x) .. " to " .. tostring(entity.bounds.x + scaleX * textureWidth) .. " step " .. tostring(textureWidth))
+			for x = entity.bounds.x, entity.bounds.x + (scaleX - 1) * textureWidth, textureWidth do
+				for y = entity.bounds.y,  entity.bounds.y + (scaleY - 1) * textureHeight, textureHeight do
+					love.graphics.draw(entity.texture, x, y)
+				end
+			end
+
+		elseif mode == "scale" then
+			love.graphics.draw(entity.texture, entity.bounds.topLeft.x, entity.bounds.topLeft.y, 0, entity.bounds.width / textureWidth, entity.bounds.height / textureHeight)
+		end		
+
+		if nessy.debug then 
+			nessy.drawRectangle(nessy.rectangle(entity.bounds.topLeft.x, entity.bounds.topLeft.y, textureWidth, textureHeight), "red")
+			nessy.drawRectangle(nessy.rectangle(entity.bounds.topLeft.x, entity.bounds.topLeft.y, entity.bounds.width, entity.bounds.height), "green")
+		end
 	end
-
-	love.graphics.draw(entity.texture, x, y)
 end
 
 function nessy.drawRectangle(rect, color)
@@ -43,25 +60,6 @@ end
 
 function nessy.viewport()
 	return nessy.rectangle(0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-end
-
-local Point = {
-	match = function(self) return self.x, self.y end,
-	__tostring = function(self) return string.format("{ x: %d y: %d }", self.x, self.y) end,
-	__add = function(p1, p2) return nessy.point(p1.x + p2.x, p1.y + p2.y) end,
-	__sub = function(p1, p2) return nessy.point(p1.x - p2.x, p1.y - p2.y) end
-}
-
-function nessy.point(x, y)
-	x = x or 0
-	y = y or 0
-
-	local point = new(Point, {
-		x = x,
-		y = y	
-	})
-
-	return point
 end
 
 function new(parent, child)
@@ -98,13 +96,6 @@ function getDefault(self, field)
 	local value = rawget(self, field)
 
 	return value == nil and rawget(meta, field) or value
-end
-
-function log(o)
-	print(o)
-	for k,v in pairs(o) do
-		print(tostring(k) .. tostring(" = ") .. tostring(v))
-	end
 end
 
 function string.starts(self, value)

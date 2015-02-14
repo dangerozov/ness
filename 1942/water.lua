@@ -1,5 +1,4 @@
 nessy = require("nessy")
-require("entities")
 
 water = 
 {
@@ -10,27 +9,16 @@ water =
 
 function initWater()
 	water.texture = love.graphics.newImage(water.textureName)
-	water.draw = drawFill(
-		screen.width / water.texture:getWidth(),
-		screen.height / water.texture:getHeight() + 1)
+	water.draw = nessy.draw("fill")
 	water.update = scroll
+	water.bounds = nessy.viewport()
 
-	water.bounds.x = 0
-	water.bounds.y = -water.texture:getHeight()
-
-	table.insert(entities, water)
+	nessy.entities.add(water)
 end
 
 function drawFill(columns, rows)
 	return function(entity)
-		local xStep = entity.texture:getWidth()
-		local yStep = entity.texture:getHeight()
-
-		for x = entity.bounds.x, columns * xStep, xStep do
-			for y = entity.bounds.y, rows * yStep, yStep do
-				love.graphics.draw(entity.texture, x, y)
-			end
-		end
+		
 	end
 end
 
