@@ -1,0 +1,95 @@
+local Rectangle = {}
+
+function Rectangle:__tostring() 
+	return string.format("{ x: %d y: %d w: %d h: %d }", self.x, self.y, self.width, self.height)
+end
+
+function Rectangle:gs_left(value)
+	if value ~= nil then self.x = value end
+	return self.x
+end
+
+function Rectangle:right(value)
+	if value ~= nil then self.x = value - self.width end
+	return self.x + self.width
+end
+
+function Rectangle:top(value)
+	if value ~= nil then self.y = value end
+	return self.y 	
+end
+
+function Rectangle:bottom(value)
+	if value ~= nil then self.y = value - self.height end
+	return self.y + self.height
+end
+
+function Rectangle:topLeft(value)
+	self:set("topLeft", value)
+	return nessy.point(self.left, self:top())
+end
+
+function Rectangle:topCenter(value)
+	self:set("topCenter", value)
+	return nessy.point(self:center().x, self:top())
+end
+
+function Rectangle:topRight(value)
+	self:set("topRight", value)
+	return nessy.point(self:right(), self:top())
+end
+
+function Rectangle:middleLeft(value)
+	self:set("middleLeft", value)
+	return nessy.point(self:left(), self:center().y)
+end
+
+function Rectangle:center(value)
+	self:set("center", value)
+	return nessy.point(self.x + self.width / 2, self.y + self.height / 2)
+end
+
+function Rectangle:middleRight(value)
+	self:set("middleRight", value)
+	return nessy.point(self:right(), self:center().y)
+end
+
+function Rectangle:bottomLeft(value)
+	self:set("bottomLeft", value)
+	return nessy.point(self:left(), self:bottom())
+end
+
+function Rectangle:bottomCenter(value)
+	self:set("bottomCenter", value)
+	return nessy.point(self:center().x, self:bottom())
+end
+
+function Rectangle:bottomRight(value)
+	self:set("bottomRight", value)
+	return nessy.point(self:right(), self:bottom())
+end
+
+function Rectangle:set(anchor, point)
+	if point ~= nil then 
+		local offset = point - self[anchor](self)
+		self.x = self.x + offset.x
+		self.y = self.y + offset.y
+	end
+end
+
+function rectangle(x, y, width, height)
+	local rectangle = new(Rectangle, {
+		x = x or 0,
+		y = y or 0,
+		width = width or 0,
+		height = height or 0
+	})
+
+	rectangle.__index = function(self, field)
+		print(field)
+	end
+
+	return rectangle
+end
+
+return rectangle
