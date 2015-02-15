@@ -13,9 +13,6 @@ function love.load()
 	new(Plane):init()
 
 	initWater()
-
-	bulletTexture = nessy.image("resources/bullet.png")
-
 end
 
 function love.keypressed(key)

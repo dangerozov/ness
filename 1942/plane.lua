@@ -7,6 +7,8 @@ Plane = {
 
 function Plane:init()
 
+	bulletTexture = nessy.image("resources/bullet.png")
+
 	self.texture = {
 		image = nessy.image(self.textureName)
 	}
@@ -85,12 +87,16 @@ function Plane:shoot()
 	if self.weapon.bullets == 0 then return end
 	self.weapon.bullets = self.weapon.bullets - 1
 
-	local bullet = {}
-	bullet.zIndex = 1
-	bullet.draw = nessy.draw("scale")
-	bullet.texture = bulletTexture
-	bullet.bounds = nessy.rectangle(0, 0, bullet.texture.width, bullet.texture.height)
+	local bullet = {
+		texture = {
+			image = bulletTexture,
+		},
+		zIndex = 1,
+	}
+
+	bullet.bounds = nessy.rectangle(0, 0, bullet.texture.image.bounds.width, bullet.texture.image.bounds.height)
 	bullet.bounds.bottomCenter = self.bounds.topCenter
+	
 	bullet.velocity = nessy.point(0, -20)
 
 	bullet.update = function (self) 
