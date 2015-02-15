@@ -1,9 +1,5 @@
 local Rectangle = {}
 
-function Rectangle:__tostring() 
-	return string.format("{ x: %d y: %d w: %d h: %d }", self.x, self.y, self.width, self.height)
-end
-
 function Rectangle:gs_left(value)
 	if value ~= nil then self.x = value end
 	return self.x
@@ -75,6 +71,22 @@ function Rectangle:set(anchor, point)
 		self.x = self.x + offset.x
 		self.y = self.y + offset.y
 	end
+end
+
+function Rectangle:gs_size(value)
+	if value ~= nil then
+		self.width = value.x
+		self.height = value.y
+	end
+	return nessy.point(self.width, self.height)
+end
+
+function Rectangle:copy()
+	return nessy.rectangle(self.x, self.y, self.width, self.height)
+end
+
+function Rectangle:__tostring() 
+	return string.format("{ x: %d y: %d w: %d h: %d }", self.x, self.y, self.width, self.height)
 end
 
 function rectangle(x, y, width, height)

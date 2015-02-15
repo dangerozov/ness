@@ -6,13 +6,14 @@ Plane = {
 }
 
 function Plane:init()
-	self.texture = love.graphics.newImage(self.textureName)
-	self.draw = nessy.draw("scale")
+
+	self.texture = {
+		image = nessy.image(self.textureName)
+	}
+
 	self.update = updatePlane
 
-	self.bounds = nessy.rectangle(0, 0, self.texture:getWidth(), self.texture:getHeight())
-	self.bounds.width = self.bounds.width
-	self.bounds.height = self.bounds.height
+	self.bounds = self.texture.image.bounds:copy()
 	self.bounds.center = nessy.viewport().center
 
 	self.weapon = {}
@@ -33,7 +34,7 @@ function callEvery(period, func)
 	local elapsed = 0
 	return function()
 		elapsed = elapsed + love.timer.getDelta()
-		if elapsed > period then
+		while elapsed > period do
 			elapsed = elapsed - period
 			func()
 		end
@@ -88,7 +89,7 @@ function Plane:shoot()
 	bullet.zIndex = 1
 	bullet.draw = nessy.draw("scale")
 	bullet.texture = bulletTexture
-	bullet.bounds = nessy.rectangle(0, 0, bullet.texture:getWidth(), bullet.texture:getHeight())
+	bullet.bounds = nessy.rectangle(0, 0, bullet.texture.width, bullet.texture.height)
 	bullet.bounds.bottomCenter = self.bounds.topCenter
 	bullet.velocity = nessy.point(0, -20)
 

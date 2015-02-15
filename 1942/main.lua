@@ -7,18 +7,14 @@ _ = require("underscore")
 nessy = require("nessy")
 
 camera = { x = 0, y = 0 }
-screen = nessy.rectangle(0, 0, 512, 512)
 
 function love.load()
-	nessy.debug = true
-
-	love.window.setMode(screen.width, screen.height)
 
 	new(Plane):init()
 
 	initWater()
 
-	bulletTexture = love.graphics.newImage("resources/bullet.png")
+	bulletTexture = nessy.image("resources/bullet.png")
 
 end
 
@@ -30,17 +26,10 @@ function love.draw()
 	_(nessy.entities):chain()
 		:where(has("texture"))
 		:sort(function(ent1, ent2) return ent1.zIndex < ent2.zIndex end)
-		:each(draw)
+		:each(nessy.draw)
 
-	drawPrint("Entities = " .. tostring(#nessy.entities), 20, 20)
-end
-
-function draw(entity)
-	entity:draw()
-end
-
-function drawPrint(msg, x, y)
-	love.graphics.print(msg, x, y)
+	love.graphics.print("FPS = " .. tostring(math.floor(1 / love.timer.getAverageDelta())), 20, 20)
+	love.graphics.print("Entities = " .. tostring(#nessy.entities), 20, 40)
 end
 
 function love.update()
@@ -52,8 +41,6 @@ function love.update()
 	_(nessy.entities):chain()
 		:where(has("update"))
 		:each(update)
-
-	scroll()
 
 	previous = down("j")
 end

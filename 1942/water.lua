@@ -8,28 +8,33 @@ water =
 }
 
 function initWater()
-	water.texture = love.graphics.newImage(water.textureName)
-	water.draw = nessy.draw("fill")
-	water.update = scroll
+
 	water.bounds = nessy.viewport()
 
+	water.texture = {
+		image = nessy.image(water.textureName),
+		mode = "fill"
+	}
+
+	local howManyWillFit = (nessy.viewport().size / water.texture.image.bounds.size):map(math.ceil)
+	local size = howManyWillFit * water.texture.image.bounds.size
+
+	water.texture.bounds = nessy.rectangle(0, 0, size.x, size.y)
+	water.texture.bounds.height = water.texture.bounds.height + water.texture.image.bounds.height
+	
+	water.update = scroll(water.texture, 48)
+	
 	nessy.entities.add(water)
 end
 
-function drawFill(columns, rows)
-	return function(entity)
-		
-	end
-end
+function scroll(self, pixelsPerSecond)
+	local pixelEvery = 1 / pixelsPerSecond
+	local base = self.bounds.y
 
-function scrollInternal(pixelsPerSecond)
-	local delta = love.timer.getDelta()
-	local offset = pixelsPerSecond * delta
+	local every = callEvery(pixelEvery, function()
+		self.bounds.y = self.bounds.y + 1
+		if self.bounds.y > base then self.bounds.y = base - self.image.bounds.height end
+	end)
 
-	water.bounds.y = water.bounds.y + offset
-	if water.bounds.y > 0 then water.bounds.y = -water.texture:getHeight() end
-end
-
-function scroll()
-	scrollInternal(16)
+	return every
 end

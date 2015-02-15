@@ -19,42 +19,44 @@ function nessy.color(name)
 	end
 end
 
-function nessy.draw(mode)
-	mode = mode or "scale";
+function nessy.image(path)
+	local raw = love.graphics.newImage(path)
+	local image = {
+		raw = raw,
+		bounds = nessy.rectangle(0, 0, raw:getWidth(), raw:getHeight())
+	}
 
-	return function (entity)
-		local textureWidth = entity.texture:getWidth()
-		local textureHeight = entity.texture:getHeight()
+	return image
+end
 
-		local scaleX = math.floor(entity.bounds.width / textureWidth)
-		local scaleY = math.floor(entity.bounds.height / textureHeight)
-		--print(tostring(scaleX) .. " x " .. tostring(scaleY))
+function nessy.draw(entity)
+	local mode = entity.texture.mode or "scale"
+	local source = entity.texture.image.bounds
+	local target = (entity.texture.bounds or source):copy()
+	target.topLeft = entity.bounds.topLeft + target.topLeft
 
-		if mode == "fill" then
-			--print("from " .. tostring(entity.bounds.x) .. " to " .. tostring(entity.bounds.x + scaleX * textureWidth) .. " step " .. tostring(textureWidth))
-			for x = entity.bounds.x, entity.bounds.x + (scaleX - 1) * textureWidth, textureWidth do
-				for y = entity.bounds.y,  entity.bounds.y + (scaleY - 1) * textureHeight, textureHeight do
-					love.graphics.draw(entity.texture, x, y)
-				end
+	local scale = target.size / source.size
+
+	if mode == "fill" then
+		for x = target.x, target.x + (math.floor(scale.x) - 1) * source.width, source.width do
+			for y = target.y,  target.y + (math.floor(scale.y) - 1) * source.height, source.height do
+				love.graphics.draw(entity.texture.image.raw, x, y)
 			end
-
-		elseif mode == "scale" then
-			love.graphics.draw(entity.texture, entity.bounds.topLeft.x, entity.bounds.topLeft.y, 0, entity.bounds.width / textureWidth, entity.bounds.height / textureHeight)
-		end		
-
-		if nessy.debug then 
-			nessy.drawRectangle(nessy.rectangle(entity.bounds.topLeft.x, entity.bounds.topLeft.y, textureWidth, textureHeight), "red")
-			nessy.drawRectangle(nessy.rectangle(entity.bounds.topLeft.x, entity.bounds.topLeft.y, entity.bounds.width, entity.bounds.height), "green")
 		end
+
+	elseif mode == "scale" then
+		love.graphics.draw(entity.texture.image.raw, target.x, target.y, 0, scale.x, scale.y)
+	end		
+
+	if nessy.debug then 
+		nessy.drawRectangle(nessy.rectangle(target.x, target.y, target.width, target.height), "red")
+		nessy.drawRectangle(nessy.rectangle(entity.bounds.x, entity.bounds.y, entity.bounds.width, entity.bounds.height), "green")
 	end
 end
 
 function nessy.drawRectangle(rect, color)
-	love.graphics.setLineWidth(1)
 	love.graphics.setColor(nessy.color(color))
-
 	love.graphics.rectangle("line", rect.x, rect.y, rect.width, rect.height)
-
 	love.graphics.setColor(nessy.color("white"))
 end
 
