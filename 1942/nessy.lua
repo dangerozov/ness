@@ -1,7 +1,8 @@
 local nessy = {
 	entities = require("nessy.entities"),
 	point = require("nessy.point"),
-	rectangle = require("nessy.rectangle")
+	rectangle = require("nessy.rectangle"),
+	spritesheet = require("nessy.spritesheet")
 }
 
 nessy.debug = false
@@ -15,49 +16,33 @@ function nessy.color(name)
 	elseif name == "blue" then return 0, 0, 255
 	elseif name == "red" then return 255, 0, 255
 	elseif name == "white" then return 255, 255, 255
-	elseif name == "gold" then return 0, 0, 0
+	elseif name == "black" then return 0, 0, 0
 	end
-end
-
-function nessy.image(path)
-	local raw = love.graphics.newImage(path)
-	local image = {
-		raw = raw,
-		bounds = nessy.rectangle(0, 0, raw:getWidth(), raw:getHeight())
-	}
-
-	return image
 end
 
 function nessy.draw(entity)
 	local mode = entity.texture.mode or "scale"
-	local source = entity.texture.image.bounds
+	local source = entity.texture.sprite.bounds
 	local target = (entity.texture.bounds or source):copy()
-	target.topLeft = entity.bounds.topLeft + target.topLeft
+	target.location = entity.bounds.location + target.location
 
 	local scale = target.size / source.size
 
 	if mode == "fill" then
 		for x = target.x, target.x + (math.floor(scale.x) - 1) * source.width, source.width do
 			for y = target.y,  target.y + (math.floor(scale.y) - 1) * source.height, source.height do
-				love.graphics.draw(entity.texture.image.raw, x, y)
+				entity.texture.sprite:draw(nessy.point(x, y))
 			end
 		end
 
 	elseif mode == "scale" then
-		love.graphics.draw(entity.texture.image.raw, target.x, target.y, 0, scale.x, scale.y)
-	end		
+		entity.texture.sprite:draw(target.location, scale)
+	end
 
 	if nessy.debug then 
-		nessy.drawRectangle(nessy.rectangle(target.x, target.y, target.width, target.height), "red")
-		nessy.drawRectangle(nessy.rectangle(entity.bounds.x, entity.bounds.y, entity.bounds.width, entity.bounds.height), "green")
+		target:draw("red")
+		entity.bounds:draw("green")
 	end
-end
-
-function nessy.drawRectangle(rect, color)
-	love.graphics.setColor(nessy.color(color))
-	love.graphics.rectangle("line", rect.x, rect.y, rect.width, rect.height)
-	love.graphics.setColor(nessy.color("white"))
 end
 
 function nessy.viewport()
@@ -89,6 +74,8 @@ function new(parent, child)
 			rawset(self, field, value)
 		end
 	end
+
+	if child.ctor then child:ctor() end
 
 	return child
 end

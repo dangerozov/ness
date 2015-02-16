@@ -20,8 +20,16 @@ function Rectangle:gs_bottom(value)
 	return self.y + self.height
 end
 
-function Rectangle:gs_topLeft(value)
-	self:set("topLeft", value)
+function Rectangle:gs_size(value)
+	if value ~= nil then
+		self.width = value.x
+		self.height = value.y
+	end
+	return nessy.point(self.width, self.height)
+end
+
+function Rectangle:gs_location(value)
+	self:set("location", value)
 	return nessy.point(self.left, self.top)
 end
 
@@ -73,16 +81,21 @@ function Rectangle:set(anchor, point)
 	end
 end
 
-function Rectangle:gs_size(value)
-	if value ~= nil then
-		self.width = value.x
-		self.height = value.y
-	end
-	return nessy.point(self.width, self.height)
+function Rectangle:match()
+	return self.x, self.y, self.width, self.height
 end
 
 function Rectangle:copy()
 	return nessy.rectangle(self.x, self.y, self.width, self.height)
+end
+
+function Rectangle:draw(color)
+	local x, y, width, height = self:match()
+
+	local r, g, b, a = love.graphics.getColor()
+	love.graphics.setColor(nessy.color(color))
+	love.graphics.rectangle("line", x, y, width, height)
+	love.graphics.setColor(r, g, b, a)
 end
 
 function Rectangle:__tostring() 

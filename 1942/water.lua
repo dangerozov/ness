@@ -1,30 +1,30 @@
 nessy = require("nessy")
 
-water = 
-{
-	zIndex = 0,
-	textureName = "resources/water.png",
-	bounds = {}
+Water = {
+	sprites = {
+		water = nessy.spritesheet("resources/water.png"):sprite()
+	},
+	zIndex = 0
 }
 
-function initWater()
+function Water:ctor()
 
-	water.bounds = nessy.viewport()
+	self.bounds = nessy.viewport()
 
-	water.texture = {
-		image = nessy.image(water.textureName),
+	self.texture = {
+		sprite = Water.sprites.water,
 		mode = "fill"
 	}
 
-	local howManyWillFit = (nessy.viewport().size / water.texture.image.bounds.size):map(math.ceil)
-	local size = howManyWillFit * water.texture.image.bounds.size
+	local howManyWillFit = (nessy.viewport().size / self.texture.sprite.bounds.size):map(math.ceil)
+	local size = howManyWillFit * self.texture.sprite.bounds.size
 
-	water.texture.bounds = nessy.rectangle(0, 0, size.x, size.y)
-	water.texture.bounds.height = water.texture.bounds.height + water.texture.image.bounds.height
+	self.texture.bounds = nessy.rectangle(0, 0, size.x, size.y)
+	self.texture.bounds.height = self.texture.bounds.height + self.texture.sprite.bounds.height
 	
-	water.update = scroll(water.texture, 48)
+	self.update = scroll(self.texture, 48)
 	
-	nessy.entities.add(water)
+	nessy.entities.add(self)
 end
 
 function scroll(self, pixelsPerSecond)
@@ -33,7 +33,7 @@ function scroll(self, pixelsPerSecond)
 
 	local every = callEvery(pixelEvery, function()
 		self.bounds.y = self.bounds.y + 1
-		if self.bounds.y > base then self.bounds.y = base - self.image.bounds.height end
+		if self.bounds.y > base then self.bounds.y = base - self.sprite.bounds.height end
 	end)
 
 	return every

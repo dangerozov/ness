@@ -1,22 +1,21 @@
 nessy = require("nessy")
 
 Plane = {
-	zIndex = 1,
-	textureName = "resources/plane.png",
+	sprites = {
+		plane = nessy.spritesheet("resources/plane.png"):sprite(),
+		bullet = nessy.spritesheet("resources/bullet.png"):sprite()
+	},
+	zIndex = 1
 }
 
-function Plane:init()
-
-	bulletTexture = nessy.image("resources/bullet.png")
-
+function Plane:ctor()
 	self.texture = {
-		image = nessy.image(self.textureName)
+		sprite = Plane.sprites.plane
 	}
 
 	self.update = updatePlane
 
-	self.bounds = self.texture.image.bounds:copy()
-	self.bounds.center = nessy.viewport().center
+	self.bounds = self.texture.sprite.bounds:copy()
 
 	self.weapon = {}
 	self.weapon.maxBullets = 1
@@ -28,6 +27,7 @@ function Plane:init()
 	local viewport = nessy.viewport()
 	self.screenBounds = nessy.rectangle(0, 0, viewport.width - 40, viewport.height - 40)
 	self.screenBounds.center = viewport.center
+	self.bounds.bottomCenter = self.screenBounds.bottomCenter
 
 	nessy.entities.add(self)
 end
@@ -57,10 +57,13 @@ function callEveryCheater(period, func)
 end
 
 function Plane:update()
-	if down("a") then self.bounds.x = self.bounds.x - 10 end
-	if down("d") then self.bounds.x = self.bounds.x + 10 end
-	if down("w") then self.bounds.y = self.bounds.y - 10 end
-	if down("s") then self.bounds.y = self.bounds.y + 10 end
+	local speed = 1000
+
+	self.velocity = nessy.point()
+	self.velocity = self.velocity + (down("a") and nessy.point(-speed, 0) or nessy.point())
+	self.velocity = self.velocity + (down("d") and nessy.point(speed, 0) or nessy.point())
+	self.velocity = self.velocity + (down("w") and nessy.point(0, -speed) or nessy.point())
+	self.velocity = self.velocity + (down("s") and nessy.point(0, speed) or nessy.point())
 
 	if (self.bounds.left < self.screenBounds.left) then
 		self.bounds.left = self.screenBounds.left
@@ -89,15 +92,15 @@ function Plane:shoot()
 
 	local bullet = {
 		texture = {
-			image = bulletTexture,
+			sprite = Plane.sprites.bullet,
 		},
 		zIndex = 1,
 	}
 
-	bullet.bounds = nessy.rectangle(0, 0, bullet.texture.image.bounds.width, bullet.texture.image.bounds.height)
+	bullet.bounds = Plane.sprites.bullet.bounds:copy()
 	bullet.bounds.bottomCenter = self.bounds.topCenter
-	
-	bullet.velocity = nessy.point(0, -20)
+
+	bullet.velocity = nessy.point(0, -1000)
 
 	bullet.update = function (self) 
 		if self.bounds.bottom < nessy.viewport().top then
