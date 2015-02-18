@@ -2,7 +2,8 @@ local nessy = {
 	entities = require("nessy.entities"),
 	point = require("nessy.point"),
 	rectangle = require("nessy.rectangle"),
-	spritesheet = require("nessy.spritesheet")
+	spritesheet = require("nessy.spritesheet"),
+	task = require("nessy.task")
 }
 
 nessy.debug = false

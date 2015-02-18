@@ -1,4 +1,5 @@
 nessy = require("nessy")
+task = nessy.task
 
 Plane = {
 	sprites = {
@@ -29,18 +30,8 @@ function Plane:ctor()
 	self.screenBounds.center = viewport.center
 	self.bounds.bottomCenter = self.screenBounds.bottomCenter
 
-	nessy.entities.add(self)
-end
 
-function callEvery(period, func)
-	local elapsed = 0
-	return function()
-		elapsed = elapsed + love.timer.getDelta()
-		while elapsed > period do
-			elapsed = elapsed - period
-			func()
-		end
-	end
+	nessy.entities.add(self)
 end
 
 function callEveryCheater(period, func)
@@ -102,11 +93,30 @@ function Plane:shoot()
 
 	bullet.velocity = nessy.point(0, -1000)
 
-	bullet.update = function (self) 
+	local bulletFlying = task.recur(task.serial({
+		task.delay(1 / 1000),
+		task.func(function() bullet.bounds.y = bullet.bounds.y - 1 end)
+	}))
+
+	local bulletAway = task.serial({
+		task.waitFor(function() return bullet.bounds.bottom < nessy.viewport().top end),
+		task.func(function() nessy.entities.remove(bullet) end)
+	})
+
+	local bulletBehavior = task.whenAny({
+		bulletFlying,
+		bulletAway
+	})()
+
+	bullet.update = function(self, dt)
+		bulletBehavior:update(dt)
+	end
+
+	--[[bullet.update = function (self) 
 		if self.bounds.bottom < nessy.viewport().top then
 			nessy.entities.remove(self)
 		end
-	end
+	end]]
 
 	nessy.entities.add(bullet)
 end

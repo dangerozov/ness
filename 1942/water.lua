@@ -1,4 +1,5 @@
 nessy = require("nessy")
+task = nessy.task
 
 Water = {
 	sprites = {
@@ -28,13 +29,16 @@ function Water:ctor()
 end
 
 function scroll(self, pixelsPerSecond)
-	local pixelEvery = 1 / pixelsPerSecond
+
 	local base = self.bounds.y
 
-	local every = callEvery(pixelEvery, function()
-		self.bounds.y = self.bounds.y + 1
-		if self.bounds.y > base then self.bounds.y = base - self.sprite.bounds.height end
-	end)
+	local scrolling = task.recur(task.serial({
+			task.delay(1 / pixelsPerSecond),
+			task.func(function()
+				self.bounds.y = self.bounds.y + 1
+				if self.bounds.y > base then self.bounds.y = base - self.sprite.bounds.height end
+			end)
+		}))()
 
-	return every
+	return function(self, dt) scrolling:update(dt) end
 end

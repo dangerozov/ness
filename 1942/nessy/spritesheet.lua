@@ -4,8 +4,8 @@ function Sprite:draw(point, scale)
 	point = point or nessy.point()
 	scale = scale or nessy.point(1, 1)
 
-	local x, y = point:match()
-	local sw, sh = scale:match()
+	local x, y = point:unpack()
+	local sw, sh = scale:unpack()
 
 	love.graphics.draw(self.spritesheet.raw, self.raw, x, y, 0, sw, sh)
 end
@@ -16,8 +16,8 @@ local Spritesheet = {
 
 function Spritesheet:sprite(bounds)
 	bounds = bounds or self.bounds
-	local x, y, width, height = bounds:match()
-	local sw, sh = self.bounds.size:match()
+	local x, y, width, height = bounds:unpack()
+	local sw, sh = self.bounds.size:unpack()
 
 	local sprite = new(Sprite, {
 		spritesheet = self,

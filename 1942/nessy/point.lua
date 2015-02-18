@@ -1,5 +1,4 @@
 local Point = {
-	match = function(self) return self.x, self.y end,
 	__tostring = function(self) return string.format("{ x: %d y: %d }", self.x, self.y) end,
 
 	__add = function(p1, p2)
@@ -34,6 +33,10 @@ local Point = {
 		end
 	end
 }
+
+function Point:unpack()
+	return self.x, self.y
+end
 
 function Point:map(func)
 	return nessy.point(func(self.x), func(self.y))

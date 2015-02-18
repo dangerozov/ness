@@ -6,6 +6,7 @@ require("enemy")
 
 _ = require("underscore")
 nessy = require("nessy")
+task = nessy.task
 
 camera = { x = 0, y = 0 }
 
@@ -67,7 +68,7 @@ function has(component)
 end
 
 function update(entity)
-	entity:update()
+	while entity:update(love.timer.getDelta()) do end
 end
 
 function move(entity)

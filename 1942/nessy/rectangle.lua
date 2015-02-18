@@ -81,7 +81,7 @@ function Rectangle:set(anchor, point)
 	end
 end
 
-function Rectangle:match()
+function Rectangle:unpack()
 	return self.x, self.y, self.width, self.height
 end
 
@@ -90,7 +90,7 @@ function Rectangle:copy()
 end
 
 function Rectangle:draw(color)
-	local x, y, width, height = self:match()
+	local x, y, width, height = self:unpack()
 
 	local r, g, b, a = love.graphics.getColor()
 	love.graphics.setColor(nessy.color(color))
