@@ -78,7 +78,7 @@ function Plane:update()
 end
 
 function Plane:shoot()
-	if self.weapon.bullets == 0 then return end
+	--if self.weapon.bullets == 0 then return end
 	self.weapon.bullets = self.weapon.bullets - 1
 
 	local bullet = {
@@ -91,10 +91,10 @@ function Plane:shoot()
 	bullet.bounds = Plane.sprites.bullet.bounds:copy()
 	bullet.bounds.bottomCenter = self.bounds.topCenter
 
-	bullet.velocity = nessy.point(0, -1000)
+	bullet.velocity = nessy.point(0, -3)
 
 	local bulletFlying = task.recur(task.serial({
-		task.delay(1 / 1000),
+		task.delay(1 / 500),
 		task.func(function() bullet.bounds.y = bullet.bounds.y - 1 end)
 	}))
 
@@ -110,6 +110,9 @@ function Plane:shoot()
 
 	bullet.update = function(self, dt)
 		bulletBehavior:update(dt)
+		--if self.bounds.bottom < nessy.viewport().top then
+		--	nessy.entities.remove(self)
+		--end
 	end
 
 	--[[bullet.update = function (self) 

@@ -38,10 +38,10 @@ function love.draw()
 		:each(nessy.draw)
 
 	love.graphics.print("use: WASD + J + `", 20, 20)
-	if nessy.debug then 
+	--if nessy.debug then 
 		love.graphics.print("FPS = " .. tostring(math.floor(1 / love.timer.getAverageDelta())), 20, 40)
 		love.graphics.print("Entities = " .. tostring(#nessy.entities), 20, 60)
-	end
+	--end
 end
 
 function love.update()
@@ -67,8 +67,39 @@ function has(component)
 	end
 end
 
+local yield = false
+
+--[[local test = task.recur(task.serial({
+	task.delay(0.001),
+	task.func(function() print("SEND") yield = true end)
+}))()
+
+local waiter = task.recur(task.serial({
+	task.waitFor(function() return yield end),
+	task.func(function() print("RECEIVE") yield = false end)
+}))()]]
+
+--[[local uber = task.recur(task.whenAny({
+	task.serial({
+		task.delay(0.001),
+		task.func(function() print("SEND") yield = true end)		
+	}),
+	task.serial({
+		task.waitFor(function() return yield end),
+		task.func(function() print("RECEIVE") yield = false end)
+	})
+}))()]]
+
 function update(entity)
-	while entity:update(love.timer.getDelta()) do end
+
+	--print("update")
+
+	--uber:update(love.timer.getDelta())
+
+	--waiter:update(love.timer.getDelta())
+	--test:update(love.timer.getDelta())
+
+	entity:update(love.timer.getDelta())
 end
 
 function move(entity)

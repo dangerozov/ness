@@ -1,69 +1,104 @@
 local task = {}
 
---[[function getms(dt)
+function getms(dt)
 	return string.format("%.4f", dt)
-end]]
-
-function task.whenAny(tasks)
-	return function()
-		return {
-			tasks = tasks,
-
-			completed = false,
-			update = function(self, dt)
-				local minimalTimeLeft = dt
-				for _, task in ipairs(self.tasks) do
-					task = task()
-					local currentTimeLeft = task:update(dt)
-					print(currentTimeLeft)
-					self.completed = task.completed
-
-					if currentTimeLeft < minimalTimeLeft then
-						minimalTimeLeft = currentTimeLeft
-					end
-				end
-				return dt
-			end
-		}
-	end
 end
 
 function task.waitFor(condition)
 	return function()
 		return {
-			condition = condition,
 			completed = false,
 			update = function(self, dt)
-				self.completed = condition()
+				local result = condition()
+				--print("condition = " .. tostring(result))
+				self.completed = result
+				if self.completed then
+					return dt
+				else
+					return 0
+				end
+			end
+		}
+	end
+end
+
+function task.serial(taskCreates)
+	return aggregate(taskCreates, pairSerial)
+end
+
+function pairSerial(firstCreate, secondCreate)
+	return function()
+		local first = firstCreate()
+		local second = secondCreate()
+
+		return {
+			completed = false,
+			update = function(self, dt)
+
+				while first.completed == false and dt > 0 do
+					dt = first:update(dt)
+				end
+
+				if first.completed then
+					while second.completed == false and dt > 0 do
+						dt = second:update(dt)
+					end
+				end
+
+				if second.completed then
+					self.completed = true
+				end
+
 				return dt
 			end
 		}
 	end
 end
 
-function task.serial(tasks)
+function task.whenAny(taskCreates)
+	return aggregate(taskCreates, pairWhenAny)
+end
+
+function aggregate(array, func)
+	local first = array[1]
+	for i, second in ipairs(array) do
+		if i > 1 then
+			first = func(first, second)
+		end
+	end
+	return first
+end
+
+function pairWhenAny(firstCreate, secondCreate)
 	return function()
-		local enum = enumerator(tasks)
-		enum:advance()
+		local first = firstCreate()
+		local second = secondCreate()
 
 		return {
-			tasks = enum,
-
 			completed = false,
 			update = function(self, dt)
-				while not self.completed and  dt > 0 and self.tasks.hasCurrent do					
-					dt = self.tasks.current:update(dt)
-					if self.tasks.current.completed then
-						self.tasks:advance()
-					end
+
+				local firstTimeLeft = dt
+				while first.completed == false and firstTimeLeft > 0 do
+					--print("first")
+					firstTimeLeft = first:update(dt)
 				end
 
-				if not self.tasks.hasCurrent then
-					--print("task array - completed " .. getms(dt))
-					self.completed = true
+				if first.completed then self.completed = true return firstTimeLeft end
+
+				local secondTimeLeft = dt
+				while second.completed == false and secondTimeLeft > 0 do
+					--print("second")
+					secondTimeLeft = second:update(dt)
 				end
 
-				return dt
+				if second.completed then self.completed = true return secondTimeLeft end
+
+				if firstTimeLeft > secondTimeLeft then
+					return secondTimeLeft
+				else
+					return firstTimeLeft
+				end
 			end
 		}
 	end
@@ -84,22 +119,44 @@ function task.func(func)
 end
 
 function task.delay(time)
+	local waitId = id
 	return function()
+		local elapsed = 0
 		return {
-			elapsed = 0,
-			time = time,
-
 			completed = false,
 			update = function(self, dt)
 				if self.completed then return dt end
 				
-				self.elapsed = self.elapsed + dt
-				--print("wait got " .. getms(dt) .. " elapsed = " .. getms(self.elapsed))
+				local inc = elapsed + dt
+				--print("wait = " .. getms(elapsed) .. " + " .. getms(dt) .. " = " .. getms(inc))
+				elapsed = inc
 
-				if self.elapsed >= self.time then
-					--print("wait - completed " .. getms(self.elapsed))
+				if elapsed >= time then
 					self.completed = true
-					return self.elapsed - self.time
+					local left = elapsed - time
+					--print("wait = " .. getms(elapsed) .. " - " .. getms(time) .. " = " .. getms(left))
+					return left
+				else
+					return 0
+				end
+			end
+		}
+	end
+end
+
+function task.frame(count)
+	count = count or 1
+	return function()
+		local current = 0
+		return {
+			completed = false,
+			update = function(self, dt)
+				if self.completed then return dt end
+
+				current = current + 1
+				if current >= count then
+					self.completed = true
+					return dt
 				else
 					return 0
 				end
@@ -110,43 +167,23 @@ end
 
 function task.recur(createTask)
 	return function()
+		local task = createTask()
 		return {
-			task = createTask(),
-
 			completed = false,
 			update = function(self, dt)
-				if self.completed then return dt end
-				while dt > 0 do
-					
-					dt = self.task:update(dt)
-					if self.task.completed then
-						--print("recur - completed " .. getms(dt))
-						self.task = createTask()
+				
+				while task.completed == false and dt > 0 do
+					dt = task:update(dt)
+
+					if task.completed then
+						task = createTask()
 					end
 				end
+
 				return dt
 			end
 		}
 	end
-end
-
-function enumerator(array)
-	return {
-		id = 0,
-		array = array,
-		advance = function(self)
-			self.id = self.id + 1
-			if self.id <= #self.array then
-				self.current = self.array[self.id]()
-				self.hasCurrent = true
-			else
-			    self.current = nil
-			    self.hasCurrent = false
-			end
-		end,
-		current = nil,
-		hasCurrent = false
-	}
 end
 
 return task
