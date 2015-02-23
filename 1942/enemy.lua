@@ -20,5 +20,9 @@ function Enemy:ctor()
 	self.bounds = self.texture.sprite.bounds:copy()
 	self.bounds.center = nessy.viewport().center
 
+	self.collision = {
+		group = "enemies"
+	}
+
 	nessy.entities.add(self)
 end

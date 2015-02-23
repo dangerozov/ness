@@ -15,15 +15,12 @@ function love.load()
 	new(Plane)
 	new(Water)
 
-	local first = new(Enemy)
-	local second = new(Enemy)
-	second.bounds.bottomCenter = first.bounds.topCenter + nessy.point(0, -10)
-
-	local third = new(Enemy)
-	third.bounds.middleRight = second.bounds.middleLeft + nessy.point(-10, 0)
-
-	local fourth = new(Enemy)
-	fourth.bounds.middleLeft = second.bounds.middleRight + nessy.point(10, 0)
+	for x = 50, nessy.viewport().width - 50, 24 do
+		for y = 14, nessy.viewport().height - 200, 24 do
+			local enemy = new(Enemy)
+			enemy.bounds.center = nessy.point(x, y)
+		end
+	end
 
 end
 
@@ -55,6 +52,23 @@ function love.update()
 		:each(update)
 
 	previous = down("j")
+
+	local collidables = _.where(nessy.entities, has("collision"))
+
+	for _, left in pairs(collidables) do
+		for _, right in pairs(collidables) do
+			if 
+				(left.collision.group == "bullets" and right.collision.group == "enemies") or
+				(left.collision.group == "enemies" and right.collision.group == "bullets") then
+					left.texture.debugColor = nil
+					if left.bounds:intersects(right.bounds) then
+						nessy.entities.remove(left)
+					end
+			end
+		end
+	end
+
+
 end
 
 function sortByZIndex(left, right)

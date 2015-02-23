@@ -81,6 +81,10 @@ function Rectangle:set(anchor, point)
 	end
 end
 
+function Rectangle:intersects(rect)
+	return rect.x < self.x + self.width and self.x < rect.x + rect.width and rect.y < self.y + self.height and self.y < rect.y + rect.height
+end
+
 function Rectangle:unpack()
 	return self.x, self.y, self.width, self.height
 end

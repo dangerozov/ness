@@ -93,8 +93,12 @@ function Plane:shoot()
 
 	bullet.velocity = nessy.point(0, -3)
 
+	bullet.collision = {
+		group = "bullets"
+	}
+
 	local bulletFlying = task.recur(task.serial({
-		task.delay(1 / 500),
+		task.delay(1 / 100),
 		task.func(function() bullet.bounds.y = bullet.bounds.y - 1 end)
 	}))
 

@@ -42,7 +42,7 @@ function nessy.draw(entity)
 
 	if nessy.debug then 
 		target:draw("red")
-		entity.bounds:draw("green")
+		entity.bounds:draw(entity.texture.debugColor or "green")		
 	end
 end
 
