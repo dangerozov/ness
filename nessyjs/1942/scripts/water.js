@@ -1,22 +1,17 @@
-define(["nessy/nessy"], function(nessy) {
+Water = function() {
 
-	var sprites = {
-		water: new nessy.spritesheet("resources/water.png").sprite()
+	this.bounds = nessy.graphics.viewport
+	this.texture = {
+		sprite: Water.sprites.water,
+		mode: "fill"
 	}
 
-	var zIndex = 0
+	this.texture.bounds = nessy.graphics.viewport
 
-	function Water() {
-		this.bounds = nessy.graphics.viewport()
+	nessy.entities.add(this)
+}
 
-		this.texture = {
-			sprite: sprites.water
-		}
-	}
-
-	Water.prototype.load = function(callback) {
-		
-	}
-
-	return Water
-})
+Water.sprites = {
+	water: (new nessy.Spritesheet("resources/water.png"))
+		.sprite(new nessy.Rectangle(0, 0, 24, 24))
+}

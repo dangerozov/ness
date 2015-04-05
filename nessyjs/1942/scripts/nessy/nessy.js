@@ -1,27 +1,11 @@
-define([
-	"nessy/graphics",
-	"nessy/point",
-	"nessy/rectangle",
-	"nessy/spritesheet",
-	"nessy/timer",
-	], function(Graphics, Point, Rectangle, Spritesheet, Timer) {
+var nessy = {
+	run: function() {
+		nessy.timer = new nessy.Timer()
+		nessy.graphics = new nessy.Graphics()
 
-		var nessy = {
-			point: Point,
-			rectangle: Rectangle,
-			spritesheet: Spritesheet,
+		nessy.load()
 
-			graphics: new Graphics(),
-			timer: new Timer()
-		}
-
-		nessy.run = function() {
-			nessy.load(function() { 
-				window.requestAnimationFrame(update)
-			})
-		}
-
-		function update(elapsedTotal) {
+		var update = function(elapsedTotal) {
 			window.requestAnimationFrame(update)
 
 			nessy.timer.update(elapsedTotal)
@@ -29,10 +13,10 @@ define([
 			nessy.draw()
 		}
 
-		nessy.load = function() {}
-		nessy.update = function() {}
-		nessy.draw = function() {}
+		window.requestAnimationFrame(update)
+	},
 
-		return nessy
-	}
-)
+	load: function() {},
+	update: function() {},
+	draw: function() {}
+}

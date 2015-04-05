@@ -1,20 +1,23 @@
-require(["nessy/nessy", "./water"], function(nessy, Water) { 
+nessy.load = function() {
+	this.image = (new nessy.Spritesheet("img_the_scream.jpg"))
+		.sprite(new nessy.Rectangle(0, 0, 220, 277))
+	this.image.position = new nessy.Point(10, 10)
 
-	nessy.load = function(callback) {
-		this.image = new nessy.spritesheet("img_the_scream.jpg", callback)
-		this.image = this.image.sprite()
+	this.water = new Water()
 
-		//var water = new Water()
-	};
+	this.line = new nessy.Line({ x: 100, y: 100 }, new nessy.Point(300, 100))
+}
 
-	nessy.update = function() { }
+nessy.update = function() { }
 
-	nessy.draw = function() {
-		nessy.graphics.clear()
-		this.image.draw(new nessy.point(10, 10))
-		//host.graphics.print(1 / host.timer.delta)
-	}
+nessy.draw = function() {
+	nessy.graphics.clear()
+	this.image.draw(this.image.position)
+	this.line.draw()
 
-	nessy.run()
-})
+	nessy.renderer.draw(this.water)
 
+	//nessy.graphics.print(1 / nessy.timer.delta)
+}
+
+nessy.run()

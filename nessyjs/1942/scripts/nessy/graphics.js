@@ -1,33 +1,32 @@
-define(["./rectangle"], function(Rectangle) {
+nessy.Graphics = function() {
+	var canvas = document.createElement("canvas")
+	canvas.width = 800
+	canvas.height = 600
+	document.body.appendChild(canvas)
 
-	function Graphics() {
-		var canvas = document.createElement("canvas")
-		canvas.width = 800
-		canvas.height = 600
-		document.body.appendChild(canvas)
+	var context = canvas.getContext("2d")
 
-		var context = canvas.getContext("2d")
+	this.canvas = canvas
+	this.context = context
 
-		this.canvas = canvas
-		this.context = context
-	}
+	this.viewport = new nessy.Rectangle(0, 0, this.canvas.width, this.canvas.height)
+}
 
-	Graphics.prototype.clear = function() {
+nessy.Graphics.prototype = {
+	clear: function() {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
-	}
-
-	Graphics.prototype.print = function(text) {
+	},
+	print: function(text) {
 		this.context.font = "italic 40pt Calibri"
 		this.context.fillText(text, 150, 100)
+	},
+	draw: function(texture, x, y) {
+		this.context.drawImage(texture, x, y)
+	},
+	drawLine: function(line) {
+		this.context.beginPath()
+		this.context.moveTo(line.from.x, line.from.y)
+		this.context.lineTo(line.to.x, line.to.y)
+		this.context.stroke()
 	}
-
-	Graphics.prototype.draw = function(texture, x, y) {
-		this.context.drawImage(texture, 10, 10)
-	}
-
-	Graphics.prototype.viewport = function() {
-		return new Rectangle(0, 0, this.canvas.width, this.canvas.height)
-	}
-
-	return Graphics
-})
+}

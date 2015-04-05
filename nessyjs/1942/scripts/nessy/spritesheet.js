@@ -1,42 +1,46 @@
-define(["../require"], function(require) { 
+nessy.Sprite = function(spritesheet, bounds) {
+	this.spritesheet = spritesheet
+	this.bounds = bounds
+}
 
-	var nessy = function() { return require("./nessy") }
+nessy.Sprite.prototype = {
+	draw: function(point, scale) {
+		point = point || nessy.Point.zero
+		scale = scale || nessy.Point.one
 
-	function Sprite(spritesheet, bounds) {
-		this.spritesheet = spritesheet
-		this.bounds = bounds
+		if (this.spritesheet.raw.loaded)
+			nessy.graphics.draw(this.spritesheet.raw, point.x, point.y)
+
+		/*if (this.spritesheet.raw.loaded) {
+
+			this.bounds = this.bounds || this.spritesheet.bounds
+
+			nessy.graphics.draw(
+				this.spritesheet.raw,
+				0,
+				0,
+				this.spritesheet.raw.width,
+				this.spritesheet.raw.height,
+				point.x,
+				point.y,
+				scale.x * this.spritesheet.raw.width,
+				scale.y * this.spritesheet.raw.height)
+		}*/
 	}
+}
 
-	Sprite.prototype.draw = function(point, scale) {
-		point = point || nessy().point()
-		scale = scale || nessy().point(1, 1)
-
-		nessy().graphics.draw(
-			this.spritesheet.raw,
-			this.bounds.x,
-			this.bounds.y,
-			this.bounds.width,
-			this.bounds.height,
-			point.x,
-			point.y,
-			scale.x * this.bounds.width,
-			scale.y * this.bounds.height)
+nessy.Spritesheet = function(path) {
+	this.raw = new Image()
+	this.raw.loaded = false
+	var spritesheet = this
+	this.raw.onload = function() {
+		this.loaded = true
 	}
+	this.raw.src = path
+}
 
-	function Spritesheet(path, callback) {
-		var raw = new Image()
-		raw.onload = callback
-		raw.src = path
-
-		this.raw = raw
-		this.bounds = nessy().rectangle(0, 0, raw.width, raw.height)
+nessy.Spritesheet.prototype = {
+	sprite: function(bounds) {
+		return new nessy.Sprite(this, bounds)
 	}
-
-	Spritesheet.prototype.sprite = function(bounds) {
-		bounds = bounds || this.bounds
-		var sprite = new Sprite(this, bounds)
-		return sprite
-	}
-
-	return Spritesheet
-})
+}
