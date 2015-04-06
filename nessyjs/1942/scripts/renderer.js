@@ -1,6 +1,6 @@
 nessy.Renderer = function() {
-	this.tempPoint = new nessy.Point(0, 0)
-	this.tempScale = new nessy.Point(0, 0)
+	this.location = new nessy.Point(0, 0)
+	this.scale = new nessy.Point(0, 0)
 }
 
 nessy.Renderer.prototype = {
@@ -10,37 +10,26 @@ nessy.Renderer.prototype = {
 		var source = texture.sprite.bounds
 		var target = texture.bounds || source
 
-		var x = target.x
-		var y = target.y
-		x += entity.bounds.x
-		y += entity.bounds.y
+		this.location
+			.copyFrom(target.location)
+			.add(entity.bounds.location)
 
-		this.tempPoint.x = x
-		this.tempPoint.y = y
-
-		var xScale = target.width / source.width
-		var yScale = target.height / source.height
-
-		this.tempScale.x = xScale
-		this.tempScale.y = yScale
+		this.scale
+			.copyFrom(target.size)
+			.div(source.size)
 
 		if (mode == "fill") {
-			for (var x = target.x; x < target.x + xScale * source.width; x += source.width) {
-				for (var y = target.y; y < target.y + yScale * source.height; y += source.height) {
-					this.tempPoint.x = x
-					this.tempPoint.y = y
-					entity.texture.sprite.draw(this.tempPoint)
+			for (var x = target.x; x < target.x + this.scale.x * source.width; x += source.width) {
+				for (var y = target.y; y < target.y + this.scale.y * source.height; y += source.height) {
+					this.location.x = x
+					this.location.y = y
+					entity.texture.sprite.draw(this.location)
 				};
 			};
-			entity.texture.sprite.draw(this.tempPoint, this.tempScale)
 		}
 		else if (mode == "scale") {
-			entity.texture.sprite.draw(this.tempPoint, this.tempScale)
+			entity.texture.sprite.draw(this.location, this.scale)
 		}
-	},
-
-	isForMe: function(entity) {
-		return entity.texture != null;
 	}
 }
 

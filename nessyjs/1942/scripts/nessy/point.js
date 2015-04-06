@@ -8,15 +8,24 @@ nessy.Point = function(x, y) {
 nessy.Point.prototype = {
 
 	add: function(point) {
-		return new nessy.Point(this.x + point.x, this.y + point.y)
+		this.x += point.x
+		this.y += point.y
 	},
 	sub: function(point) {
+		this.x -= point.x
+		this.y -= point.y
 		return new nessy.Point(this.x - point.x, this.y - point.y)
 	},
 	div: function(point) {
-		return new nessy.Point(this.x / point.x, this.y / point.y)
+		this.x /= point.x
+		this.y /= point.y
 	},
 
+	copyFrom: function(point) {
+		this.x = point.x
+		this.y = point.y
+		return this
+	},
 	toString: function() {
 		return "{ x: " + this.x + ", y: " + this.y + " }";
 	}
