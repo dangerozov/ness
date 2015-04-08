@@ -10,6 +10,7 @@ var nessy = {
 
 			nessy.timer.update(elapsedTotal)
 			nessy.update()
+			nessy.graphics.clear()
 			nessy.draw()
 		}
 

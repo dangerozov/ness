@@ -11,11 +11,11 @@ nessy.Renderer.prototype = {
 		var target = texture.bounds || source
 
 		this.location
-			.copyFrom(target.location)
+			.set(target.location)
 			.add(entity.bounds.location)
 
 		this.scale
-			.copyFrom(target.size)
+			.set(target.size)
 			.div(source.size)
 
 		if (mode == "fill") {

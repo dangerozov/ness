@@ -14,14 +14,16 @@ nessy.Point.prototype = {
 	sub: function(point) {
 		this.x -= point.x
 		this.y -= point.y
-		return new nessy.Point(this.x - point.x, this.y - point.y)
 	},
 	div: function(point) {
 		this.x /= point.x
 		this.y /= point.y
 	},
-
-	copyFrom: function(point) {
+	mul: function(point) {
+		this.x *= point.x
+		this.y *= point.y
+	},
+	set: function(point) {
 		this.x = point.x
 		this.y = point.y
 		return this

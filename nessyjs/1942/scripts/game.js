@@ -8,16 +8,41 @@ nessy.load = function() {
 	this.line = new nessy.Line({ x: 100, y: 100 }, new nessy.Point(300, 100))
 }
 
-nessy.update = function() { }
+var d = delay(1000)
+
+nessy.update = function() {
+	for (var entity of nessy.entities.where(updateable)) {
+		entity.update()
+	}
+
+	d.next(nessy.timer.delta)
+
+}
 
 nessy.draw = function() {
-	nessy.graphics.clear()
 	this.image.draw(this.image.position)
 	this.line.draw()
 
-	nessy.renderer.draw(this.water)
+	/*_.chain(nessy.entities)
+		.filter(function(e) {
+			return e.texture != null
+		})
+		.each(nessy.renderer.draw)
+		.value()*/
+
+	for (var entity of nessy.entities.where(drawable)) {
+		nessy.renderer.draw(this.water)
+	}
 
 	//nessy.graphics.print(1 / nessy.timer.delta)
+}
+
+var updateable = function(entity) {
+	return entity.update != null
+}
+
+var drawable = function(entity) {
+	return entity.texture != null
 }
 
 nessy.run()
