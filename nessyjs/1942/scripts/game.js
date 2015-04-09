@@ -8,15 +8,14 @@ nessy.load = function() {
 	this.line = new nessy.Line({ x: 100, y: 100 }, new nessy.Point(300, 100))
 }
 
-var d = delay(1000)
+var d = delay(0.1)
 
 nessy.update = function() {
 	for (var entity of nessy.entities.where(updateable)) {
 		entity.update()
 	}
 
-	d.next(nessy.timer.delta)
-
+	var dr = d.next(nessy.timer.delta)
 }
 
 nessy.draw = function() {

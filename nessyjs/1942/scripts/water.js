@@ -27,8 +27,42 @@ Water.sprites = {
 
 function* delay(time) {
 	var elapsed = 0
-	while (elapsed < time) {
-		var delta = yield null
-		elapsed += delta
+	var delta = yield
+
+	elapsed += delta
+	if (elapsed >= delta) {
+		var rest = elapsed - time
 	}
+
+	yield rest
+
+	alert(elapsed)
+}
+
+function* func(func) {
+	func()
+}
+
+function* serial(left, right) {
+	while(true) {
+		var delta = yield null;
+		do {
+			var leftResult = left.next(delta)
+			delta = leftResult.value
+		}
+		while(leftResult.done == false && delta > 0)
+	}
+
+
+	do {
+		var delta = yield null;
+		var l = left.next(delta);
+	}
+	while(!l.done && delta > 0)
+
+	do {
+		var delta = yield null;
+		var r = right.next(delta);
+	}
+	while(!r.done)
 }
