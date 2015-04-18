@@ -8,15 +8,23 @@ Water = function() {
 
 	this.texture.bounds = nessy.graphics.viewport
 
-	this.update = Water.scroll
+	this.update = Water.scrolling(this)
 
 	nessy.entities.add(this)
 }
 
-Water.scroll = function() {
-	this.bounds.y = this.bounds.y + 1
-	if (this.bounds.y > 24) {
-		this.bounds.y = 0
+Water.scrolling = function(self) {
+	var task = repeat(serial(
+		delay(1 / 48),
+		func(function() { 
+			self.texture.bounds.y = self.texture.bounds.y + 1 
+			if (self.texture.bounds.y > 24) {
+				self.texture.bounds.y = 0
+			}
+		})))()
+
+	return function() {
+		task.next({ delta: nessy.timer.delta })
 	}
 }
 
@@ -25,44 +33,70 @@ Water.sprites = {
 		.sprite(new nessy.Rectangle(0, 0, 24, 24))
 }
 
-function* delay(time) {
-	var elapsed = 0
-	var delta = yield
+function delay(time) {
+	return function*() {
+		var elapsed = 0
+		while (true) {
+			var context = yield
 
-	elapsed += delta
-	if (elapsed >= delta) {
-		var rest = elapsed - time
-	}
-
-	yield rest
-
-	alert(elapsed)
-}
-
-function* func(func) {
-	func()
-}
-
-function* serial(left, right) {
-	while(true) {
-		var delta = yield null;
-		do {
-			var leftResult = left.next(delta)
-			delta = leftResult.value
+			elapsed += context.delta
+			context.delta = 0
+			if (elapsed >= time) {
+				context.delta = elapsed - time
+				break
+			}
 		}
-		while(leftResult.done == false && delta > 0)
 	}
+}
 
-
-	do {
-		var delta = yield null;
-		var l = left.next(delta);
+function func(func) {
+	return function*() {
+		func()
 	}
-	while(!l.done && delta > 0)
+}
 
-	do {
-		var delta = yield null;
-		var r = right.next(delta);
+function serial(createLeft, createRight) {
+	return function*() {
+		var left = createLeft()
+		var right = createRight()
+		while (true) {
+			var context = yield
+
+			var result
+			do {
+				result = left.next(context)
+			}
+			while(!result.done && context.delta > 0)
+
+			if (result.done) {
+				do {
+					result = right.next(context)
+				}
+				while(!result.done && context.delta > 0)
+			}
+
+			if (result.done) {
+				break;
+			}
+		}
 	}
-	while(!r.done)
+}
+
+function repeat(createTask) {
+	return function*() {
+		var task = createTask()
+		while(true) {
+			var context = yield
+
+			var result
+			do {
+				result = task.next(context)
+			}
+			while(!result.done && context.delta > 0)
+
+			if (result.done) {
+				task = createTask()
+			}
+		}
+	}
 }

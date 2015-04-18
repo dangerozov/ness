@@ -8,8 +8,6 @@ nessy.Graphics = function() {
 
 	this.canvas = canvas
 	this.context = context
-
-	this.viewport = new nessy.Rectangle(0, 0, this.canvas.width, this.canvas.height)
 }
 
 nessy.Graphics.prototype = {
@@ -28,5 +26,15 @@ nessy.Graphics.prototype = {
 		this.context.moveTo(line.from.x, line.from.y)
 		this.context.lineTo(line.to.x, line.to.y)
 		this.context.stroke()
+	},
+	drawRect: function(rect, color) {
+		this.context.beginPath()
+		this.context.lineWidth = "1"
+		this.context.strokeStyle = color
+		this.context.rect(rect.x, rect.y, rect.width, rect.height)
+		this.context.stroke()
+	},
+	get viewport() {
+		return new nessy.Rectangle(0, 0, this.canvas.width, this.canvas.height)
 	}
 }

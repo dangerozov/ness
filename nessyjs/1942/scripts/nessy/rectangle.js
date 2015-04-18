@@ -7,7 +7,7 @@ nessy.Rectangle = function(x, y, width, height) {
 	this.width = width || 0
 	this.height = height || 0
 
-	console.log("new rectangle "/* + this*/)
+	//console.log("new rectangle "/* + this*/)
 }
 
 nessy.Rectangle.prototype = {
@@ -68,6 +68,10 @@ nessy.Rectangle.prototype = {
 
 	copy: function() {
 		return new nessy.Rectangle(this.x, this.y, this.width, this.height)
+	},
+
+	draw: function(color) {
+		nessy.graphics.drawRect(this, color)
 	},
 	toString: function() {
 		return "{ x: " + this.x + ", y: " + this.y + ", w: " + this.width + ", h: " + this.height + " }"

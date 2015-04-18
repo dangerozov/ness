@@ -2,22 +2,20 @@ nessy.Point = function(x, y) {
 	this.x = x || 0
 	this.y = y || 0
 	
-	console.log("new point "/* + this*/)
+	//console.log("new point "/* + this*/)
 }
 
 nessy.Point.prototype = {
 
 	add: function(point) {
-		this.x += point.x
-		this.y += point.y
+		return new nessy.Point(this.x + point.x, this.y + point.y)
 	},
 	sub: function(point) {
 		this.x -= point.x
 		this.y -= point.y
 	},
 	div: function(point) {
-		this.x /= point.x
-		this.y /= point.y
+		return new nessy.Point(this.x / point.x, this.y / point.y)
 	},
 	mul: function(point) {
 		this.x *= point.x
