@@ -11,7 +11,7 @@ nessy.Rectangle = function(x, y, width, height) {
 }
 
 nessy.Rectangle.prototype = {
-	get x() {
+	/*get x() {
 		return this._x
 	},
 	set x(value) {
@@ -38,21 +38,23 @@ nessy.Rectangle.prototype = {
 	set height(value) {
 		this._height = value
 		this._size.y = this._height
-	},
+	},*/
 
 	get size() {
-		return this._size
+		//return this._size
+		return new nessy.Point(this.width, this.height)
 	},
 	set size(point) {
 		this.width = point.x
 		this.height = point.y
 
-		this._size.x = this.width
-		this._size.y = this.height
+		//this._size.x = this.width
+		//this._size.y = this.height
 	},
 
 	get location() {
-		return this._location
+		//return this._location
+		return new nessy.Point(this.x, this.y)
 	},
 	set location(point) {
 		this.set("location", point)
