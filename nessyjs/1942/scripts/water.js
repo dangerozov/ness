@@ -88,15 +88,18 @@ function repeat(createTask) {
 		while(true) {
 			var context = yield
 
-			var result
 			do {
-				result = task.next(context)
-			}
-			while(!result.done && context.delta > 0)
+				var result
+				do {
+					result = task.next(context)
+				}
+				while(!result.done && context.delta > 0)
 
-			if (result.done) {
-				task = createTask()
+				if (result.done) {
+					task = createTask()
+				}
 			}
+			while(context.delta > 0)
 		}
 	}
 }
