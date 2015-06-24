@@ -2,5 +2,5 @@
 *.sublime-workspace
 build/
 public/
-node-modules/
 lib/
+node_modules/

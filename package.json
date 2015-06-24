@@ -1,0 +1,27 @@
+{
+  "name": "nessy",
+  "version": "1.0.0",
+  "description": "Game engine",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "gulp": "^3.9.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-uglify": "^1.2.0"
+  },
+  "scripts": {
+    "test": "alert(1)"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://bitbucket.org/mopozoff/nessy"
+  },
+  "keywords": [
+    "gamedev",
+    "js"
+  ],
+  "author": "Andrew Morozov",
+  "license": "ISC"
+}
