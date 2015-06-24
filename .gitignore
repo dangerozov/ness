@@ -1,2 +1,6 @@
 *.sublime-project
 *.sublime-workspace
+build/
+public/
+node-modules/
+lib/
