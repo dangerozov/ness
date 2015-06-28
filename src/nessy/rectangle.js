@@ -75,12 +75,20 @@ nessy.Rectangle.prototype = {
 		return new nessy.Rectangle(this.x, this.y, this.width, this.height)
 	},
 
-	draw: function(color) {
+	stroke: function(strokeStyle) {
 		var previousStyle = nessy.graphics.strokeStyle
-		nessy.graphics.strokeStyle = color
-		nessy.graphics.drawRect(this)
+		nessy.graphics.strokeStyle = strokeStyle
+		nessy.graphics.strokeRect(this)
 		nessy.graphics.strokeStyle = previousStyle
 	},
+
+	fill: function(fillStyle) {
+		var previousStyle = nessy.graphics.fillStyle
+		nessy.graphics.fillStyle = fillStyle
+		nessy.graphics.fillRect(this)
+		nessy.graphics.fillStyle = previousStyle
+	},
+
 	toString: function() {
 		return "{ x: " + this.x + ", y: " + this.y + ", w: " + this.width + ", h: " + this.height + " }"
 	}

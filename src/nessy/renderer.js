@@ -15,19 +15,19 @@ nessy.Renderer.prototype = {
 		var scale = target.size.div(source.size)
 
 		if (mode == "fill") {
-			for (var x = target.x; x < target.x + scale.x * source.width; x += source.width) {
-				for (var y = target.y; y < target.y + scale.y * source.height; y += source.height) {
-					entity.texture.sprite.draw(new nessy.Point(x, y))
-				};
-			};
+			var image = nessy.graphics.createImage(target.width, target.height, function() {
+				var pattern = nessy.graphics.createPattern(entity.texture.sprite.spritesheet.raw, "repeat")
+				nessy.graphics.viewport.fill(pattern)
+			})
+			nessy.graphics.draw(image, target.x, target.y)
 		}
 		else if (mode == "scale") {
 			entity.texture.sprite.draw(target.location, scale)
 		}
 
 		if (nessy.debug) {
-			target.draw("red")
-			entity.bounds.draw("green")
+			target.stroke("red")
+			entity.bounds.stroke("green")
 		}
 	}
 }

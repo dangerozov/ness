@@ -32,5 +32,5 @@ Water.scrolling = function(self) {
 
 Water.sprites = {
 	water: (new nessy.Spritesheet("resources/water.png"))
-		.sprite(new nessy.Rectangle(0, 0, 24, 24))
+		.sprite(new nessy.Rectangle(24, 24))
 }
