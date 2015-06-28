@@ -8,6 +8,8 @@ nessy.Graphics = function() {
 
 	this.canvas = canvas
 	this.context = context
+
+	this.context.strokeStyle = "black"
 }
 
 nessy.Graphics.prototype = {
@@ -27,14 +29,15 @@ nessy.Graphics.prototype = {
 		this.context.lineTo(line.to.x, line.to.y)
 		this.context.stroke()
 	},
-	drawRect: function(rect, color) {
+	drawRect: function(rect) {
 		this.context.beginPath()
 		this.context.lineWidth = "1"
-		this.context.strokeStyle = color
 		this.context.rect(rect.x, rect.y, rect.width, rect.height)
 		this.context.stroke()
 	},
 	get viewport() {
 		return new nessy.Rectangle(0, 0, this.canvas.width, this.canvas.height)
-	}
+	},
+	get strokeStyle() { return this.context.strokeStyle },
+	set strokeStyle(style) { this.context.strokeStyle = style },
 }
