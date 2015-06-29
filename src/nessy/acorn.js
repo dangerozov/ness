@@ -2,6 +2,7 @@ var nessy = {
 	run: function() {
 		nessy.timer = new nessy.Timer()
 		nessy.graphics = new nessy.Graphics()
+		nessy.keyboard = new nessy.Keyboard()
 
 		nessy.systems = new Array()
 

@@ -6,9 +6,9 @@ nessy.Sprite = function(spritesheet, bounds) {
 nessy.Sprite.prototype = {
 	draw: function(point, scale) {
 		if (this.spritesheet.raw.loaded)
-			this.draw = this.drawLoaded
+			this.draw = this.__draw
 	},
-	drawLoaded: function(point, scale) {
+	__draw: function(point, scale) {
 		point = point || nessy.Point.zero
 		scale = scale || nessy.Point.one
 
