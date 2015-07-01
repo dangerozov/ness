@@ -1,4 +1,4 @@
-﻿nessy.debug = true
+﻿/*nessy.debug = true
 
 nessy.load = function() {
 	this.water = new Water()
@@ -22,7 +22,7 @@ var p = repeat(serial(delay(1/48), func(function() {
 })))()
 
 nessy.update = function() {
-	var dr = p.next({ delta: nessy.timer.delta })
+	//var dr = p.next({ delta: nessy.timer.delta })
 
 	if (nessy.keyboard.isDown(39)) this.plane.bounds.x += 10
 	if (nessy.keyboard.isDown(37)) this.plane.bounds.x -= 10
@@ -54,4 +54,4 @@ nessy.sprites = {
 	plane: (new nessy.Spritesheet("resources/plane.png")).sprite(new nessy.Rectangle(24, 24))
 }
 
-nessy.run()
+nessy.run()*/

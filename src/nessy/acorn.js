@@ -1,15 +1,76 @@
-/*var nessy = {
-	run: function(options) {
-		options.init()
+var Timer = {
+	init: function() {
+		nessy.timer = new nessy.Timer()
+	},
+	update: function(elapsedTotal) {
+		nessy.timer.update(elapsedTotal)
+	},
+	draw: function() {}
+}
+
+var Graphics = {
+	init: function() {
+		nessy.graphics = new nessy.Graphics()
+	},
+	update: function() {},
+	draw: function() {
+		nessy.graphics.clear()
+	}
+}
+
+var select = function(items, selector) {
+	var result = []
+	for (var i = items.length - 1; i >= 0; i--) {
+		result.push(items[i][selector])
+	}
+	return result
+}
+
+var forEach = function(funcs) {
+	return function(a) {
+		for (var i = funcs.length - 1; i >= 0; i--) {
+			funcs[i](a)
+		}
+	}
+}
+
+var compose = function(modules) {
+	return {
+		init: forEach(select(modules, "init")),
+		update: forEach(select(modules, "update")),
+		draw: forEach(select(modules, "draw")),
+	}
+}
+
+var nessy = {
+	run: function(modules) {
+		var game = compose(modules)
+		game.init()
 		var update = function(elapsedTotal) {
 			window.requestAnimationFrame(update)
-			options.update(elapsedTotal)
+			game.update()
+			game.draw()
 		}
-
 		window.requestAnimationFrame(update)
 	}
 }
 
+Game = {
+	init: function() {},
+	update: function() {},
+	draw: function() {
+		nessy.graphics.print("hohoho", 100, 100)
+	}
+}
+
+window["onload"] = function() {
+	nessy.run([
+		Timer,
+		Graphics,
+		Game])
+}
+
+/*
 // caching elapsedTotal
 nessy.run({
 	init: function() {
@@ -56,7 +117,7 @@ nessy.run({
 	}
 })*/
 
-var nessy = {
+/*var nessy = {
 	run: function() {
 		nessy.timer = new nessy.Timer()
 		nessy.graphics = new nessy.Graphics()
@@ -100,4 +161,4 @@ var nessy = {
 	load: function() {},
 	update: function() {},
 	draw: function() {}
-}
+}*/
