@@ -7,96 +7,113 @@ var timer = {
 	}
 }
 
-function loadImage(path) {
-	var image = new Image()
-	image.loaded = false
-	image.onload = function() {
-		this.loaded = true
-	}
-	image.src = path
-	return function() {
-		return image.loaded
-	}
-}
-
-function wait(time) {
-	var elapsed = 0
-	return function() {
-		elapsed += timer.delta
-		return elapsed >= time
+function yield() {
+	return function ctor() {
+		return function update() {
+			return true
+		}
 	}
 }
 
 function call(func) {
-	return function() {
-		func()
-		return true
+	return function ctor() {
+		return function update() {
+			func()
+			return true
+		}
+	}
+}
+
+function loadImage(path) {
+	return function ctor() {
+		var image = new Image()
+		image.loaded = false
+		image.loaded = function() {
+			this.loaded = true
+		}
+		image.src = path
+
+		return function update() {
+			return image.loaded
+		}
+	}
+}
+
+function wait(time) {
+	return function ctor() {
+		var elapsed = 0
+
+		return function update() {
+			elapsed += timer.delta
+			return elapsed >= time
+		}
 	}
 }
 
 function run(update) {
+	var skip = 0
 	var __update = function(elapsedTotal) {
 		window.requestAnimationFrame(__update)
-		timer.update(elapsedTotal)
-		update()
+		if (skip < 100) {
+			skip++
+		}
+		else {
+			timer.update(elapsedTotal)
+			update()
+			skip = 0
+		}
 	}
 	window.requestAnimationFrame(__update)
 }
 
 function serial(tasks) {
-	return aggregate(tasks, serialTwo)
-}
+	return function ctor() {
+		var e = getEnumerator(tasks)
+		var current = e.next()
+		var task = current.done ? yield() : current.value()
+		var finished = false
+		return function update() {
+			if (!finished) {
+				finished = task()
+				return false
+			}
 
-function serialTwo(first, second) {
-	var firstFinished = false
-	var secondFinished = false
-	return function() {
-		if (!firstFinished) {
-			firstFinished = first()
-			return false
+			if (!current.done && !(current = e.next()).done) {
+				task = current.value()
+				finished = task()
+			}
+
+			return true
 		}
-		if (!secondFinished) {
-			secondFinished = second()
-			return false
-		}
-		return true
 	}
 }
 
-function aggregate(array, func) {
-	var first = array[0]
-	for (var i = 1; i < array.length; i++) {
-		second = array[i]
-		first = func(first, second)
+function* getEnumerator(array) {
+	for (var i = 0; i < array.length; i++) {
+		yield array[i]
 	}
-	return first
-}
-
-function singleSeconds(count) {
-	var array = []
-	for (var i = count - 1; i >= 0; i--) {
-		(function() {
-			var str = i + "/" + count + " sec"
-			array.push(call(function() { console.log(str) }))
-			array.push(wait(0.01))
-		})()
-	}
-	return serial(array)
 }
 
 var game = serial([
-	singleSeconds(10000),
-	loadImage("motivation.png"),
-	call(function() { console.log("motivation.png loaded") }),
+	loadImage("pcfranklin_full.jpg"),
+	call(function() { console.log("pcfranklin_full.jpg loaded") }),
 	call(function() { console.log("3 sec") }),
 	wait(1),
 	call(function() { console.log("2 sec") }),
 	wait(1),
 	call(function() { console.log("1 sec") }),
-	wait(1),	
-	loadImage("proskater.png"),
-	call(function() { console.log("proskater.png loaded") }),
+	wait(1),
+	loadImage("pcfranklin_full1.jpg"),
+	call(function() { console.log("pcfranklin_full1.jpg loaded") }),
 	call(function() { console.log("done") })
-])
+])()
+
+var game = serial([
+	call(function() { console.log("first") }),
+	call(function() { console.log("second") }),
+	call(function() { console.log("third") }),
+	call(function() { console.log("fourth") }),
+	call(function() { console.log("fifth") })
+])()
 
 run(game)
