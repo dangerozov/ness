@@ -28,7 +28,7 @@ function loadImage(path) {
 	return function ctor() {
 		var image = new Image()
 		image.loaded = false
-		image.loaded = function() {
+		image.onload = function() {
 			this.loaded = true
 		}
 		image.src = path
@@ -73,17 +73,15 @@ function serial(tasks) {
 		var task = current.done ? yield() : current.value()
 		var finished = false
 		return function update() {
-			if (!finished) {
-				finished = task()
-				return false
+
+			while (!finished && (finished = task())) {
+				if (!current.done && !(current = e.next()).done) {
+					task = current.value()
+					finished = false
+				}
 			}
 
-			if (!current.done && !(current = e.next()).done) {
-				task = current.value()
-				finished = task()
-			}
-
-			return true
+			return finished
 		}
 	}
 }
@@ -108,7 +106,7 @@ var game = serial([
 	call(function() { console.log("done") })
 ])()
 
-var game = serial([
+var game1 = serial([
 	call(function() { console.log("first") }),
 	call(function() { console.log("second") }),
 	call(function() { console.log("third") }),
@@ -116,4 +114,10 @@ var game = serial([
 	call(function() { console.log("fifth") })
 ])()
 
-run(game)
+var fin = false
+run(function() {
+	if(!fin) {
+		console.log("update")
+		fin = game()
+	}
+})
