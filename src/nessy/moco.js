@@ -74,11 +74,9 @@ function serial(tasks) {
 		var finished = false
 		return function update() {
 
-			while (!finished && (finished = task())) {
-				if (!current.done && !(current = e.next()).done) {
-					task = current.value()
-					finished = false
-				}
+			while (!finished && (finished = task()) && !current.done && !(current = e.next()).done) {
+				task = current.value()
+				finished = false
 			}
 
 			return finished
