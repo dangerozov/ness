@@ -3,7 +3,7 @@ var timer = {
 	delta: 0,
 	update: function(elapsedTotal) {
 		timer.delta = (elapsedTotal - timer.previous) / 1000
-		timer.previous = elapsedTotal	
+		timer.previous = elapsedTotal
 	}
 }
 
@@ -11,6 +11,15 @@ function yield() {
 	return function ctor() {
 		return function update() {
 			return true
+		}
+	}
+}
+
+function nextFrame() {
+	return function ctor() {
+		var finished = false
+		return function update() {
+			return finished || !(finished = true)
 		}
 	}
 }
@@ -51,35 +60,62 @@ function wait(time) {
 }
 
 function run(update) {
-	var skip = 0
+	//var skip = 0
 	var __update = function(elapsedTotal) {
 		window.requestAnimationFrame(__update)
-		if (skip < 100) {
+		/*if (skip < 100) {
 			skip++
 		}
-		else {
+		else {*/
 			timer.update(elapsedTotal)
 			update()
-			skip = 0
-		}
+			//skip = 0
+		//}
 	}
 	window.requestAnimationFrame(__update)
 }
 
-function serial(tasks) {
+function serial(taskCtors) {
 	return function ctor() {
-		var e = getEnumerator(tasks)
+		var e = getEnumerator(taskCtors)
 		var current = e.next()
 		var task = current.done ? yield() : current.value()
-		var finished = false
+		task.finished = false
 		return function update() {
 
-			while (!finished && (finished = task()) && !current.done && !(current = e.next()).done) {
+			while (!task.finished && (task.finished = task()) && !current.done && !(current = e.next()).done) {
 				task = current.value()
-				finished = false
+				task.finished = false
 			}
 
-			return finished
+			return task.finished
+		}
+	}
+}
+
+function parallel(taskCtors) {
+	return function ctor() {
+		var e = getEnumerator(taskCtors)
+		var current = e.next()
+		var tasks 
+		return function update() {
+
+		}
+	}
+}
+
+function repeat(taskCtor) {
+	return function ctor() {
+		var task = taskCtor()
+		task.finished = false
+		return function update() {
+
+			while(!task.finished && (task.finished = task())) {
+				task = taskCtor()
+				task.finished = false
+			}
+
+			return false
 		}
 	}
 }
@@ -112,10 +148,28 @@ var game1 = serial([
 	call(function() { console.log("fifth") })
 ])()
 
+var game2 = repeat(serial([
+	nextFrame(),
+	call(function() { console.log("frame") })
+]))()
+
+function Context(delta) {
+	this.__delta = delta
+	this.__changed = false
+}
+
+Context.prototype = {
+	get delta() { return this.__delta },
+	set delta(value) {
+		this.__delta = value
+		this.__changed = true
+	}
+}
+
 var fin = false
 run(function() {
 	if(!fin) {
-		console.log("update")
-		fin = game()
+		//console.log("update")
+		fin = game(new Context(timer.delta))
 	}
 })
