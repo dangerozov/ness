@@ -1,21 +1,58 @@
-nessy.entities = new Array()
-
-nessy.entities.add = function(entity) {
-	this.push(entity)
-	entity.id = this.length - 1
+nessy.EntityStore = function() {
+	this.entities = []
+	this.onUpdateSystems = []
+	this.onDrawSystems = []
 }
 
-nessy.entities.remove = function(entity) {
-	for (var i = entity.id + 1; i < this.length; i++) {
-		this[i].id = this[i].id - 1
-	}
-	this.splice(entity.id, 1)
-}
+nessy.EntityStore.prototype = {
+	update: function() {
+		for (var entity of this.entities) {
+			for (var system of this.onUpdateSystems) {
+				var suitable = true
+				for (var component of system.components) {
+					suitable = entity[component] != null
+				}
+				if (suitable) {
+					system.callback(entity)
+				}
+			}
+		}
+	},
+	draw: function() {
+		for (var entity of this.entities) {
+			for (var system of this.onDrawSystems) {
+				var suitable = true
+				for (var component of system.components) {
+					suitable = entity[component]
+				}
+				if (suitable) {
+					system.callback(entity)
+				}
+			}
+		}
+	},
 
-nessy.entities.where = function*(predicate) {
-	for (var entity of this) {
-		if (predicate(entity)) {
-			yield entity
+	onUpdate: function(components, callback) {
+		this.onUpdateSystems.push({ components: components, callback: callback })
+	},
+	onDraw: function(components, callback) {
+		this.onDrawSystems.push({ components: components, callback: callback })
+	},
+
+	add: function(entity) {
+		this.entities.push(entity)
+	},
+	remove: function(entity) {
+		for (var i = entity.id + 1; i < this.entities.length; i++) {
+			this.entities[i].id = this.entities[i].id - 1
+		}
+		this.entities.splice(entity.id, 1)
+	},
+	where: function*(predicate) {
+		for (var entity of this.entities) {
+			if (predicate(entity)) {
+				yield entity
+			}
 		}
 	}
 }

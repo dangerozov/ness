@@ -12,7 +12,7 @@ nessy.Sprite.prototype = {
 		point = point || nessy.Point.zero
 		scale = scale || nessy.Point.one
 
-		nessy.graphics.draw(this.spritesheet.raw, point.x, point.y)
+		nessy.graphics.drawImage(this.spritesheet.raw, point.x, point.y)
 	}	
 }
 

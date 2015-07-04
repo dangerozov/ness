@@ -1,5 +1,3 @@
-var nessy = nessy || {};
-
 nessy.Rectangle = function(x, y, width, height) {
 	if (width == null && height == null) {
 		this.x = 0

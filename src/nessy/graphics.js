@@ -1,16 +1,17 @@
-nessy.Graphics = function() {
-	this.width = 800
-	this.height = 600
+nessy.Graphics = function(bounds) {
+	this.width = bounds.width
+	this.height = bounds.height
 
 	var canvas = this.newCanvas()
 	document.body.appendChild(canvas)
 
 	this.canvas = canvas
-
-	this.clear()
 }
 
 nessy.Graphics.prototype = {
+	draw: function() {
+		this.clear()
+	},
 	get canvas() {
 		return this.__canvas
 	},
@@ -20,13 +21,13 @@ nessy.Graphics.prototype = {
 	},
 
 	createImage: function(width, height, callback) {
-		var previous = nessy.graphics.canvas
-		var canvas = nessy.graphics.newCanvas(width, height)
-		nessy.graphics.canvas = canvas
+		var previous = this.canvas
+		var canvas = this.newCanvas(width, height)
+		this.canvas = canvas
 
 		callback()
 
-		nessy.graphics.canvas = previous
+		this.canvas = previous
 		return canvas
 	},
 
@@ -47,7 +48,7 @@ nessy.Graphics.prototype = {
 		this.context.font = "bold 12pt Consolas"
 		this.context.fillText(text, x, y)
 	},
-	draw: function(texture, x, y) {
+	drawImage: function(texture, x, y) {
 		this.context.drawImage(texture, x, y)
 	},
 	drawLine: function(line) {
