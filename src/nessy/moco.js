@@ -1,12 +1,3 @@
-var timer = {
-	previous: 0,
-	delta: 0,
-	update: function(elapsedTotal) {
-		timer.delta = (elapsedTotal - timer.previous) / 1000
-		timer.previous = elapsedTotal
-	}
-}
-
 function yield() {
 	return function ctor() {
 		return function update() {
@@ -48,12 +39,12 @@ function loadImage(path) {
 	}
 }
 
-function wait(time) {
+function delay(time) {
 	return function ctor() {
 		var elapsed = 0
 
 		return function update() {
-			elapsed += timer.delta
+			elapsed += nessy.timer.delta
 			return elapsed >= time
 		}
 	}
@@ -125,51 +116,3 @@ function* getEnumerator(array) {
 		yield array[i]
 	}
 }
-
-var game = serial([
-	loadImage("pcfranklin_full.jpg"),
-	call(function() { console.log("pcfranklin_full.jpg loaded") }),
-	call(function() { console.log("3 sec") }),
-	wait(1),
-	call(function() { console.log("2 sec") }),
-	wait(1),
-	call(function() { console.log("1 sec") }),
-	wait(1),
-	loadImage("pcfranklin_full1.jpg"),
-	call(function() { console.log("pcfranklin_full1.jpg loaded") }),
-	call(function() { console.log("done") })
-])()
-
-var game1 = serial([
-	call(function() { console.log("first") }),
-	call(function() { console.log("second") }),
-	call(function() { console.log("third") }),
-	call(function() { console.log("fourth") }),
-	call(function() { console.log("fifth") })
-])()
-
-var game2 = repeat(serial([
-	nextFrame(),
-	call(function() { console.log("frame") })
-]))()
-
-function Context(delta) {
-	this.__delta = delta
-	this.__changed = false
-}
-
-Context.prototype = {
-	get delta() { return this.__delta },
-	set delta(value) {
-		this.__delta = value
-		this.__changed = true
-	}
-}
-
-var fin = false
-run(function() {
-	if(!fin) {
-		//console.log("update")
-		fin = game(new Context(timer.delta))
-	}
-})

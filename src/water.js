@@ -17,18 +17,17 @@ Water = function() {
 }
 
 Water.scrolling = function(self) {
-	var task = repeat(serial(
+	var task = repeat(serial([
+		nextFrame(),
 		delay(1 / 48),
-		func(function() { 
+		call(function() { 
 			self.texture.bounds.y = self.texture.bounds.y + 1 
 			if (self.texture.bounds.y >= 0) {
 				self.texture.bounds.y = -24
 			}
-		})))()
+		})]))()
 
-	return function() {
-		task.next({ delta: nessy.timer.delta })
-	}
+	return function() { task() }
 }
 
 Water.sprites = {

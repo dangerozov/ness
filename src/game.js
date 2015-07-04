@@ -26,8 +26,8 @@ var game = {
 		nessy.entities.onUpdate(["update"], function(entity) { entity.update() })
 		nessy.entities.onDraw(["texture"], function(entity) { nessy.renderer.render(entity) })
 
-		var d = repeat(serial(delay(3), func(function() { console.log("after 3 sec") })))()
-		var p = repeat(serial(delay(1/48), func(function() {
+		var d = repeat(serial(delay(3), call(function() { console.log("after 3 sec") })))()
+		var p = repeat(serial(delay(1/48), call(function() {
 			nessy.plane.bounds.x += 1
 		})))()
 
