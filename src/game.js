@@ -3,6 +3,7 @@ nessy.plug("timer", new nessy.Timer())
 nessy.plug("graphics", new nessy.Graphics({ width: 800, height: 600 }))
 
 nessy.plug("keyboard", new nessy.Keyboard())
+nessy.plug("mouse", new nessy.Mouse())
 nessy.plug("entities", new nessy.EntityStore())
 
 nessy.debug = true
@@ -43,8 +44,11 @@ var game = {
 	draw: function() {
 		if (nessy.keyboard.isDown(13)) {
 			nessy.graphics.fillStyle = "white"
-			nessy.graphics.print("pEnter pressed", 200, 200)
-			new nessy.Rectangle(200, 200).stroke()
+			nessy.graphics.print("pEnter pressed", 200, 200)			
+		}
+		if(nessy.mouse.isDown){
+			nessy.graphics.fillStyle = "white"
+			nessy.graphics.print("pMouse pressed", nessy.mouse.x + 2, nessy.mouse.y + 2)			
 		}
 	}
 }
