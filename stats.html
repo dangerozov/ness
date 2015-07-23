@@ -1,0 +1,70 @@
+<html>
+<head>
+	<script>
+		// base damage = 20
+		// base strength = 10
+		// +50% strength
+		// 1 point of strength = 2 points of damage
+		// +30% damage
+		
+		function getFuncParams(func) {
+			var s = func.toString()
+			return s
+				//.match(/\((.*?)\) {/)
+				.slice(s.indexOf("(")+1, s.indexOf(") {"))
+				.split(", ")
+		}
+				
+		function inject(obj, func) {
+			var params = getFuncParams(func)
+			var args = []
+			for (var param of params) {
+				args.push(obj[param])
+			}
+			return function() { func.apply(null, args) }
+		}
+
+		var stats = {
+			damage: 20,
+			strength: 10,
+			armor: 0
+		}
+
+		var depends = [
+			{
+				strength: function(strength) { return strength + 10; },
+				strength: function(strength) { return strength * 1.5; },
+				
+				damage: function(strength) { return strength * 2; },
+				damage: function(damage) { return damage * 1.3; }
+			}
+		]
+		
+		var items = [
+			{
+				armor: 120,
+				strength: 5
+			}
+		]
+		
+		function getAttr(attr, stats, depends, items) {
+			
+		}
+		
+		function equip(stats, items) {
+			for (item of items) {
+				for (stat in item) {
+					stats[stat] += item[stat]
+				}
+			}
+		}
+				
+		equip(stats, items)
+		
+		console.log(stats)
+
+	</script>
+</head>
+<body>
+</body>
+</html>
