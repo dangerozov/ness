@@ -7,16 +7,16 @@
 		// 1 point of strength = 2 points of damage
 		// +30% damage
 		
-		function getFuncParams(func) {
-			var s = func.toString()
-			return s
-				//.match(/\((.*?)\) {/)
-				.slice(s.indexOf("(")+1, s.indexOf(") {"))
-				.split(", ")
+		function getFuncInfo(func) {
+			var s = func.toString();
+			return {
+				name: func.name,
+				args: s.slice(s.indexOf("(") + 1, s.indexOf(") {")).split(", ")
+			}			
 		}
-				
+						
 		function inject(obj, func) {
-			var params = getFuncParams(func)
+			var params = getFuncInfo(func).args
 			var args = []
 			for (var param of params) {
 				args.push(obj[param])
@@ -31,14 +31,42 @@
 		}
 
 		var depends = [
-			{
-				strength: function(strength) { return strength + 10; },
-				strength: function(strength) { return strength * 1.5; },
+				function strength(stamina) { return stamina + 10; },
+				function agility(stamina) { return stamina * 1.5; },
 				
-				damage: function(strength) { return strength * 2; },
-				damage: function(damage) { return damage * 1.3; }
-			}
+				function damage(strength) { return strength * 2; },
+				function damage(agility) { return agility * 2; },
+				function damage(strength, agility) { return strength + agility },
 		]
+		
+		function toTree(array, getParentKey, getChildKeys) {
+			var nodes = []
+			
+			for (var item of array) {
+				var parentKey = getParentKey(item)
+				var parentNode = getOrAdd(nodes, parentKey, { key: parentKey, value: [], next: [] })
+				parentNode.value.push(item)
+				
+				var childKeys = getChildKeys(item)
+				for (var childKey of childKeys) {					
+					var childNode = getOrAdd(nodes, childKey, { key: childKey, value: [], next: [] })
+					getOrAdd(parentNode.next, childKey, childNode)
+				}
+			}
+			
+			return nodes
+		}
+		
+		function getOrAdd(array, key, obj) {
+			for (var item of array) {
+				if (item.key == key) {
+					return item
+				}
+			}
+			
+			array.push(obj)
+			return obj
+		}
 		
 		var items = [
 			{
@@ -58,7 +86,7 @@
 				}
 			}
 		}
-				
+
 		equip(stats, items)
 		
 		console.log(stats)
