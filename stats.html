@@ -31,12 +31,33 @@
 		}
 
 		var depends = [
-				function strength(stamina) { return stamina + 10; },
+			{
+				key: "strength",
+				value: [
+					function(stamina) { return stamina + 10 }
+				]
+			},
+			{
+				key: "agility",
+				value: [
+					function(stamina) { return stamina * 1.5 }
+				]
+			},
+			{
+				key: "damage",
+				value: [
+					function(damage) { return damage + 100 },
+					function(strength) { return strength * 2 },
+					function(agility) { return agility * 2 },
+					function(strength, agility) { return strength + agility }
+				]
+			},
+				/*function strength(stamina) { return stamina + 10; },
 				function agility(stamina) { return stamina * 1.5; },
 				
 				function damage(strength) { return strength * 2; },
 				function damage(agility) { return agility * 2; },
-				function damage(strength, agility) { return strength + agility },
+				function damage(strength, agility) { return strength + agility },*/
 		]
 		
 		function toTree(array, getParentKey, getChildKeys) {
@@ -90,6 +111,9 @@
 		equip(stats, items)
 		
 		console.log(stats)
+		
+		var tree = toTree(depends, function(depend) { return getFuncInfo(depend).name }, function(depend) { return getFuncInfo(depend).args })
+		console.log(tree)
 
 	</script>
 </head>

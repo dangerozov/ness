@@ -69,6 +69,13 @@ nessy.Rectangle.prototype = {
 		this.y += offsetY
 	},
 
+	intersects: function(rect) {
+		return rect.top > this.top &&
+			rect.top < this.bottom &&
+			rect.left > this.left &&
+			rect.left < this.right
+	},
+
 	copy: function() {
 		return new nessy.Rectangle(this.x, this.y, this.width, this.height)
 	},

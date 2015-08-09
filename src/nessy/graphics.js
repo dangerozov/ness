@@ -3,7 +3,11 @@ nessy.Graphics = function(bounds) {
 	this.height = bounds.height
 
 	var canvas = this.newCanvas()
-	document.body.appendChild(canvas)
+	var div = document.createElement("div")
+	div.style.margin = "200 auto 0 auto"
+	div.style.width = bounds.width
+	div.appendChild(canvas)
+	document.body.appendChild(div)
 
 	this.canvas = canvas
 }

@@ -1,0 +1,107 @@
+<html>
+<head>
+	
+	<script src="src/nessy/nessy.js"></script>
+	<script src="src/nessy/moco.js"></script>
+	<script src="src/nessy/utils.js"></script>
+	<script src="src/nessy/gameloop.js"></script>
+	<script src="src/nessy/entities.js"></script>
+	<script src="src/nessy/graphics.js"></script>
+	<script src="src/nessy/primitives/line.js"></script>
+	<script src="src/nessy/primitives/point.js"></script>
+	<script src="src/nessy/primitives/rectangle.js"></script>
+	<script src="src/nessy/renderer.js"></script>
+	<script src="src/nessy/spritesheet.js"></script>
+	<script src="src/nessy/timer.js"></script>
+	<script src="src/nessy/keyboard.js"></script>
+	<script src="src/nessy/mouse.js"></script>
+	
+	<script src="src/linq.js"></script>
+	<script src="src/equip.js"></script>
+	
+</head>
+<body>
+	<script>
+		nessy.plug("gameloop", new nessy.GameLoop())
+		nessy.plug("graphics", new nessy.Graphics({ width: 640, height: 480 }))
+		nessy.plug("mouse", new nessy.Mouse())
+		
+		var game = {
+			init: function() {
+				var background = (new nessy.Spritesheet("resources/background-default-large.png"))
+					.sprite(new nessy.Rectangle(62, 62))
+				this.background = background
+				
+				this.slots = linq.range(0, 4)
+					.map(function() { return {
+						texture: background,
+						bounds: background.bounds.copy()
+					}})
+				
+				var right = this.slots[0].bounds.right
+				this.slots.slice(1).forEach(function(slot) { 
+					slot.bounds.left = right
+					right = slot.bounds.right
+				})
+				
+				this.slots[0].item = {
+					sprites: {
+						border: (new nessy.Spritesheet("resources/border-default-large.png")).sprite(new nessy.Rectangle(68, 68)),
+						face: (new nessy.Spritesheet("resources/race_human_male-large.jpg")).sprite(new nessy.Rectangle(56, 56)),
+						hilite: (new nessy.Spritesheet("resources/hilite-default-large.png")).sprite(new nessy.Rectangle(62, 62))
+					},
+					focus: false
+				}
+				
+				this.slots[2].item = {
+					sprites: {
+						border: (new nessy.Spritesheet("resources/border-default-large.png")).sprite(new nessy.Rectangle(68, 68)),
+						face: (new nessy.Spritesheet("resources/race_human_female-large.jpg")).sprite(new nessy.Rectangle(56, 56)),
+						hilite: (new nessy.Spritesheet("resources/hilite-default-large.png")).sprite(new nessy.Rectangle(62, 62))
+					},
+					focus: false
+				}		
+			},
+			update: function() {
+				var mouseRect = new nessy.Rectangle(nessy.mouse.x, nessy.mouse.y, 1, 1)
+				
+				this.slots.forEach(function(slot) {
+					if (slot.item != null) {
+						slot.item.focus = slot.bounds.intersects(mouseRect) 
+					}
+				})
+			},
+			draw: function() {
+				nessy.graphics.viewport.fill("#181818")
+				
+				this.slots.forEach(function(slot) {
+					slot.texture.draw(slot.bounds.location)
+					
+					if (slot.item != null) {
+						var facePos = slot.item.sprites.face.bounds.copy()
+						facePos.center = slot.bounds.center
+						
+						var hilitePos = slot.item.sprites.hilite.bounds.copy()
+						hilitePos.center = slot.bounds.center
+
+						var borderPos = slot.item.sprites.border.bounds.copy()
+						borderPos.center = slot.bounds.center
+						
+						slot.item.sprites.face.draw(facePos.location)
+						if (slot.item.focus) {
+							slot.item.sprites.hilite.draw(hilitePos.location)
+						}
+						slot.item.sprites.border.draw(borderPos.location)
+					}
+				})
+			}
+		}
+		
+		nessy.plug("game", game)
+		
+		game.init()
+		nessy.gameloop.run()
+		
+	</script>
+</body>
+</html>

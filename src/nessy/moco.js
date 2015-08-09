@@ -39,6 +39,48 @@ function loadImage(path) {
 	}
 }
 
+function loadImageNew(path) {
+	return function ctor() {
+		var image = new Image()
+		image.loaded = false
+		image.onload = function() {
+			this.loaded = true
+		}
+		image.src = path
+
+		return {
+			finished: false,
+			result: null,
+			update: function() {
+				this.finished = image.loaded
+				this.result = (this.finished ? image : null)
+			}
+		}
+	}
+}
+
+function result(taskCtor, context, property) {
+	return function ctor() {
+		var task = taskCtor()
+
+		return {
+			finished: false,
+			result: null,
+			update: function() {
+				if (!this.finished) {
+					task.update()
+					this.finished = task.finished
+
+					if (this.finished) {
+						this.result = task.result
+						context[property] = task.result
+					}
+				}
+			}
+		}
+	}
+}
+
 function delay(time) {
 	return function ctor() {
 		var elapsed = 0

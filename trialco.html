@@ -1,0 +1,35 @@
+<html>
+<head></head>
+<body>
+<script src="src/nessy/moco.js"></script>
+<script src="src/nessy/gameloop.js"></script>
+<script src="src/nessy/utils.js"></script>
+<script>
+
+var path = "resources/pcfranklin_full.jpg"
+
+var context = {
+	image: null
+}
+
+var loader = result(loadImageNew(path), context, "image")()
+
+var gameloop = new nessy.GameLoop()
+
+var printed = false
+
+gameloop.updates.push(function() {
+	if (!loader.finished) {
+		loader.update()
+	}
+	else if (!printed) {
+		console.log("loaded")
+		printed = true
+	}
+})
+
+gameloop.run()
+
+</script>
+</body>
+</html>
