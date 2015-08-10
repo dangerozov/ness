@@ -8,16 +8,20 @@ nessy.plug("entities", new nessy.EntityStore())
 
 nessy.debug = true
 
+var sprites = {}
+
 var game = {
-	sprites: {
-		plane: (new nessy.Spritesheet("resources/plane.png")).sprite(new nessy.Rectangle(24, 24))
-	},
+	preload: serial([
+		loadImage("resources/plane.png", function(img) { sprites.plane = (new nessy.Spritesheet(img)).sprite() }),
+		loadImage("resources/water.png", function(img) { sprites.water = (new nessy.Spritesheet(img)).sprite() })
+	]),
 	init: function() {
+		
 		var water = new Water()
 		var plane = {
-			bounds: this.sprites.plane.bounds.copy(),
+			bounds: sprites.plane.bounds.copy(),
 			texture: {
-				sprite: this.sprites.plane
+				sprite: sprites.plane
 			}
 		}
 		plane.bounds.center = nessy.graphics.viewport.center
@@ -54,5 +58,4 @@ var game = {
 }
 nessy.plug("game", game)
 
-game.init()
 nessy.gameloop.run()

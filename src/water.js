@@ -4,7 +4,7 @@ Water = function() {
 
 	this.bounds = nessy.graphics.viewport
 	this.texture = {
-		sprite: Water.sprites.water,
+		sprite: sprites.water,
 		mode: "fill"
 	}
 
@@ -28,8 +28,4 @@ Water.scrolling = function(self) {
 		})]))()
 
 	return function() { task() }
-}
-
-Water.sprites = {
-	water: (new nessy.Spritesheet("resources/water.png")).sprite(new nessy.Rectangle(24, 24))
 }

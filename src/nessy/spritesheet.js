@@ -1,14 +1,10 @@
 nessy.Sprite = function(spritesheet, bounds) {
 	this.spritesheet = spritesheet
-	this.bounds = bounds
+	this.bounds = bounds || spritesheet.bounds
 }
 
 nessy.Sprite.prototype = {
 	draw: function(point, scale) {
-		if (this.spritesheet.raw.loaded)
-			this.draw = this.__draw
-	},
-	__draw: function(point, scale) {
 		point = point || nessy.Point.zero
 		scale = scale || nessy.Point.one
 
@@ -16,14 +12,11 @@ nessy.Sprite.prototype = {
 	}	
 }
 
-nessy.Spritesheet = function(path) {
-	this.raw = new Image()
-	this.raw.loaded = false
-	var spritesheet = this
-	this.raw.onload = function() {
-		this.loaded = true
-	}
-	this.raw.src = path
+nessy.Spritesheet = function(image) {
+	if (!(image instanceof Image)) throw "Not Image"
+	
+	this.raw = image
+	this.bounds = new nessy.Rectangle(image.width, image.height)
 }
 
 nessy.Spritesheet.prototype = {
