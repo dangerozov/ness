@@ -14,10 +14,10 @@ Slot.empty = function(slot) {
 // [[offhand], [mainhand]] => offhand OR mainhand
 // [offhand, mainhand] => offhand AND mainhand
 
-// найти все слоты на которые маппится тип итема
-// а дальше эквипнуть этот итем в эти слоты
+// find all slots with these attributes
+// and then equip item in these slots
 
-// bag - это предмет со слотами в который можно положить другие предметы
+// bag - item with slots, that we can put another items into
 
 var templates = {
 	Soul: {
@@ -104,7 +104,7 @@ function create(template) {
 	return obj
 }
 
-function multiPut(bag, item) {
+function findSlots(bag, item) {
 	var slots = bag.slots
 		.filter(function(slot) {
 			var a = item.type.except(slot.type)
@@ -148,8 +148,8 @@ function run() {
 	var soul = create(templates.Soul)		
 	log(soul)
 	
-	// курсор это не предмет со слотом, это просто курсор, для взаимодействия с предметами
-	// перетаскивания их из одного слота в другой
+	// cursor is not an item with slot, it's just cursor 
+	// for moving items around
 	log("Cursor has dragged Human body")
 	var cursor = create(templates.Cursor)		
 	var human = create(templates.Human)
@@ -192,21 +192,10 @@ function run() {
 	log(soul)
 
 	var axe = create(templates.Axe)
-	var slots = multiPut(human, axe)
+	var slots = findSlots(human, axe)
 }
 
-// ячейки инвентаря и эквипмента это ОДНО И ТО ЖЕ, 
-// просто в ячейку инвентаря можно положить ВСЁ, 
-// а в ячейку эквипмента по валидации, ПАМ ПАМ ОПА ОПА
-
-// bow - это оружие со способностью bag, т.е. дает дополнительный слот для стрел, хо хо хо
-
-// есть item-template из которого создается конкретный айтем и который впоследствии можно изменять энчантить затачивать и т.д.
-
-/* Human body - это премет со своими статами и пассивами. Например огр с двумя головами
-может носить два шлема и амулета, но при это у него есть пассива, которая уменьшает скорость атаки */
-
-// stackable items
+// stackable items - to design
 var arrow1 = {
 	type: "arrow",
 	count: 10
@@ -227,15 +216,28 @@ function stack(left, right) {
 }
 // end stackable items
 
+// slots of inventory and equipment are the same 
+// in inventory slot you can put any item 
+// but in equipment slot you can put only item with suitable attributes
+// (sword for mainhand, plate armor for chest etc.)
 
+// bow - weapon with bag ability, it adds additional slot for arrows
 
-
+/* Human body - is an item with its attributes and passives.
+   For example, two-headed ogre can wear two helmets and two necklaces,
+   but he has passive, that decreases his attack speed due to 
+   slower sync between his heads :) */
 		
-/* Класс это тоже предмет с пассивами и активами (рыцарь, вор, лучник и т.д.) И одевается он в ячейку тела.
-Например, Шаман - тип "шаман", Эльф - ячейки классов = ["шаман", "воин", "лучник"] */
-/* У всего - у каждого предмета, скилла, оружия, тела, есть теги/атрибуты. Когда душа получает опыт,
-с помощью чего-то, каждый использованный при этом атрибут, получает опыт. Когда атрибут левелапится он получает очки,
-которые можно распределить в пассивы этому атрибуту */
+/* Maybe character class is also an item with passive and active skills (knight, thief, archer etc.)
+   And player can equip it into "class" slot of "body"
+   For example, class Shaman, body Elf [slot:"class & (shaman|warrior|archer)"] */
+   
+/* Everything - every item, skill, weapon, body has tags/attributes.
+   When soul gain Exp, every used attribute gain Exp. So Soul become more efficient 
+   when using these attributes (human, shaman, physical, one-handed, sword, cloth, armor, fire, projectile, fireball).
+   When attribute gains level, it gains skillpoints, that player can distribute into this attribute passive skills.
+   For example, Soul can have Passive skill "You can have an additional body (so you don't need to create new character
+   when you want to change race, class etc)" */
 
 function getTab(count) {
 	return linq.range(0, count)
