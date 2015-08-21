@@ -3,7 +3,7 @@ nessy.GameLoop = function() {
 	this.inits = []
 	this.updates = []
 	this.draws = []
-}
+};
 
 nessy.GameLoop.prototype = {
 	plugger: function(plugin) {
@@ -29,10 +29,10 @@ nessy.GameLoop.prototype = {
 			window.requestAnimationFrame(update.bind(this))
 			
 			if (finishedPreloading || (finishedPreloading = preload())) {
-				nessy.utils.forEach(this.updates, function(func) {
+				this.updates.forEach(function(func) {
 					func(elapsedTotal)
-				})
-				nessy.utils.forEach(this.draws, function(draw) {
+				});
+				this.draws.forEach(function(draw) {
 					draw(elapsedTotal)
 				})
 			}

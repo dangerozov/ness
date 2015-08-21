@@ -1,5 +1,5 @@
-nessy.Renderer = function() {
-	
+nessy.Renderer = function(host) {
+	this.host = host
 }
 
 nessy.Renderer.prototype = {
@@ -13,21 +13,19 @@ nessy.Renderer.prototype = {
 		var scale = target.size.div(source.size)
 
 		if (mode == "fill") {
-			var image = nessy.graphics.createImage(target.width, target.height, function() {
-				var pattern = nessy.graphics.createPattern(entity.texture.sprite.spritesheet.raw, "repeat")
-				nessy.graphics.viewport.fill(pattern)
-			})
-			nessy.graphics.drawImage(image, target.x, target.y)
+			var image = this.host.graphics.createImage(target.width, target.height, function() {
+				var pattern = this.host.graphics.createPattern(entity.texture.sprite.spritesheet.raw, "repeat")
+				this.host.graphics.viewport.fill(pattern)
+			}.bind(this))
+			this.host.graphics.drawImage(image, target.x, target.y)
 		}
 		else if (mode == "scale") {
 			entity.texture.sprite.draw(target.location, scale)
 		}
 
-		if (nessy.debug) {
+		if (this.host.debug) {
 			target.stroke("red")
 			entity.bounds.stroke("green")
 		}
 	}
 }
-
-nessy.renderer = new nessy.Renderer()

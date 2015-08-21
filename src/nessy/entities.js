@@ -47,12 +47,5 @@ nessy.EntityStore.prototype = {
 			this.entities[i].id = this.entities[i].id - 1
 		}
 		this.entities.splice(entity.id, 1)
-	},
-	where: function*(predicate) {
-		for (var entity of this.entities) {
-			if (predicate(entity)) {
-				yield entity
-			}
-		}
 	}
 }

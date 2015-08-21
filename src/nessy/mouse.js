@@ -1,12 +1,12 @@
-nessy.Mouse = function() {
-	var canvas = nessy.graphics.canvas	
+nessy.Mouse = function(host) {
+	var canvas = host.graphics.canvas
 
 	this.isDown = false
 	this.x = 0
 	this.y = 0
 
 	canvas.addEventListener("mousedown", function(event) {
-		this.isDown = true		
+		this.isDown = true
 	}.bind(this))
 
 	canvas.addEventListener("mouseup", function() {

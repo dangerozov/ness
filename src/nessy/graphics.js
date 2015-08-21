@@ -1,4 +1,6 @@
-nessy.Graphics = function(bounds) {
+nessy.Graphics = function(host, bounds) {
+	this.host = host
+	
 	this.width = bounds.width
 	this.height = bounds.height
 
@@ -78,7 +80,7 @@ nessy.Graphics.prototype = {
 		return this.context.createPattern(image, repeat)
 	},
 	get viewport() {
-		return new nessy.Rectangle(this.canvas.width, this.canvas.height)
+		return new this.host.Rectangle(this.canvas.width, this.canvas.height)
 	},
 	get strokeStyle() { return this.context.strokeStyle },
 	set strokeStyle(style) { this.context.strokeStyle = style },

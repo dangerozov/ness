@@ -3,11 +3,9 @@
 	
 	<script src="src/nessy/nessy.js"></script>
 	<script src="src/nessy/moco.js"></script>
-	<script src="src/nessy/utils.js"></script>
 	<script src="src/nessy/gameloop.js"></script>
 	<script src="src/nessy/entities.js"></script>
 	<script src="src/nessy/graphics.js"></script>
-	<script src="src/nessy/primitives/line.js"></script>
 	<script src="src/nessy/primitives/point.js"></script>
 	<script src="src/nessy/primitives/rectangle.js"></script>
 	<script src="src/nessy/renderer.js"></script>
@@ -21,19 +19,25 @@
 </head>
 <body>
 	<script>
-		nessy.plug("gameloop", new nessy.GameLoop())
-		nessy.plug("graphics", new nessy.Graphics({ width: 640, height: 480 }))
-		nessy.plug("mouse", new nessy.Mouse())
+		var host = new nessy.Host()
+		host.plug("gameloop", nessy.GameLoop)
+		host.plug("Point", nessy.Point)
+		host.plug("Rectangle", nessy.Rectangle)
+		host.plug("graphics", nessy.Graphics, { width: 640, height: 480 })
+		host.plug("Spritesheet", nessy.Spritesheet)
+		host.plug("Sprite", nessy.Sprite)
+		host.plug("mouse", nessy.Mouse)
 		
 		var sprites = {}
 		
-		var game = {
+		var Game = function() {}
+		Game.prototype = {
 			preload: serial([
-				loadImage("resources/background-default-large.png", function(img) { sprites.backgroundLarge = (new nessy.Spritesheet(img)).sprite() }),
-				loadImage("resources/border-default-large.png", function(img) { sprites.borderLarge = (new nessy.Spritesheet(img)).sprite() }),
-				loadImage("resources/race_human_male-large.jpg", function(img) { sprites.humanMaleLarge = (new nessy.Spritesheet(img)).sprite() }),
-				loadImage("resources/hilite-default-large.png", function(img) { sprites.hiliteLarge = (new nessy.Spritesheet(img)).sprite() }),
-				loadImage("resources/race_human_female-large.jpg", function(img) { sprites.humanFemaleLarge = (new nessy.Spritesheet(img)).sprite() }),
+				loadImage("resources/background-default-large.png", function(img) { sprites.backgroundLarge = (new host.Spritesheet(img)).sprite() }),
+				loadImage("resources/border-default-large.png", function(img) { sprites.borderLarge = (new host.Spritesheet(img)).sprite() }),
+				loadImage("resources/race_human_male-large.jpg", function(img) { sprites.humanMaleLarge = (new host.Spritesheet(img)).sprite() }),
+				loadImage("resources/hilite-default-large.png", function(img) { sprites.hiliteLarge = (new host.Spritesheet(img)).sprite() }),
+				loadImage("resources/race_human_female-large.jpg", function(img) { sprites.humanFemaleLarge = (new host.Spritesheet(img)).sprite() }),
 			]),
 			init: function() {
 				var background = sprites.backgroundLarge
@@ -70,7 +74,7 @@
 				}		
 			},
 			update: function() {
-				var mouseRect = new nessy.Rectangle(nessy.mouse.x, nessy.mouse.y, 1, 1)
+				var mouseRect = new host.Rectangle(host.mouse.x, host.mouse.y, 1, 1)
 				
 				this.slots.forEach(function(slot) {
 					if (slot.item != null) {
@@ -79,7 +83,7 @@
 				})
 			},
 			draw: function() {
-				nessy.graphics.viewport.fill("#181818")
+				host.graphics.viewport.fill("#181818")
 				
 				this.slots.forEach(function(slot) {
 					slot.texture.draw(slot.bounds.location)
@@ -104,9 +108,9 @@
 			}
 		}
 		
-		nessy.plug("game", game)
+		host.plug("game", Game)
 		
-		nessy.gameloop.run()
+		host.gameloop.run()
 		
 	</script>
 </body>

@@ -1,4 +1,8 @@
-var nessy = nessy || {
+var nessy = nessy || { }
+
+nessy.Host = function() { }
+
+nessy.Host.prototype = {
 	pluggers: [
 		function(plugin) {
 			if (plugin.plugger != null)	 {
@@ -6,9 +10,13 @@ var nessy = nessy || {
 			}
 		}
 	],
-	plug: function(name, plugin) {
+	
+	plug: function(name, Plugin, arg) {
+		if (!(Plugin instanceof Function)) throw name + " is not a Function"
+		
+		var plugin = new Plugin(this, arg)
 		this[name] = plugin
-		this.utils.forEach(this.pluggers, function(plugger) {
+		this.pluggers.forEach(function(plugger) {
 			plugger.bind(this)(plugin)
 		}.bind(this))
 	}

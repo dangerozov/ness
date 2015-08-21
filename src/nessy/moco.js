@@ -35,7 +35,7 @@ function loadImage(path, callback) {
 
 		return function update() {
 			var finished = image.loaded
-			if (finished && callback != null) callback(image) 
+			if (finished && callback != null) callback.bind(this)(image)
 			return finished
 		}
 	}
@@ -46,7 +46,7 @@ function delay(time) {
 		var elapsed = 0
 
 		return function update() {
-			elapsed += nessy.timer.delta
+			elapsed += host.timer.delta
 			return elapsed >= time
 		}
 	}
@@ -72,17 +72,17 @@ function serial(taskCtors) {
 	return function ctor() {
 		var e = getEnumerator(taskCtors)
 		var current = e.next()
-		var task = current.done ? yield() : current.value()
+		var task = (current.done ? yield() : current.value()).bind(this)
 		task.finished = false
 		return function update() {
 
 			while (!task.finished && (task.finished = task()) && !current.done && !(current = e.next()).done) {
-				task = current.value()
+				task = current.value().bind(this)
 				task.finished = false
 			}
 
 			return task.finished
-		}
+		}.bind(this)
 	}
 }
 
@@ -90,7 +90,7 @@ function parallel(taskCtors) {
 	return function ctor() {
 		var e = getEnumerator(taskCtors)
 		var current = e.next()
-		var tasks 
+		var tasks
 		return function update() {
 
 		}
