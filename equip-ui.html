@@ -9,7 +9,7 @@
 	<script src="src/nessy/point.js"></script>
 	<script src="src/nessy/rectangle.js"></script>
 	<script src="src/nessy/renderer.js"></script>
-	<script src="src/nessy/spritesheet.js"></script>
+	<script src="src/nessy/texture.js"></script>
 	<script src="src/nessy/timer.js"></script>
 	<script src="src/nessy/keyboard.js"></script>
 	<script src="src/nessy/mouse.js"></script>
@@ -24,29 +24,26 @@
 		host.plug("Point", nessy.Point)
 		host.plug("Rectangle", nessy.Rectangle)
 		host.plug("graphics", nessy.Graphics, { width: 640, height: 480 })
-		host.plug("Spritesheet", nessy.Spritesheet)
-		host.plug("Sprite", nessy.Sprite)
+		host.plug("Texture", nessy.Texture)
 		host.plug("mouse", nessy.Mouse)
 		
-		var sprites = {}
+		var textures = {}
 		
 		var Game = function() {}
 		Game.prototype = {
 			preload: serial([
-				loadImage("resources/background-default-large.png", function(img) { sprites.backgroundLarge = (new host.Spritesheet(img)).sprite() }),
-				loadImage("resources/border-default-large.png", function(img) { sprites.borderLarge = (new host.Spritesheet(img)).sprite() }),
-				loadImage("resources/race_human_male-large.jpg", function(img) { sprites.humanMaleLarge = (new host.Spritesheet(img)).sprite() }),
-				loadImage("resources/hilite-default-large.png", function(img) { sprites.hiliteLarge = (new host.Spritesheet(img)).sprite() }),
-				loadImage("resources/race_human_female-large.jpg", function(img) { sprites.humanFemaleLarge = (new host.Spritesheet(img)).sprite() }),
+				loadImage("resources/background-default-large.png", function(img) { textures.backgroundLarge = (new host.Texture(img)) }),
+				loadImage("resources/border-default-large.png", function(img) { textures.borderLarge = (new host.Texture(img)) }),
+				loadImage("resources/race_human_male-large.jpg", function(img) { textures.humanMaleLarge = (new host.Texture(img)) }),
+				loadImage("resources/hilite-default-large.png", function(img) { textures.hiliteLarge = (new host.Texture(img)) }),
+				loadImage("resources/race_human_female-large.jpg", function(img) { textures.humanFemaleLarge = (new host.Texture(img)) }),
 			]),
 			init: function() {
-				var background = sprites.backgroundLarge
-				this.background = background
 				
 				this.slots = linq.range(0, 4)
 					.map(function() { return {
-						texture: background,
-						bounds: background.bounds.copy()
+						texture: textures.backgroundLarge,
+						bounds: textures.backgroundLarge.bounds.copy()
 					}})
 				
 				var right = this.slots[0].bounds.right
@@ -56,19 +53,19 @@
 				})
 				
 				this.slots[0].item = {
-					sprites: {
-						border: sprites.borderLarge,
-						face: sprites.humanMaleLarge,
-						hilite: sprites.hiliteLarge
+					textures: {
+						border: textures.borderLarge,
+						face: textures.humanMaleLarge,
+						hilite: textures.hiliteLarge
 					},
 					focus: false
 				}
 				
 				this.slots[2].item = {
-					sprites: {
-						border: sprites.borderLarge,
-						face: sprites.humanFemaleLarge,
-						hilite: sprites.hiliteLarge
+					textures: {
+						border: textures.borderLarge,
+						face: textures.humanFemaleLarge,
+						hilite: textures.hiliteLarge
 					},
 					focus: false
 				}		
@@ -89,20 +86,20 @@
 					slot.texture.draw(slot.bounds.location)
 					
 					if (slot.item != null) {
-						var facePos = slot.item.sprites.face.bounds.copy()
+						var facePos = slot.item.textures.face.bounds.copy()
 						facePos.center = slot.bounds.center
 						
-						var hilitePos = slot.item.sprites.hilite.bounds.copy()
+						var hilitePos = slot.item.textures.hilite.bounds.copy()
 						hilitePos.center = slot.bounds.center
 
-						var borderPos = slot.item.sprites.border.bounds.copy()
+						var borderPos = slot.item.textures.border.bounds.copy()
 						borderPos.center = slot.bounds.center
 						
-						slot.item.sprites.face.draw(facePos.location)
+						slot.item.textures.face.draw(facePos.location)
 						if (slot.item.focus) {
-							slot.item.sprites.hilite.draw(hilitePos.location)
+							slot.item.textures.hilite.draw(hilitePos.location)
 						}
-						slot.item.sprites.border.draw(borderPos.location)
+						slot.item.textures.border.draw(borderPos.location)
 					}
 				})
 			}

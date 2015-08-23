@@ -4,8 +4,7 @@ host.plug("timer", nessy.Timer)
 host.plug("Point", nessy.Point)
 host.plug("Rectangle", nessy.Rectangle)
 host.plug("graphics", nessy.Graphics, { width: 800, height: 600 })
-host.plug("Spritesheet", nessy.Spritesheet)
-host.plug("Sprite", nessy.Sprite)
+host.plug("Texture", nessy.Texture)
 host.plug("renderer", nessy.Renderer)
 host.plug("keyboard", nessy.Keyboard)
 host.plug("mouse", nessy.Mouse)
@@ -13,7 +12,7 @@ host.plug("entities", nessy.EntityStore)
 
 host.debug = true
 
-var sprites = {}
+var textures = {}
 
 var Game = function(host) {
 	this.host = host
@@ -21,18 +20,18 @@ var Game = function(host) {
 
 Game.prototype = {
 	preload: serial([
-			loadImage("resources/plane.png", function(img) { sprites.plane = (new this.host.Spritesheet(img)).sprite() }),
-			loadImage("resources/water.png", function(img) { sprites.water = (new this.host.Spritesheet(img)).sprite() })
+			loadImage("resources/plane.png", function(img) { textures.plane = (new this.host.Texture(img)) }),
+			loadImage("resources/water.png", function(img) { textures.water = (new this.host.Texture(img)) })
 		]),	
 	init: function() {
 		
 		var water = new Water(this.host)
 		var plane = {
-			bounds: sprites.plane.bounds.copy(),
+			bounds: textures.plane.bounds.copy(),
 			texture: {
-				sprite: sprites.plane
+				image: textures.plane
 			}
-		}		
+		}
 		plane.bounds.center = this.host.graphics.viewport.center
 
 		this.host.entities.add(plane)

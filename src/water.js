@@ -2,7 +2,7 @@ Water = function(host) {
 
 	this.bounds = host.graphics.viewport
 	this.texture = {
-		sprite: sprites.water,
+		image: textures.water,
 		mode: "fill"
 	}
 

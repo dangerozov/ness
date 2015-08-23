@@ -12,7 +12,7 @@ nessy.Host.prototype = {
 	],
 	
 	plug: function(name, Plugin, arg) {
-		if (!(Plugin instanceof Function)) throw name + " is not a Function"
+		if (!(Plugin instanceof Function)) throw "Plug failed: " + Plugin + " is not a Function"
 		
 		var plugin = new Plugin(this, arg)
 		this[name] = plugin
