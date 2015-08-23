@@ -25,6 +25,8 @@
 		host.plug("Rectangle", nessy.Rectangle)
 		host.plug("graphics", nessy.Graphics, { width: 640, height: 480 })
 		host.plug("Texture", nessy.Texture)
+		host.plug("Sprite", nessy.Sprite)
+		host.plug("CompositeSprite", nessy.CompositeSprite)
 		host.plug("mouse", nessy.Mouse)
 		
 		var textures = {}
@@ -45,11 +47,39 @@
 						texture: textures.backgroundLarge,
 						bounds: textures.backgroundLarge.bounds.copy()
 					}})
+
+				this.slots.forEach(function(slot) {
+					slot.bounds.location = new host.Point(100, 100)
+				})
 				
-				var right = this.slots[0].bounds.right
-				this.slots.slice(1).forEach(function(slot) { 
-					slot.bounds.left = right
-					right = slot.bounds.right
+				this.slots.aggregate(100, function(value, slot) {
+					slot.bounds.left = value
+					return slot.bounds.right
+				})
+				
+				var sprite1 = new host.Sprite({
+					texture: textures.borderLarge
+				})
+				
+				var sprite2 = new host.Sprite({
+					texture: textures.humanMaleLarge
+				})
+				
+				var sprite3 = new host.Sprite({
+					texture: textures.hiliteLarge,
+					visible: function() {
+						return this.slots[0].item.focus
+					}.bind(this)
+				})
+				
+				var r = [ sprite1, sprite2, sprite3 ].aggregate(textures.borderLarge.bounds.center, function(value, sprite) {
+					sprite.position = sprite.getBounds().setCenter(value).location
+					return sprite.getBounds().center
+				})
+				
+				this.compSprite = new host.CompositeSprite({
+					sprites: [ sprite2, sprite3, sprite1 ],
+					position: new host.Point(200, 200)
 				})
 				
 				this.slots[0].item = {
@@ -102,6 +132,9 @@
 						slot.item.textures.border.draw(borderPos.location)
 					}
 				})
+				
+				this.compSprite.draw()
+				this.compSprite.getBounds().stroke("red")
 			}
 		}
 		

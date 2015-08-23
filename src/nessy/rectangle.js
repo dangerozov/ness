@@ -50,6 +50,16 @@ nessy.Rectangle = function(host) {
 		get center() { return new host.Point(this.x + this.width / 2, this.y + this.height / 2) },
 		set center(point) { this.set("center", point) },
 	
+		getCenter: function() {
+			return this.center	
+		},
+		
+		setCenter: function(point) {
+			var result = this.copy()
+			result.center = point
+			return result	
+		},
+	
 		get middleRight() { return new host.Point(this.right, this.center.y) },
 		set middleRight(point) { this.set("middleRight", point) },
 	

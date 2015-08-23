@@ -38,6 +38,24 @@ var linq = (function linq() {
 			var result = []
 			for (var item of source) result.push(item)
 			return result
+		},
+		aggregate(source, base, callback) {
+			for (var item of source) {
+				base = callback(base, item)
+			}
+			return base
+		},
+		min(source, base) {
+			return source.aggregate(base, function(accumulate, item) {
+				if (accumulate < item) return accumulate
+				return item
+			})
+		},
+		max(source, base) {
+			return source.aggregate(base, function(accumulate, item) {
+				if (accumulate > item) return accumulate
+				return item
+			})
 		}
 	}
 	
@@ -63,6 +81,18 @@ var linq = (function linq() {
 	
 	Array.prototype.toArray = function() {
 		return linq.toArray.call(null, this)
+	}
+	
+	Array.prototype.aggregate = function(accumulate, callback) {
+		return linq.aggregate.call(null, this, accumulate, callback)
+	}
+	
+	Array.prototype.min = function(base) {
+		return linq.min.call(null, this, base)
+	}
+	
+	Array.prototype.max = function(base) {
+		return linq.max.call(null, this, base)
 	}
 	
 	return linq
