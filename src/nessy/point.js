@@ -11,20 +11,13 @@ nessy.Point = function(host) {
 			return new host.Point(this.x + point.x, this.y + point.y)
 		},
 		sub: function(point) {
-			this.x -= point.x
-			this.y -= point.y
+			return new host.Point(this.x - point.x, this.y - point.y)
 		},
 		div: function(point) {
 			return new host.Point(this.x / point.x, this.y / point.y)
 		},
 		mul: function(point) {
-			this.x *= point.x
-			this.y *= point.y
-		},
-		set: function(point) {
-			this.x = point.x
-			this.y = point.y
-			return this
+			return new host.Point(this.x * point.x, this.y * point.y)
 		},
 		toString: function() {
 			return "{ x: " + this.x + ", y: " + this.y + " }";
