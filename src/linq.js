@@ -40,8 +40,17 @@ var linq = (function linq() {
 			return result
 		},
 		aggregate(source, base, callback) {
-			for (var item of source) {
-				base = callback(base, item)
+			var startIndex = 0
+			if (callback == undefined) {
+				if (source.length < 1) throw "Can't aggregate empty array"
+				
+				callback = base
+				base = source[0]
+				startIndex = 1
+			}
+			
+			for(var i = startIndex; i < source.length; i++) {
+				base = callback(base, source[i])
 			}
 			return base
 		},

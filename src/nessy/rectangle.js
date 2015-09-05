@@ -16,6 +16,15 @@ nessy.Rectangle = function(host) {
 		//console.log("new rectangle "/* + this*/)
 	}
 	
+	Rectangle.join = function(leftRect, rightRect) {
+		var left = Math.min(leftRect.left, rightRect.left)
+		var top = Math.min(leftRect.top, rightRect.top)
+		var right = Math.max(leftRect.right, rightRect.right)
+		var bottom = Math.max(leftRect.bottom, rightRect.bottom)
+		
+		return new Rectangle(left, top, right - left, bottom - top)
+	}
+	
 	Rectangle.prototype = {
 		get left() { return this.x }, 
 		set left(value) { this.x = value },

@@ -42,12 +42,14 @@
 			]),
 			init: function() {
 				
-				this.slots = linq.range(0, 4)
+				var slots = linq.range(0, 4)
 					.map(function() { return {
 						texture: textures.backgroundLarge,
 						bounds: textures.backgroundLarge.bounds.copy()
 					}})
-
+				
+				this.slots = slots
+				
 				this.slots.forEach(function(slot) {
 					slot.bounds.location = new host.Point(100, 100)
 				})
@@ -67,14 +69,17 @@
 				
 				var sprite3 = new host.Sprite({
 					texture: textures.hiliteLarge,
-					visible: function() {
-						return this.slots[0].item.focus
-					}.bind(this)
+					get visible() {
+						return slots[0].item.focus
+					},
+					set visible(value) {
+						console.log(this, value)
+					}
 				})
 				
 				var r = [ sprite1, sprite2, sprite3 ].aggregate(textures.borderLarge.bounds.center, function(value, sprite) {
-					sprite.position = sprite.getBounds().setCenter(value).location
-					return sprite.getBounds().center
+					sprite.position = sprite.bounds.setCenter(value).location
+					return sprite.bounds.center
 				})
 				
 				this.compSprite = new host.CompositeSprite({
@@ -134,7 +139,7 @@
 				})
 				
 				this.compSprite.draw()
-				this.compSprite.getBounds().stroke("red")
+				this.compSprite.bounds.stroke("red")
 			}
 		}
 		

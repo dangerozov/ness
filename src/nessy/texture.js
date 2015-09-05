@@ -25,17 +25,24 @@ nessy.Sprite = function(host) {
 		this.texture = args.texture
 		this.position = args.position || host.Point.zero
 		this.scale = args.scale || host.Point.one
-		this.visible = args.visible || function() { return true }
+		if (args.hasOwnProperty("visible")) {
+			Object.defineProperty(this, "visible", {
+				get: function() { return args.visible }
+			})
+		}
+		else {
+			this.visible = true
+		}
 	}
 	
 	Sprite.prototype = {
 		draw: function(args) {
-			if (args.visible() && this.visible()) {
+			if (args.visible && this.visible) {
 				var absolutePosition = args.position.add(this.position)
 				host.graphics.drawImage(this.texture.raw, absolutePosition.x, absolutePosition.y)
 			}
 		},
-		getBounds: function() {
+		get bounds() {
 			return new host.Rectangle(this.position.x, this.position.y, this.texture.bounds.width, this.texture.bounds.height)
 		}
 	}
@@ -48,47 +55,22 @@ nessy.CompositeSprite = function(host) {
 		this.sprites = args.sprites
 		this.position = args.position || host.Point.zero
 		this.scale = args.scale || host.Point.one
-		this.visible = args.visible || function() { return true }
+		this.visible = args.visible || true
 	}
 	
 	CompositeSprite.prototype = {
 		draw: function() {
-			if (this.visible()) {
+			if (this.visible) {
 				this.sprites.forEach(function(sprite) {
 					sprite.draw(this)
 				}.bind(this))
 			}
 		},
-		getBounds: function() {
-			var spritesBounds = this.sprites
-				.map(function(sprite) {
-					return sprite.getBounds()
-				})
-				.aggregate(
-				{
-					lefts: [],
-					rights: [],
-					tops: [],
-					bottoms: []
-				},
-				function(result, bounds) {
-					result.lefts.push(bounds.left)
-					result.rights.push(bounds.right)
-					result.tops.push(bounds.top)
-					result.bottoms.push(bounds.bottom)
-					return result
-				})
-			
-			var left = spritesBounds.lefts
-				.min(spritesBounds.lefts[0])
-			var right = spritesBounds.rights
-				.max(spritesBounds.rights[0])
-			var top = spritesBounds.tops
-				.min(spritesBounds.tops[0])
-			var bottom = spritesBounds.bottoms
-				.max(spritesBounds.bottoms[0])
-				
-			var bounds = new host.Rectangle(left, top, right - left, bottom - top)
+		get bounds() {
+			var bounds = this.sprites
+				.map(function(sprite) { return sprite.bounds })
+				.aggregate(host.Rectangle.join)
+
 			bounds.location = this.position
 			return bounds
 		}
