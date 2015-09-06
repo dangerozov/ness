@@ -1,6 +1,6 @@
 describe("Task", function() {
 
-	it("Delay should work", function() {
+	/*it("Delay should work", function() {
 		var task = delay(30)();
 
 		var context = { delta: 10 };
@@ -47,7 +47,7 @@ describe("Task", function() {
 		expect(calls).toBe(2);
 
 
-	})
+	})*/
 
 	function* q() {
 		var output = 10;

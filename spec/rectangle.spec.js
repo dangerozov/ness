@@ -1,13 +1,14 @@
 describe("Rectangle", function() {
-
+	var Point = new nessy.Point();
+	var Rectangle = new nessy.Rectangle({ Point: Point });
+	
 	var rect
-
 	beforeEach(function() {
-		rect = new nessy.Rectangle(10, 20, 30, 40)
+		rect = new Rectangle({ x: 10, y: 20, width: 30, height: 40 })
 	})
 
 	it("Should create rectangle from x, y, w, h", function() {
-		var rect = new nessy.Rectangle(10, 20, 30, 40)
+		var rect = new Rectangle({ x: 10, y: 20, width: 30, height: 40 })
 
 		expect(rect.x).toBe(10)
 		expect(rect.y).toBe(20)
@@ -16,7 +17,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should create rectangle from w, h", function() {
-		var rect = new nessy.Rectangle(30, 40)
+		var rect = new Rectangle({ width: 30, height: 40 })
 
 		expect(rect.width).toBe(30)
 		expect(rect.height).toBe(40)
@@ -70,7 +71,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set size", function() {
-		rect.size = new nessy.Point(50, 60)
+		rect.size = new Point(50, 60)
 
 		expect(rect.width).toBe(50)
 		expect(rect.height).toBe(60)
@@ -84,7 +85,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set location", function() {
-		rect.location = new nessy.Point(50, 60)
+		rect.location = new Point(50, 60)
 
 		expect(rect.x).toBe(50)
 		expect(rect.y).toBe(60)
@@ -98,7 +99,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set topCenter", function() {
-		rect.topCenter = new nessy.Point(50, 60)
+		rect.topCenter = new Point(50, 60)
 
 		expect(rect.x).toBe(35)
 		expect(rect.y).toBe(60)
@@ -112,7 +113,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set topRight", function() {
-		rect.topRight = new nessy.Point(50, 60)
+		rect.topRight = new Point(50, 60)
 
 		expect(rect.x).toBe(20)
 		expect(rect.y).toBe(60)
@@ -126,7 +127,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set middleLeft", function() {
-		rect.middleLeft = new nessy.Point(50, 60)
+		rect.middleLeft = new Point(50, 60)
 
 		expect(rect.x).toBe(50)
 		expect(rect.y).toBe(40)
@@ -140,7 +141,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set center", function() {
-		rect.center = new nessy.Point(50, 60)
+		rect.center = new Point(50, 60)
 
 		expect(rect.x).toBe(35)
 		expect(rect.y).toBe(40)
@@ -154,7 +155,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set middleRight", function() {
-		rect.middleRight = new nessy.Point(50, 60)
+		rect.middleRight = new Point(50, 60)
 
 		expect(rect.x).toBe(20)
 		expect(rect.y).toBe(40)
@@ -168,7 +169,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set bottomLeft", function() {
-		rect.bottomLeft = new nessy.Point(50, 60)
+		rect.bottomLeft = new Point(50, 60)
 
 		expect(rect.x).toBe(50)
 		expect(rect.y).toBe(20)
@@ -182,7 +183,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set bottomCenter", function() {
-		rect.bottomCenter = new nessy.Point(50, 60)
+		rect.bottomCenter = new Point(50, 60)
 
 		expect(rect.x).toBe(35)
 		expect(rect.y).toBe(20)
@@ -196,7 +197,7 @@ describe("Rectangle", function() {
 	})
 
 	it("Should set bottomRight", function() {
-		rect.bottomRight = new nessy.Point(50, 60)
+		rect.bottomRight = new Point(50, 60)
 
 		expect(rect.x).toBe(20)
 		expect(rect.y).toBe(20)
