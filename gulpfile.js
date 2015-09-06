@@ -4,7 +4,7 @@ var gulp = require("gulp"),
 
 // JS
 gulp.task("js", function() {
-	gulp.src(["./src/nessy/*.js"])
+	gulp.src(["./src/**/*.js"])
 		.pipe(concat("nessy.js"))
-		.pipe(gulp.dest("./public/js"));
+		.pipe(gulp.dest("./build"));
 });

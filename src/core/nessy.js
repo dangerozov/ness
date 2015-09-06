@@ -1,5 +1,3 @@
-var nessy = nessy || { }
-
 nessy.Host = function() { }
 
 nessy.Host.prototype = {

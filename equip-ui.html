@@ -1,21 +1,7 @@
 <html>
 <head>
-	
-	<script src="src/nessy/nessy.js"></script>
-	<script src="src/nessy/moco.js"></script>
-	<script src="src/nessy/gameloop.js"></script>
-	<script src="src/nessy/entities.js"></script>
-	<script src="src/nessy/graphics.js"></script>
-	<script src="src/nessy/point.js"></script>
-	<script src="src/nessy/rectangle.js"></script>
-	<script src="src/nessy/renderer.js"></script>
-	<script src="src/nessy/texture.js"></script>
-	<script src="src/nessy/timer.js"></script>
-	<script src="src/nessy/keyboard.js"></script>
-	<script src="src/nessy/mouse.js"></script>
-	
-	<script src="src/linq.js"></script>
-	
+	<script src="build/nessy.js"></script>	
+	<script src="src/core/linq.js"></script>
 </head>
 <body>
 	<script>
@@ -106,7 +92,7 @@
 				}		
 			},
 			update: function() {
-				var mouseRect = new host.Rectangle(host.mouse.x, host.mouse.y, 1, 1)
+				var mouseRect = new host.Rectangle({ x: host.mouse.x, y: host.mouse.y, width: 1, height: 1 })
 				
 				this.slots.forEach(function(slot) {
 					if (slot.item != null) {

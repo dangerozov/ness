@@ -1,19 +1,106 @@
 <html>
 <head></head>
 <body>
-<script src="src/nessy/nessy.js"></script>
-<script src="src/nessy/moco.js"></script>
-<script src="src/nessy/gameloop.js"></script>
-<script src="src/nessy/entities.js"></script>
-<script src="src/nessy/graphics.js"></script>
-<script src="src/nessy/point.js"></script>
-<script src="src/nessy/rectangle.js"></script>
-<script src="src/nessy/renderer.js"></script>
-<script src="src/nessy/texture.js"></script>
-<script src="src/nessy/timer.js"></script>
-<script src="src/nessy/keyboard.js"></script>
-<script src="src/nessy/mouse.js"></script>
-<script src="src/water.js"></script>
-<script src="src/game.js"></script>
+<script src="build/nessy.js"></script>
+<script>
+	Water = function(host) {
+		this.bounds = host.graphics.viewport
+		this.texture = {
+			image: textures.water,
+			mode: "fill"
+		}
+	
+		this.texture.bounds = host.graphics.viewport
+		this.texture.bounds.height += 24
+	
+		this.update = Water.scrolling(this)
+	
+		host.entities.add(this)
+	}
+	
+	Water.scrolling = function(self) {
+		var task = repeat(serial([
+			nextFrame(),
+			delay(1 / 48),
+			call(function() { 
+				self.texture.bounds.y = self.texture.bounds.y + 1
+				if (self.texture.bounds.y >= 0) {
+					self.texture.bounds.y = -24
+				}
+			})]))()
+	
+		return function() { task() }
+	}
+	
+	var host = new nessy.Host()
+	host.plug("gameloop", nessy.GameLoop)
+	host.plug("timer", nessy.Timer)
+	host.plug("Point", nessy.Point)
+	host.plug("Rectangle", nessy.Rectangle)
+	host.plug("graphics", nessy.Graphics, { width: 800, height: 600 })
+	host.plug("Texture", nessy.Texture)
+	host.plug("renderer", nessy.Renderer)
+	host.plug("keyboard", nessy.Keyboard)
+	host.plug("mouse", nessy.Mouse)
+	host.plug("entities", nessy.EntityStore)
+	
+	host.debug = true
+	
+	var textures = {}
+	
+	var Game = function(host) {
+		this.host = host
+	}
+	
+	Game.prototype = {
+		preload: serial([
+				loadImage("resources/plane.png", function(img) { textures.plane = (new this.host.Texture(img)) }),
+				loadImage("resources/water.png", function(img) { textures.water = (new this.host.Texture(img)) })
+			]),	
+		init: function() {
+			
+			var water = new Water(this.host)
+			var plane = {
+				bounds: textures.plane.bounds.copy(),
+				texture: {
+					image: textures.plane
+				}
+			}
+			plane.bounds.center = this.host.graphics.viewport.center
+	
+			this.host.entities.add(plane)
+	
+			this.host.entities.onUpdate(["update"], function(entity) { entity.update() })
+			this.host.entities.onDraw(["texture"], function(entity) { this.host.renderer.render(entity) }.bind(this))
+	
+			var d = repeat(serial(delay(3), call(function() { console.log("after 3 sec") })))()
+			var p = repeat(serial(delay(1/48), call(function() {
+				plane.bounds.x += 1
+			})))()
+	
+			this.plane = plane
+			this.water = water
+		},	
+		update: function() {
+			if (this.host.keyboard.isDown(39)) this.plane.bounds.x += 10
+			if (this.host.keyboard.isDown(37)) this.plane.bounds.x -= 10
+			if (this.host.keyboard.isDown(40)) this.plane.bounds.y += 10
+			if (this.host.keyboard.isDown(38)) this.plane.bounds.y -= 10
+		},	
+		draw: function() {
+			if (this.host.keyboard.isDown(13)) {
+				this.host.graphics.fillStyle = "white"
+				this.host.graphics.print("pEnter pressed", 200, 200)
+			}
+			if (this.host.mouse.isDown) {
+				this.host.graphics.fillStyle = "white"
+				this.host.graphics.print("pMouse pressed", this.host.mouse.x + 2, this.host.mouse.y + 2)
+			}
+		}
+	}
+	
+	host.plug("game", Game)
+	
+	host.gameloop.run()</script>
 </body>
 </html>

@@ -3,7 +3,7 @@ nessy.Texture = function(host) {
 		if (!(texture instanceof Image)) throw "Not Image"
 		
 		this.raw = texture
-		this.bounds = bounds || new host.Rectangle(texture.width, texture.height)
+		this.bounds = bounds || new host.Rectangle({ width: texture.width, height: texture.height })
 	}
 	
 	Texture.prototype = {
@@ -43,7 +43,7 @@ nessy.Sprite = function(host) {
 			}
 		},
 		get bounds() {
-			return new host.Rectangle(this.position.x, this.position.y, this.texture.bounds.width, this.texture.bounds.height)
+			return new host.Rectangle({ x: this.position.x, y: this.position.y, width: this.texture.bounds.width, height: this.texture.bounds.height })
 		}
 	}
 	
