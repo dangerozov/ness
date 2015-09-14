@@ -4,3 +4,5 @@ build/
 public/
 lib/
 node_modules/
+.vscode/
+.settings/
