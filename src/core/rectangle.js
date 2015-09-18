@@ -1,17 +1,9 @@
 nessy.Rectangle = function(host) {
-	var Rectangle = function(x, y, width, height) {
-		if (width == undefined && height == undefined) {
-			this.x = 0
-			this.y = 0
-			this.width = x
-			this.height = y
-		}
-		else {
-			this.x = x || 0
-			this.y = y || 0
-			this.width = width || 0
-			this.height = height || 0
-		}
+	var Rectangle = function(args) {
+		this.x = args.x || 0
+		this.y = args.y || 0
+		this.width = args.width || 0
+		this.height = args.height || 0
 	
 		//console.log("new rectangle "/* + this*/)
 	}
@@ -22,7 +14,7 @@ nessy.Rectangle = function(host) {
 		var right = Math.max(leftRect.right, rightRect.right)
 		var bottom = Math.max(leftRect.bottom, rightRect.bottom)
 		
-		return new Rectangle(left, top, right - left, bottom - top)
+		return new Rectangle({ x: left, y: top, width: right - left, height: bottom - top })
 	}
 	
 	Rectangle.prototype = {
@@ -97,7 +89,7 @@ nessy.Rectangle = function(host) {
 		},
 	
 		copy: function() {
-			return new host.Rectangle(this.x, this.y, this.width, this.height)
+			return new host.Rectangle({ x: this.x, y: this.y, width: this.width, height: this.height })
 		},
 	
 		stroke: function(strokeStyle) {
