@@ -1,4 +1,5 @@
-nessy.GameLoop = function() {
+nessy.GameLoop = function(host) {
+	this.host = host
 	this.preloads = []
 	this.inits = []
 	this.updates = []
@@ -11,7 +12,7 @@ nessy.GameLoop.prototype = {
 			this.preloads.push(plugin.preload.bind(plugin))
 		}
 		if (plugin.init != null) {
-			this.inits.push(call(plugin.init.bind(plugin)))
+			this.inits.push(this.host.moco.call(plugin.init.bind(plugin)))
 		}
 		if (plugin.update != null) {
 			this.updates.push(plugin.update.bind(plugin))
@@ -22,7 +23,7 @@ nessy.GameLoop.prototype = {
 	},
 	run: function() {
 				
-		var preload = serial(this.preloads.concat(this.inits))()
+		var preload = this.host.moco.serial(this.preloads.concat(this.inits))()
 		var finishedPreloading = false
 		
 		var update = function(elapsedTotal) {

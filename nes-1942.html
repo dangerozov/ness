@@ -4,6 +4,7 @@
 <script src="build/nessy.js"></script>
 <script>
 	Water = function(host) {
+		this.host = host
 		this.bounds = host.graphics.viewport
 		this.texture = {
 			image: textures.water,
@@ -13,50 +14,56 @@
 		this.texture.bounds = host.graphics.viewport
 		this.texture.bounds.height += 24
 	
-		this.update = Water.scrolling(this)
+		this.update = Water.scrolling.bind(this)()
 	
 		host.entities.add(this)
 	}
 	
-	Water.scrolling = function(self) {
-		var task = repeat(serial([
-			nextFrame(),
-			delay(1 / 48),
-			call(function() { 
-				self.texture.bounds.y = self.texture.bounds.y + 1
-				if (self.texture.bounds.y >= 0) {
-					self.texture.bounds.y = -24
+	Water.scrolling = function() {
+		var task = this.host.moco.repeat(this.host.moco.serial([
+			this.host.moco.nextFrame(),
+			this.host.moco.delay(1 / 48),
+			this.host.moco.call(() => { 
+				this.texture.bounds.y = this.texture.bounds.y + 1
+				if (this.texture.bounds.y >= 0) {
+					this.texture.bounds.y = -24
 				}
 			})]))()
 	
 		return function() { task() }
 	}
 	
-	var host = new nessy.Host()
-	host.plug("gameloop", nessy.GameLoop)
-	host.plug("timer", nessy.Timer)
-	host.plug("Point", nessy.Point)
-	host.plug("Rectangle", nessy.Rectangle)
-	host.plug("graphics", nessy.Graphics, { width: 800, height: 600 })
-	host.plug("Texture", nessy.Texture)
-	host.plug("renderer", nessy.Renderer)
-	host.plug("keyboard", nessy.Keyboard)
-	host.plug("mouse", nessy.Mouse)
-	host.plug("entities", nessy.EntityStore)
+	var host2 = new nessy.Host()
+	host2.plug("gameloop", nessy.GameLoop)
+	host2.plug("timer", nessy.Timer)
+	host2.plug("Point", nessy.Point)
+	host2.plug("Rectangle", nessy.Rectangle)
+	host2.plug("graphics", nessy.Graphics, { width: 800, height: 600 })
+	host2.plug("Texture", nessy.Texture)
+	host2.plug("renderer", nessy.Renderer)
+	host2.plug("keyboard", nessy.Keyboard)
+	host2.plug("mouse", nessy.Mouse)
+	host2.plug("entities", nessy.EntityStore)
+	host2.plug("moco", nessy.moco)
 	
-	host.debug = true
+	host2.debug = true
 	
 	var textures = {}
 	
 	var Game = function(host) {
 		this.host = host
+		
+		this.preload = this.host.moco.serial([
+			this.host.moco.loadImage("resources/plane.png", img => { 
+				textures.plane = (new this.host.Texture(img)) 
+			}),
+			this.host.moco.loadImage("resources/water.png", img => {
+				textures.water = (new this.host.Texture(img))
+			})
+		])
 	}
 	
-	Game.prototype = {
-		preload: serial([
-				loadImage("resources/plane.png", function(img) { textures.plane = (new this.host.Texture(img)) }),
-				loadImage("resources/water.png", function(img) { textures.water = (new this.host.Texture(img)) })
-			]),	
+	Game.prototype = {	
 		init: function() {
 			
 			var water = new Water(this.host)
@@ -72,11 +79,6 @@
 	
 			this.host.entities.onUpdate(["update"], function(entity) { entity.update() })
 			this.host.entities.onDraw(["texture"], function(entity) { this.host.renderer.render(entity) }.bind(this))
-	
-			var d = repeat(serial(delay(3), call(function() { console.log("after 3 sec") })))()
-			var p = repeat(serial(delay(1/48), call(function() {
-				plane.bounds.x += 1
-			})))()
 	
 			this.plane = plane
 			this.water = water
@@ -99,8 +101,8 @@
 		}
 	}
 	
-	host.plug("game", Game)
+	host2.plug("game", Game)
 	
-	host.gameloop.run()</script>
+	host2.gameloop.run()</script>
 </body>
 </html>

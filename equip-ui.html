@@ -5,27 +5,31 @@
 </head>
 <body>
 	<script>
-		var host = new nessy.Host()
-		host.plug("gameloop", nessy.GameLoop)
-		host.plug("Point", nessy.Point)
-		host.plug("Rectangle", nessy.Rectangle)
-		host.plug("graphics", nessy.Graphics, { width: 640, height: 480 })
-		host.plug("Texture", nessy.Texture)
-		host.plug("Sprite", nessy.Sprite)
-		host.plug("CompositeSprite", nessy.CompositeSprite)
-		host.plug("mouse", nessy.Mouse)
+		var host2 = new nessy.Host()
+		host2.plug("gameloop", nessy.GameLoop)
+		host2.plug("Point", nessy.Point)
+		host2.plug("Rectangle", nessy.Rectangle)
+		host2.plug("graphics", nessy.Graphics, { width: 640, height: 480 })
+		host2.plug("Texture", nessy.Texture)
+		host2.plug("Sprite", nessy.Sprite)
+		host2.plug("CompositeSprite", nessy.CompositeSprite)
+		host2.plug("mouse", nessy.Mouse)
+		host2.plug("moco", nessy.moco)
 		
 		var textures = {}
 		
-		var Game = function() {}
-		Game.prototype = {
-			preload: serial([
-				loadImage("resources/background-default-large.png", function(img) { textures.backgroundLarge = (new host.Texture(img)) }),
-				loadImage("resources/border-default-large.png", function(img) { textures.borderLarge = (new host.Texture(img)) }),
-				loadImage("resources/race_human_male-large.jpg", function(img) { textures.humanMaleLarge = (new host.Texture(img)) }),
-				loadImage("resources/hilite-default-large.png", function(img) { textures.hiliteLarge = (new host.Texture(img)) }),
-				loadImage("resources/race_human_female-large.jpg", function(img) { textures.humanFemaleLarge = (new host.Texture(img)) }),
-			]),
+		var Game = function(host) {
+			this.host = host
+			this.preload = host.moco.serial([
+				host.moco.loadImage("resources/background-default-large.png", function(img) { textures.backgroundLarge = (new host.Texture(img)) }),
+				host.moco.loadImage("resources/border-default-large.png", function(img) { textures.borderLarge = (new host.Texture(img)) }),
+				host.moco.loadImage("resources/race_human_male-large.jpg", function(img) { textures.humanMaleLarge = (new host.Texture(img)) }),
+				host.moco.loadImage("resources/hilite-default-large.png", function(img) { textures.hiliteLarge = (new host.Texture(img)) }),
+				host.moco.loadImage("resources/race_human_female-large.jpg", function(img) { textures.humanFemaleLarge = (new host.Texture(img)) }),
+			])
+		}
+		
+		Game.prototype = {			
 			init: function() {
 				
 				var slots = linq.range(0, 4)
@@ -36,8 +40,8 @@
 				
 				this.slots = slots
 				
-				this.slots.forEach(function(slot) {
-					slot.bounds.location = new host.Point(100, 100)
+				this.slots.forEach(slot => {
+					slot.bounds.location = new this.host.Point(100, 100)
 				})
 				
 				this.slots.aggregate(100, function(value, slot) {
@@ -45,15 +49,15 @@
 					return slot.bounds.right
 				})
 				
-				var sprite1 = new host.Sprite({
+				var sprite1 = new this.host.Sprite({
 					texture: textures.borderLarge
 				})
 				
-				var sprite2 = new host.Sprite({
+				var sprite2 = new this.host.Sprite({
 					texture: textures.humanMaleLarge
 				})
 				
-				var sprite3 = new host.Sprite({
+				var sprite3 = new this.host.Sprite({
 					texture: textures.hiliteLarge,
 					get visible() {
 						return slots[0].item.focus
@@ -68,9 +72,9 @@
 					return sprite.bounds.center
 				})
 				
-				this.compSprite = new host.CompositeSprite({
+				this.compSprite = new this.host.CompositeSprite({
 					sprites: [ sprite2, sprite3, sprite1 ],
-					position: new host.Point(200, 200)
+					position: new this.host.Point(200, 200)
 				})
 				
 				this.slots[0].item = {
@@ -92,7 +96,7 @@
 				}		
 			},
 			update: function() {
-				var mouseRect = new host.Rectangle({ x: host.mouse.x, y: host.mouse.y, width: 1, height: 1 })
+				var mouseRect = new this.host.Rectangle({ x: this.host.mouse.x, y: this.host.mouse.y, width: 1, height: 1 })
 				
 				this.slots.forEach(function(slot) {
 					if (slot.item != null) {
@@ -101,7 +105,7 @@
 				})
 			},
 			draw: function() {
-				host.graphics.viewport.fill("#181818")
+				this.host.graphics.viewport.fill("#181818")
 				
 				this.slots.forEach(function(slot) {
 					slot.texture.draw(slot.bounds.location)
@@ -129,9 +133,9 @@
 			}
 		}
 		
-		host.plug("game", Game)
+		host2.plug("game", Game)
 		
-		host.gameloop.run()
+		host2.gameloop.run()
 		
 	</script>
 </body>
