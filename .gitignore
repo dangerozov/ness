@@ -6,4 +6,3 @@ lib/
 node_modules/
 .vscode/
 .settings/
-.jshintrc
