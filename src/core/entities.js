@@ -6,30 +6,18 @@ nessy.EntityStore = function() {
 
 nessy.EntityStore.prototype = {
 	update: function() {
-		for (var entity of this.entities) {
-			for (var system of this.onUpdateSystems) {
-				var suitable = true
-				for (var component of system.components) {
-					suitable = entity[component] != null
-				}
-				if (suitable) {
-					system.callback(entity)
-				}
-			}
-		}
+		this.entities.forEach(entity => {
+			this.onUpdateSystems
+				.filter(system => system.components.all(component => entity[component] != undefined))
+				.forEach(system => system.callback(entity))
+		})
 	},
 	draw: function() {
-		for (var entity of this.entities) {
-			for (var system of this.onDrawSystems) {
-				var suitable = true
-				for (var component of system.components) {
-					suitable = entity[component]
-				}
-				if (suitable) {
-					system.callback(entity)
-				}
-			}
-		}
+		this.entities.forEach(entity => {
+			this.onDrawSystems
+				.filter(system => system.components.all(component => entity[component] != undefined))
+				.forEach(system => system.callback(entity))
+		})
 	},
 
 	onUpdate: function(components, callback) {
