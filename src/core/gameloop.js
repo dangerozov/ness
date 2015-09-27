@@ -22,23 +22,19 @@ nessy.GameLoop.prototype = {
 		}
 	},
 	run: function() {
-				
+
 		var preload = this.host.moco.serial(this.preloads.concat(this.inits))()
 		var finishedPreloading = false
 		
-		var update = function(elapsedTotal) {
-			window.requestAnimationFrame(update.bind(this))
+		var update = elapsedTotal => {
+			window.requestAnimationFrame(update)
 			
 			if (finishedPreloading || (finishedPreloading = preload())) {
-				this.updates.forEach(function(func) {
-					func(elapsedTotal)
-				});
-				this.draws.forEach(function(draw) {
-					draw(elapsedTotal)
-				})
+				this.updates.forEach(func => func(elapsedTotal))
+				this.draws.forEach(draw => draw(elapsedTotal))
 			}
 		}
 
-		window.requestAnimationFrame(update.bind(this))
+		window.requestAnimationFrame(update)
 	}
 }
