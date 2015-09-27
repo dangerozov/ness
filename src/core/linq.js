@@ -65,6 +65,12 @@ var linq = (function linq() {
 				if (accumulate > item) return accumulate
 				return item
 			})
+		},
+		all(source, predicate) {
+			for(var item of source) {
+				if (!predicate(item)) return false;
+			}
+			return true;
 		}
 	}
 	
@@ -74,6 +80,10 @@ var linq = (function linq() {
 			predicate = function() { return true }
 		}
 		return some.call(this, predicate)
+	}
+	
+	Array.prototype.all = function(obj) {
+		return linq.all.call(null, this, obj)
 	}
 	
 	Array.prototype.contains = function(obj) {
