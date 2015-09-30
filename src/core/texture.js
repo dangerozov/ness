@@ -8,8 +8,8 @@ nessy.Texture = function(host) {
 	
 	Texture.prototype = {
 		draw: function(point, scale) {
-			point = point || host.Point.zero
-			scale = scale || host.Point.one
+			point = point || { x: 0, y: 0 }
+			scale = scale || { x: 1, y: 1 }
 	
 			host.graphics.drawImage(this.raw, point.x, point.y)
 		}
@@ -23,8 +23,8 @@ nessy.Sprite = function(host) {
 		if (!(args.texture instanceof host.Texture)) throw "Not Texture"
 		
 		this.texture = args.texture
-		this.position = args.position || host.Point.zero
-		this.scale = args.scale || host.Point.one
+		this.position = args.position || { x: 0, y: 0 }
+		this.scale = args.scale || { x: 1, y: 1 }
 		if (args.hasOwnProperty("visible")) {
 			Object.defineProperty(this, "visible", {
 				get: function() { return args.visible }
@@ -38,7 +38,7 @@ nessy.Sprite = function(host) {
 	Sprite.prototype = {
 		draw: function(args) {
 			if (args.visible && this.visible) {
-				var absolutePosition = args.position.add(this.position)
+				var absolutePosition = host.Point.add(args.position, this.position)
 				host.graphics.drawImage(this.texture.raw, absolutePosition.x, absolutePosition.y)
 			}
 		},
@@ -53,8 +53,8 @@ nessy.Sprite = function(host) {
 nessy.CompositeSprite = function(host) {
 	var CompositeSprite = function(args) {
 		this.sprites = args.sprites
-		this.position = args.position || host.Point.zero
-		this.scale = args.scale || host.Point.one
+		this.position = args.position || { x: 0, y: 0 }
+		this.scale = args.scale || { x: 1, y: 1 }
 		this.visible = args.visible || true
 	}
 	

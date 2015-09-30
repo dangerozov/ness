@@ -30,25 +30,25 @@ nessy.Rectangle = function(host) {
 		get bottom() { return this.y + this.height },
 		set bottom(value) { this.y = value - this.height },
 	
-		get size() { return new host.Point(this.width, this.height) },
+		get size() { return { x: 0, y: 0, width: this.width, height: this.height } },
 		set size(point) {
 			this.width = point.x
 			this.height = point.y
 		},
 	
-		get location() { return new host.Point(this.left, this.top) },
+		get location() { return { x: this.left, y: this.top } },
 		set location(point) { this.set("location", point) },
 	
-		get topCenter() { return new host.Point(this.center.x, this.top) },
+		get topCenter() { return { x: this.center.x, y: this.top } },
 		set topCenter(point) { this.set("topCenter", point) },
 	
-		get topRight() { return new host.Point(this.right, this.top) },
+		get topRight() { return { x: this.right, y: this.top } },
 		set topRight(point) { this.set("topRight", point) },
 	
-		get middleLeft() { return new host.Point(this.left, this.center.y) },
+		get middleLeft() { return { x: this.left, y: this.center.y } },
 		set middleLeft(point) { this.set("middleLeft", point) },
 	
-		get center() { return new host.Point(this.x + this.width / 2, this.y + this.height / 2) },
+		get center() { return { x: this.x + this.width / 2, y: this.y + this.height / 2 } },
 		set center(point) { this.set("center", point) },
 	
 		getCenter: function() {
@@ -61,16 +61,16 @@ nessy.Rectangle = function(host) {
 			return result	
 		},
 	
-		get middleRight() { return new host.Point(this.right, this.center.y) },
+		get middleRight() { return { x: this.right, y: this.center.y } },
 		set middleRight(point) { this.set("middleRight", point) },
 	
-		get bottomLeft() { return new host.Point(this.left, this.bottom) },
+		get bottomLeft() { return { x: this.left, y: this.bottom } },
 		set bottomLeft(point) { this.set("bottomLeft", point) },
 	
-		get bottomCenter() { return new host.Point(this.center.x, this.bottom) },
+		get bottomCenter() { return { x: this.center.x, y: this.bottom } },
 		set bottomCenter(point) { this.set("bottomCenter", point) },
 	
-		get bottomRight() { return new host.Point(this.right, this.bottom) },
+		get bottomRight() { return { x: this.right, y: this.bottom } },
 		set bottomRight(point) { this.set("bottomRight", point) },
 	
 		set: function(anchor, point) {

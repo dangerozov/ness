@@ -41,7 +41,7 @@
 				this.slots = slots
 				
 				this.slots.forEach(slot => {
-					slot.bounds.location = new this.host.Point(100, 100)
+					slot.bounds.location = { x: 100, y: 100 }
 				})
 				
 				this.slots.aggregate(100, function(value, slot) {
@@ -74,7 +74,7 @@
 				
 				this.compSprite = new this.host.CompositeSprite({
 					sprites: [ sprite2, sprite3, sprite1 ],
-					position: new this.host.Point(200, 200)
+					position: { x: 200, y: 200 }
 				})
 				
 				this.slots[0].item = {
