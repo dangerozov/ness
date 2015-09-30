@@ -80,7 +80,7 @@ nessy.Graphics.prototype = {
 		return this.context.createPattern(image, repeat)
 	},
 	get viewport() {
-		return new this.host.Rectangle({ width: this.canvas.width, height: this.canvas.height })
+		return { x: 0, y: 0, width: this.canvas.width, height: this.canvas.height }
 	},
 	get strokeStyle() { return this.context.strokeStyle },
 	set strokeStyle(style) { this.context.strokeStyle = style },

@@ -68,12 +68,14 @@
 			
 			var water = new Water(this.host)
 			var plane = {
-				bounds: textures.plane.bounds.copy(),
+				bounds: textures.plane.bounds,
 				texture: {
 					image: textures.plane
 				}
 			}
-			plane.bounds.center = this.host.graphics.viewport.center
+			plane.bounds = this.host.Rectangle
+				.setCenter(plane.bounds, this.host.Rectangle
+					.getCenter(this.host.graphics.viewport))
 	
 			this.host.entities.add(plane)
 	

@@ -1,115 +1,70 @@
-nessy.Rectangle = function(host) {
-	var Rectangle = function(args) {
-		this.x = args.x || 0
-		this.y = args.y || 0
-		this.width = args.width || 0
-		this.height = args.height || 0
+nessy.Rectangle = (() => {
+	var r = {}
 	
-		//console.log("new rectangle "/* + this*/)
-	}
-	
-	Rectangle.join = function(leftRect, rightRect) {
-		var left = Math.min(leftRect.left, rightRect.left)
-		var top = Math.min(leftRect.top, rightRect.top)
-		var right = Math.max(leftRect.right, rightRect.right)
-		var bottom = Math.max(leftRect.bottom, rightRect.bottom)
+	r.join = (leftRect, rightRect) => {
+		var left = Math.min(r.getLeft(leftRect), r.getLeft(rightRect))
+		var top = Math.min(r.getTop(leftRect), r.getTop(rightRect))
+		var right = Math.max(r.getRight(leftRect), r.getRight(rightRect))
+		var bottom = Math.max(r.getBottom(leftRect), r.getBottom(rightRect))
 		
-		return new Rectangle({ x: left, y: top, width: right - left, height: bottom - top })
+		return { x: left, y: top, width: right - left, height: bottom - top }
 	}
 	
-	Rectangle.prototype = {
-		get left() { return this.x }, 
-		set left(value) { this.x = value },
+	r.intersects = (leftRect, rightRect) => {
+		return r.getTop(rightRect) > r.getTop(leftRect) &&
+			r.getTop(rightRect) < r.getBottom(leftRect) &&
+			r.getLeft(rightRect) > r.getLeft(leftRect) &&
+			r.getLeft(rightRect) < r.getRight(leftRect)
+	}
 	
-		get right() { return this.x + this.width },
-		set right(value) { this.x = value - this.width },
+	r.copy = (rect) => ({ x: rect.x, y: rect.y, width: rect.width, height: rect.height })
 	
-		get top() { return this.y },
-		set top(value) { this.y = value },
+	r.setX = (rect, value) => ({ x: value, y: rect.y, width: rect.width, height: rect.height })
+	r.setY = (rect, value) => ({ x: rect.x, y: value, width: rect.width, height: rect.height })
+	r.setWidth = (rect, value) => ({ x: rect.x, y: rect.y, width: value, height: rect.height })
+	r.setHeight = (rect, value) => ({ x: rect.x, y: rect.y, width: rect.width, height: value })
 	
-		get bottom() { return this.y + this.height },
-		set bottom(value) { this.y = value - this.height },
+	r.getLeft = (rect) => rect.x
+	r.getRight = (rect) => rect.x + rect.width
+	r.getTop = (rect) => rect.y
+	r.getBottom = (rect) => rect.y + rect.height
 	
-		get size() { return { x: 0, y: 0, width: this.width, height: this.height } },
-		set size(point) {
-			this.width = point.x
-			this.height = point.y
-		},
+	r.setLeft = r.setX
+	r.setRight = (rect, value) => r.setX(rect, value - rect.width)
+	r.setTop = r.setY
+	r.setBottom = (rect, value) => r.setY(rect, value - rect.height)
 	
-		get location() { return { x: this.left, y: this.top } },
-		set location(point) { this.set("location", point) },
+	r.getSize = (rect) => ({ x: rect.width, y: rect.height })
 	
-		get topCenter() { return { x: this.center.x, y: this.top } },
-		set topCenter(point) { this.set("topCenter", point) },
+	r.setSize = (rect, point) => ({ x: rect.x, y: rect.y, width: point.x, height: point.y })
 	
-		get topRight() { return { x: this.right, y: this.top } },
-		set topRight(point) { this.set("topRight", point) },
-	
-		get middleLeft() { return { x: this.left, y: this.center.y } },
-		set middleLeft(point) { this.set("middleLeft", point) },
-	
-		get center() { return { x: this.x + this.width / 2, y: this.y + this.height / 2 } },
-		set center(point) { this.set("center", point) },
-	
-		getCenter: function() {
-			return this.center	
-		},
+	r.set = (rect, anchor, point) => {
+		var anchorValue = r[anchor](rect)
+		var offsetX = point.x - anchorValue.x
+		var offsetY = point.y - anchorValue.y
 		
-		setCenter: function(point) {
-			var result = this.copy()
-			result.center = point
-			return result	
-		},
-	
-		get middleRight() { return { x: this.right, y: this.center.y } },
-		set middleRight(point) { this.set("middleRight", point) },
-	
-		get bottomLeft() { return { x: this.left, y: this.bottom } },
-		set bottomLeft(point) { this.set("bottomLeft", point) },
-	
-		get bottomCenter() { return { x: this.center.x, y: this.bottom } },
-		set bottomCenter(point) { this.set("bottomCenter", point) },
-	
-		get bottomRight() { return { x: this.right, y: this.bottom } },
-		set bottomRight(point) { this.set("bottomRight", point) },
-	
-		set: function(anchor, point) {
-			var anchorValue = this[anchor]
-			var offsetX = point.x - anchorValue.x
-			var offsetY = point.y - anchorValue.y
-			this.x += offsetX
-			this.y += offsetY
-		},
-	
-		intersects: function(rect) {
-			return rect.top > this.top &&
-				rect.top < this.bottom &&
-				rect.left > this.left &&
-				rect.left < this.right
-		},
-	
-		copy: function() {
-			return new host.Rectangle({ x: this.x, y: this.y, width: this.width, height: this.height })
-		},
-	
-		stroke: function(strokeStyle) {
-			var previousStyle = host.graphics.strokeStyle
-			host.graphics.strokeStyle = strokeStyle
-			host.graphics.strokeRect(this)
-			host.graphics.strokeStyle = previousStyle
-		},
-	
-		fill: function(fillStyle) {
-			var previousStyle = host.graphics.fillStyle
-			host.graphics.fillStyle = fillStyle
-			host.graphics.fillRect(this)
-			host.graphics.fillStyle = previousStyle
-		},
-	
-		toString: function() {
-			return "{ x: " + this.x + ", y: " + this.y + ", w: " + this.width + ", h: " + this.height + " }"
-		}
+		return { x: rect.x + offsetX, y: rect.y + offsetY, width: rect.width, height: rect.height }
 	}
 	
-	return Rectangle
-}
+	r.getTopLeft = (rect) => ({ x: r.getLeft(rect), y: r.getTop(rect) })
+	r.getTopCenter = (rect) => ({ x: r.getCenter(rect).x, y: r.getTop(rect) })
+	r.getTopRight = (rect) => ({ x: r.getRight(rect), y: r.getTop(rect) })
+	r.getMiddleLeft = (rect) => ({ x: r.getLeft(rect), y: r.getCenter(rect).y})
+	r.getCenter = (rect) => ({ x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 })
+	r.getMiddleRight = (rect) => ({ x: r.getRight(rect), y: r.getCenter(rect).y })
+	r.getBottomLeft = (rect) => ({ x: r.getLeft(rect), y: r.getBottom(rect) })
+	r.getBottomCenter = (rect) => ({ x: r.getCenter(rect).x, y: r.getBottom(rect) })
+	r.getBottomRight = (rect) => ({ x: r.getRight(rect), y: r.getBottom(rect) })
+	
+	r.setTopLeft = (rect, point) => r.set(rect, "getTopLeft", point)
+	r.setTopCenter = (rect, point) => r.set(rect, "getTopCenter", point)
+	r.setTopRight = (rect, point) => r.set(rect, "getTopRight", point)
+	r.setMiddleLeft = (rect, point) => r.set(rect, "getMiddleLeft", point)
+	r.setCenter = (rect, point) => r.set(rect, "getCenter", point)
+	r.setMiddleRight = (rect, point) => r.set(rect, "getMiddleRight", point)
+	r.setBottomLeft = (rect, point) => r.set(rect, "getBottomLeft", point)
+	r.setBottomCenter = (rect, point) => r.set(rect, "getBottomCenter", point)
+	r.setBottomRight = (rect, point) => r.set(rect, "getBottomRight", point)
+
+	return r
+})()

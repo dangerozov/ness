@@ -3,7 +3,7 @@ nessy.Texture = function(host) {
 		if (!(texture instanceof Image)) throw "Not Image"
 		
 		this.raw = texture
-		this.bounds = bounds || new host.Rectangle({ width: texture.width, height: texture.height })
+		this.bounds = bounds || { x: 0, y: 0, width: texture.width, height: texture.height }
 	}
 	
 	Texture.prototype = {
@@ -43,7 +43,7 @@ nessy.Sprite = function(host) {
 			}
 		},
 		get bounds() {
-			return new host.Rectangle({ x: this.position.x, y: this.position.y, width: this.texture.bounds.width, height: this.texture.bounds.height })
+			return { x: this.position.x, y: this.position.y, width: this.texture.bounds.width, height: this.texture.bounds.height }
 		}
 	}
 	
@@ -71,7 +71,7 @@ nessy.CompositeSprite = function(host) {
 				.map(function(sprite) { return sprite.bounds })
 				.aggregate(host.Rectangle.join)
 
-			bounds.location = this.position
+			bounds = host.Rectangle.setTopLeft(bounds, this.position)
 			return bounds
 		}
 	}

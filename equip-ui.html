@@ -33,20 +33,20 @@
 			init: function() {
 				
 				var slots = linq.range(0, 4)
-					.map(function() { return {
+					.map(_ => ({
 						texture: textures.backgroundLarge,
-						bounds: textures.backgroundLarge.bounds.copy()
-					}})
+						bounds: textures.backgroundLarge.bounds
+					}))
 				
 				this.slots = slots
 				
 				this.slots.forEach(slot => {
-					slot.bounds.location = { x: 100, y: 100 }
+					slot.bounds = this.host.Rectangle.setTopLeft(slot.bounds, { x: 100, y: 100 })
 				})
 				
-				this.slots.aggregate(100, function(value, slot) {
-					slot.bounds.left = value
-					return slot.bounds.right
+				this.slots.aggregate(100, (value, slot) => {
+					slot.bounds = this.host.Rectangle.setLeft(slot.bounds, value)
+					return this.host.Rectangle.getRight(slot.bounds)
 				})
 				
 				var sprite1 = new this.host.Sprite({
@@ -67,9 +67,10 @@
 					}
 				})
 				
-				var r = [ sprite1, sprite2, sprite3 ].aggregate(textures.borderLarge.bounds.center, function(value, sprite) {
-					sprite.position = sprite.bounds.setCenter(value).location
-					return sprite.bounds.center
+				var r = [ sprite1, sprite2, sprite3 ].aggregate(this.host.Rectangle.getCenter(textures.borderLarge.bounds), (value, sprite) => {
+					sprite.position = this.host.Rectangle.getTopLeft(this.host.Rectangle
+						.setCenter(sprite.bounds, value))
+					return this.host.Rectangle.getCenter(sprite.bounds)
 				})
 				
 				this.compSprite = new this.host.CompositeSprite({
@@ -96,40 +97,57 @@
 				}		
 			},
 			update: function() {
-				var mouseRect = new this.host.Rectangle({ x: this.host.mouse.x, y: this.host.mouse.y, width: 1, height: 1 })
+				var mouseRect = { x: this.host.mouse.x, y: this.host.mouse.y, width: 1, height: 1 }
 				
-				this.slots.forEach(function(slot) {
+				this.slots.forEach(slot => {
 					if (slot.item != null) {
-						slot.item.focus = slot.bounds.intersects(mouseRect) 
+						slot.item.focus = this.host.Rectangle.intersects(slot.bounds, mouseRect) 
 					}
 				})
 			},
 			draw: function() {
-				this.host.graphics.viewport.fill("#181818")
+				var rect = this.host.Rectangle,
+					graphics = this.host.graphics
 				
-				this.slots.forEach(function(slot) {
-					slot.texture.draw(slot.bounds.location)
+				var prev = graphics.fillStyle
+				graphics.fillStyle = "#181818"
+				graphics.fillRect(graphics.viewport)
+				graphics.fillStyle = prev
+				
+				this.slots.forEach(slot => {
+					slot.texture.draw(rect.getTopLeft(slot.bounds))
 					
 					if (slot.item != null) {
-						var facePos = slot.item.textures.face.bounds.copy()
-						facePos.center = slot.bounds.center
 						
-						var hilitePos = slot.item.textures.hilite.bounds.copy()
-						hilitePos.center = slot.bounds.center
-
-						var borderPos = slot.item.textures.border.bounds.copy()
-						borderPos.center = slot.bounds.center
+						var facePos = slot.item.textures.face.bounds
+							.pipe(rect.setCenter, slot.bounds
+								.pipe(rect.getCenter))
+							.pipe(rect.getTopLeft)
+								
+						var hilitePos = slot.item.textures.hilite.bounds
+							.pipe(rect.setCenter, slot.bounds
+								.pipe(rect.getCenter))
+							.pipe(rect.getTopLeft)
+							
+						var borderPos = slot.item.textures.border.bounds
+							.pipe(rect.setCenter, slot.bounds
+								.pipe(rect.getCenter))
+							.pipe(rect.getTopLeft)
 						
-						slot.item.textures.face.draw(facePos.location)
+						slot.item.textures.face.draw(facePos)
 						if (slot.item.focus) {
-							slot.item.textures.hilite.draw(hilitePos.location)
+							slot.item.textures.hilite.draw(hilitePos)
 						}
-						slot.item.textures.border.draw(borderPos.location)
+						slot.item.textures.border.draw(borderPos)
 					}
 				})
 				
 				this.compSprite.draw()
-				this.compSprite.bounds.stroke("red")
+				
+				var prev = graphics.strokeStyle
+				graphics.strokeStyle = "red"
+				graphics.strokeRect(this.compSprite.bounds)
+				graphics.strokeStyle = prev
 			}
 		}
 		
