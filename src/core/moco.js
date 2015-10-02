@@ -64,7 +64,7 @@ nessy.moco = function(host) {
 		},
 		
 		serial: function(taskCtors) {
-			return function ctor() {
+			return () => {
 				var e = this.getEnumerator(taskCtors);
 				var current = e.next();
 				var task = (current.done ? yield() : current.value()).bind(this);
