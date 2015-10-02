@@ -1,1 +1,1 @@
-var nessy = nessy || { }
+var nessy = nessy || { };

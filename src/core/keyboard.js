@@ -1,18 +1,18 @@
 nessy.Keyboard = function() {
-	var map = []
+	var map = [];
 	document.addEventListener("keydown", function(event) {
-		map[event.keyCode] = true
-	})
+		map[event.keyCode] = true;
+	});
 	
 	document.addEventListener("keyup", function(event) {
-		map[event.keyCode] = false
-	})
+		map[event.keyCode] = false;
+	});
 
-	this.map = map
-}
+	this.map = map;
+};
 
 nessy.Keyboard.prototype = {
 	isDown: function(keyCode) {
-		return this.map[keyCode] || false
+		return this.map[keyCode] || false;
 	}
-}
+};
