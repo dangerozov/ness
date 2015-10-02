@@ -14,8 +14,8 @@ nessy.Mouse = function(host) {
 	}.bind(this));
 
 	canvas.addEventListener("mousemove", function(event) {
-		var bounding = canvas.getBoundingClientRect()
-		this.x = event.pageX - (window.pageXOffset + bounding.left)
-		this.y = event.pageY - (window.pageYOffset + bounding.top)
+		var bounding = canvas.getBoundingClientRect();
+		this.x = event.pageX - (window.pageXOffset + bounding.left);
+		this.y = event.pageY - (window.pageYOffset + bounding.top);
 	}.bind(this));
 };
