@@ -43,6 +43,8 @@ host2.plug("moco", nessy.moco);
 
 host2.debug = true;
 
+var rect = nessy.chain(nessy.Rectangle);
+
 var textures = {};
 
 var Game = function(host) {
@@ -68,9 +70,11 @@ Game.prototype = {
 				image: textures.plane
 			}
 		};
-		plane.bounds = this.host.Rectangle
-			.setCenter(plane.bounds, this.host.Rectangle
-				.getCenter(this.host.graphics.viewport));
+		plane.bounds = rect(plane.bounds)
+			.setCenter(rect(this.host.graphics.viewport)
+				.getCenter()
+				.value)
+			.value;
 
 		this.host.entities.add(plane);
 
