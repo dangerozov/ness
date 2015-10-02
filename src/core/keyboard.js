@@ -1,10 +1,10 @@
 nessy.Keyboard = function() {
 	var map = [];
-	document.addEventListener("keydown", function(event) {
+	document.addEventListener("keydown", event => {
 		map[event.keyCode] = true;
 	});
 	
-	document.addEventListener("keyup", function(event) {
+	document.addEventListener("keyup", event => {
 		map[event.keyCode] = false;
 	});
 

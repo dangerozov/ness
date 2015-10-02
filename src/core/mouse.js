@@ -5,17 +5,17 @@ nessy.Mouse = function(host) {
 	this.x = 0;
 	this.y = 0;
 
-	canvas.addEventListener("mousedown", function(event) {
+	canvas.addEventListener("mousedown", () => {
 		this.isDown = true;
-	}.bind(this));
+	});
 
-	canvas.addEventListener("mouseup", function() {
+	canvas.addEventListener("mouseup", () => {
 		this.isDown = false;
-	}.bind(this));
+	});
 
-	canvas.addEventListener("mousemove", function(event) {
+	canvas.addEventListener("mousemove", event => {
 		var bounding = canvas.getBoundingClientRect();
 		this.x = event.pageX - (window.pageXOffset + bounding.left);
 		this.y = event.pageY - (window.pageYOffset + bounding.top);
-	}.bind(this));
+	});
 };
