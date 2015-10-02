@@ -38,7 +38,7 @@ nessy.Rectangle = (() => {
 	
 	r.setSize = (rect, point) => ({ x: rect.x, y: rect.y, width: point.x, height: point.y });
 	
-	r.set = (rect, anchor, point) => {
+	var set = (rect, anchor, point) => {
 		var anchorValue = r[anchor](rect);
 		var offsetX = point.x - anchorValue.x;
 		var offsetY = point.y - anchorValue.y;
@@ -56,15 +56,15 @@ nessy.Rectangle = (() => {
 	r.getBottomCenter = (rect) => ({ x: r.getCenter(rect).x, y: r.getBottom(rect) });
 	r.getBottomRight = (rect) => ({ x: r.getRight(rect), y: r.getBottom(rect) });
 	
-	r.setTopLeft = (rect, point) => r.set(rect, "getTopLeft", point);
-	r.setTopCenter = (rect, point) => r.set(rect, "getTopCenter", point);
-	r.setTopRight = (rect, point) => r.set(rect, "getTopRight", point);
-	r.setMiddleLeft = (rect, point) => r.set(rect, "getMiddleLeft", point);
-	r.setCenter = (rect, point) => r.set(rect, "getCenter", point);
-	r.setMiddleRight = (rect, point) => r.set(rect, "getMiddleRight", point);
-	r.setBottomLeft = (rect, point) => r.set(rect, "getBottomLeft", point);
-	r.setBottomCenter = (rect, point) => r.set(rect, "getBottomCenter", point);
-	r.setBottomRight = (rect, point) => r.set(rect, "getBottomRight", point);
+	r.setTopLeft = (rect, point) => set(rect, "getTopLeft", point);
+	r.setTopCenter = (rect, point) => set(rect, "getTopCenter", point);
+	r.setTopRight = (rect, point) => set(rect, "getTopRight", point);
+	r.setMiddleLeft = (rect, point) => set(rect, "getMiddleLeft", point);
+	r.setCenter = (rect, point) => set(rect, "getCenter", point);
+	r.setMiddleRight = (rect, point) => set(rect, "getMiddleRight", point);
+	r.setBottomLeft = (rect, point) => set(rect, "getBottomLeft", point);
+	r.setBottomCenter = (rect, point) => set(rect, "getBottomCenter", point);
+	r.setBottomRight = (rect, point) => set(rect, "getBottomRight", point);
 
 	return r;
 })();

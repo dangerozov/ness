@@ -11,6 +11,8 @@ host2.plug("moco", nessy.moco);
 
 var textures = {};
 
+var rect = nessy.chain(nessy.Rectangle);
+
 var Game = function(host) {
 	this.host = host;
 	this.preload = host.moco.serial([
@@ -34,12 +36,19 @@ Game.prototype = {
 		this.slots = slots;
 		
 		this.slots.forEach(slot => {
-			slot.bounds = this.host.Rectangle.setTopLeft(slot.bounds, { x: 100, y: 100 });
+			slot.bounds = rect(slot.bounds)
+				.setTopLeft({ x: 100, y: 100 })
+				.value;
 		});
 		
 		this.slots.aggregate(100, (value, slot) => {
-			slot.bounds = this.host.Rectangle.setLeft(slot.bounds, value);
-			return this.host.Rectangle.getRight(slot.bounds);
+			slot.bounds = rect(slot.bounds)
+				.setLeft(value)
+				.value;
+				
+			return rect(slot.bounds)
+				.getRight()
+				.value;
 		});
 		
 		var sprite1 = new this.host.Sprite({
@@ -60,10 +69,15 @@ Game.prototype = {
 			}
 		});
 		
-		var r = [ sprite1, sprite2, sprite3 ].aggregate(this.host.Rectangle.getCenter(textures.borderLarge.bounds), (value, sprite) => {
-			sprite.position = this.host.Rectangle.getTopLeft(this.host.Rectangle
-				.setCenter(sprite.bounds, value));
-			return this.host.Rectangle.getCenter(sprite.bounds);
+		var r = [ sprite1, sprite2, sprite3 ].aggregate(rect(textures.borderLarge.bounds).getCenter().value, (value, sprite) => {
+			sprite.position = rect(sprite.bounds)
+				.setCenter(value)
+				.getTopLeft()
+				.value;
+				
+			return rect(sprite.bounds)
+				.getCenter()
+				.value;
 		});
 		
 		this.compSprite = new this.host.CompositeSprite({
@@ -99,8 +113,7 @@ Game.prototype = {
 		});
 	},
 	draw: function() {
-		var rect = this.host.Rectangle,
-			graphics = this.host.graphics;
+		var graphics = this.host.graphics;
 		
 		var previousFillStyle = graphics.fillStyle;
 		graphics.fillStyle = "#181818";
@@ -108,24 +121,32 @@ Game.prototype = {
 		graphics.fillStyle = previousFillStyle;
 		
 		this.slots.forEach(slot => {
-			slot.texture.draw(rect.getTopLeft(slot.bounds));
+			slot.texture.draw(rect(slot.bounds)
+				.getTopLeft()
+				.value);
 			
 			if (slot.item !== undefined) {
 				
-				var facePos = slot.item.textures.face.bounds
-					.pipe(rect.setCenter, slot.bounds
-						.pipe(rect.getCenter))
-					.pipe(rect.getTopLeft);
-						
-				var hilitePos = slot.item.textures.hilite.bounds
-					.pipe(rect.setCenter, slot.bounds
-						.pipe(rect.getCenter))
-					.pipe(rect.getTopLeft);
+				var facePos = rect(slot.item.textures.face.bounds)
+					.setCenter(rect(slot.bounds)
+						.getCenter()
+						.value)
+					.getTopLeft()
+					.value;
+
+				var hilitePos = rect(slot.item.textures.hilite.bounds)
+					.setCenter(rect(slot.bounds)
+						.getCenter()
+						.value)
+					.getTopLeft()
+					.value;
 					
-				var borderPos = slot.item.textures.border.bounds
-					.pipe(rect.setCenter, slot.bounds
-						.pipe(rect.getCenter))
-					.pipe(rect.getTopLeft);
+				var borderPos = rect(slot.item.textures.border.bounds)
+					.setCenter(rect(slot.bounds)
+						.getCenter()
+						.value)
+					.getTopLeft()
+					.value;
 				
 				slot.item.textures.face.draw(facePos);
 				if (slot.item.focus) {
