@@ -65,8 +65,6 @@ nessy.Rectangle = (() => {
 	r.setBottomLeft = (rect, point) => set(rect, "getBottomLeft", point);
 	r.setBottomCenter = (rect, point) => set(rect, "getBottomCenter", point);
 	r.setBottomRight = (rect, point) => set(rect, "getBottomRight", point);
-
-	r.chain = nessy.chain(r);
 	
 	return r;
 })();
