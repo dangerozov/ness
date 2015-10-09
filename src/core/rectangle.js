@@ -1,4 +1,4 @@
-nessy.Rectangle = (() => {
+nessy.rectangle = (() => {
 	var r = {};
 	
 	r.join = (leftRect, rightRect) => {
@@ -66,5 +66,15 @@ nessy.Rectangle = (() => {
 	r.setBottomCenter = (rect, point) => set(rect, "getBottomCenter", point);
 	r.setBottomRight = (rect, point) => set(rect, "getBottomRight", point);
 	
-	return r;
+	return nessy.builder()
+		.chain("join", r.join)
+		.chain("setTopLeft", r.setTopLeft)
+		.chain("setLeft", r.setLeft)
+		.chain("setCenter", r.setCenter)
+		.unbox("intersects", r.intersects)
+		.unbox("getRight", r.getRight)
+		.unbox("getCenter", r.getCenter)
+		.unbox("getTopLeft", r.getTopLeft)
+		.unbox("getSize", r.getSize)
+		.value;
 })();
