@@ -1,7 +1,5 @@
 var host2 = new nessy.Host();
 host2.plug("gameloop", nessy.GameLoop);
-host2.plug("Point", nessy.Point);
-host2.plug("Rectangle", nessy.Rectangle);
 host2.plug("graphics", nessy.Graphics, { width: 640, height: 480 });
 host2.plug("Texture", nessy.Texture);
 host2.plug("Sprite", nessy.Sprite);
@@ -11,7 +9,7 @@ host2.plug("moco", nessy.moco);
 
 var textures = {};
 
-var rect = nessy.chain(nessy.Rectangle);
+var rect = nessy.rectangle;
 
 var Game = function(host) {
 	this.host = host;
@@ -47,8 +45,7 @@ Game.prototype = {
 				.value;
 				
 			return rect(slot.bounds)
-				.getRight()
-				.value;
+				.getRight();
 		});
 		
 		var sprite1 = new this.host.Sprite({
@@ -69,15 +66,13 @@ Game.prototype = {
 			}
 		});
 		
-		var r = [ sprite1, sprite2, sprite3 ].aggregate(rect(textures.borderLarge.bounds).getCenter().value, (value, sprite) => {
+		var r = [ sprite1, sprite2, sprite3 ].aggregate(rect(textures.borderLarge.bounds).getCenter(), (value, sprite) => {
 			sprite.position = rect(sprite.bounds)
 				.setCenter(value)
-				.getTopLeft()
-				.value;
+				.getTopLeft();
 				
 			return rect(sprite.bounds)
-				.getCenter()
-				.value;
+				.getCenter();
 		});
 		
 		this.compSprite = new this.host.CompositeSprite({
@@ -108,7 +103,7 @@ Game.prototype = {
 		
 		this.slots.forEach(slot => {
 			if (slot.item !== undefined) {
-				slot.item.focus = this.host.Rectangle.intersects(slot.bounds, mouseRect);
+				slot.item.focus = rect(slot.bounds).intersects(mouseRect);
 			}
 		});
 	},
@@ -122,31 +117,24 @@ Game.prototype = {
 		
 		this.slots.forEach(slot => {
 			slot.texture.draw(rect(slot.bounds)
-				.getTopLeft()
-				.value);
+				.getTopLeft());
 			
 			if (slot.item !== undefined) {
 				
 				var facePos = rect(slot.item.textures.face.bounds)
 					.setCenter(rect(slot.bounds)
-						.getCenter()
-						.value)
-					.getTopLeft()
-					.value;
+						.getCenter())
+					.getTopLeft();
 
 				var hilitePos = rect(slot.item.textures.hilite.bounds)
 					.setCenter(rect(slot.bounds)
-						.getCenter()
-						.value)
-					.getTopLeft()
-					.value;
+						.getCenter())
+					.getTopLeft();
 					
 				var borderPos = rect(slot.item.textures.border.bounds)
 					.setCenter(rect(slot.bounds)
-						.getCenter()
-						.value)
-					.getTopLeft()
-					.value;
+						.getCenter())
+					.getTopLeft();
 				
 				slot.item.textures.face.draw(facePos);
 				if (slot.item.focus) {

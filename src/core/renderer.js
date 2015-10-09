@@ -1,12 +1,11 @@
 nessy.Renderer = function(host) {
 	this.host = host;
-	this.point = nessy.chain(this.host.Point);
 };
 
 nessy.Renderer.prototype = {
 	render: function(entity) {
-		var rect = this.host.Rectangle.chain;
-		var point = this.point;
+		var rect = nessy.rectangle;
+		var point = nessy.point;
 		
 		var texture = entity.texture;
 		var mode = texture.mode || "scale";
@@ -14,13 +13,13 @@ nessy.Renderer.prototype = {
 		var target = texture.bounds || source;
 		
 		target = rect(target)
-			.setTopLeft(point(rect(target).getTopLeft().value)
-				.add(rect(entity.bounds).getTopLeft().value)
+			.setTopLeft(point(rect(target).getTopLeft())
+				.add(rect(entity.bounds).getTopLeft())
 				.value)
 			.value;
 		
-		var scale = point(rect(target).getSize().value)
-			.div(point(rect(source).getSize().value))
+		var scale = point(rect(target).getSize())
+			.div(point(rect(source).getSize()))
 			.value;
 
 		if (mode == "fill") {
@@ -36,7 +35,7 @@ nessy.Renderer.prototype = {
 			this.host.graphics.drawImage(image, target.x, target.y);
 		}
 		else if (mode == "scale") {
-			entity.texture.image.draw(rect(target).getTopLeft().value, scale);
+			entity.texture.image.draw(rect(target).getTopLeft(), scale);
 		}
 
 		if (this.host.debug) {

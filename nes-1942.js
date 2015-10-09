@@ -31,8 +31,6 @@ Water.scrolling = function() {
 var host2 = new nessy.Host();
 host2.plug("gameloop", nessy.GameLoop);
 host2.plug("timer", nessy.Timer);
-host2.plug("Point", nessy.Point);
-host2.plug("Rectangle", nessy.Rectangle);
 host2.plug("graphics", nessy.Graphics, { width: 800, height: 600 });
 host2.plug("Texture", nessy.Texture);
 host2.plug("renderer", nessy.Renderer);
@@ -43,7 +41,7 @@ host2.plug("moco", nessy.moco);
 
 host2.debug = true;
 
-var rect = nessy.chain(nessy.Rectangle);
+var rect = nessy.rectangle;
 
 var textures = {};
 
@@ -72,8 +70,7 @@ Game.prototype = {
 		};
 		plane.bounds = rect(plane.bounds)
 			.setCenter(rect(this.host.graphics.viewport)
-				.getCenter()
-				.value)
+				.getCenter())
 			.value;
 
 		this.host.entities.add(plane);
