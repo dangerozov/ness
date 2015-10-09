@@ -74,44 +74,54 @@ var wrap = { value: { } };
 addCascaded(wrap, "addCascaded", addCascaded);
 addChained(wrap, "addChained", addChained);
 
-var build = obj => {
-	var wrapped = {
-		value: { value: obj },
-		chain: (name, func) => {
-			wrapped.value[name] = (...args) => {
-				wrapped.value.value = func(wrapped.value.value, ...args);
-				return wrapped.value;
+var build = () => {
+			var builder = {
+				funcs: [],
+				value: obj => {
+					var wrapped = { value: obj };
+					builder.funcs.forEach(func => func(wrapped));
+					return wrapped;
+				},
+				chain: (name, func) => {
+					builder.funcs.push(wrapped => {
+						wrapped[name] = (...args) => {
+							wrapped.value = func(wrapped.value, ...args);
+							return wrapped;
+						};
+					});
+					return builder;
+				},
+				cascade: (name, func) => {
+					builder.funcs.push(wrapped =>  {
+						wrapped[name] = (...args) => {
+							func(wrapped.value, ...args);
+							return wrapped;
+						};
+					});
+					return builder;
+				},
+				unbox: (name, func) => {
+					builder.funcs.push(wrapped => {
+						wrapped[name] = (...args) => {
+							return func(wrapped.value, ...args);
+						};
+					});
+					return builder;
+				}
 			};
-			return wrapped;
-		},
-		cascade: (name, func) => {
-			wrapped.value[name] = (...args) => {
-				func(wrapped.value.value, ...args);
-				return wrapped.value;
-			};
-			return wrapped;
-		},
-		unbox: (name, func) => {
-			wrapped.value[name] = (...args) => {
-				return func(wrapped.value.value, ...args);
-			};
-			return wrapped;
-		}
-	};
-	
-	return wrapped;
-};
-
-var logger = build()
-	.cascade("log", (obj, text) => console.log(text))
-	.cascade("logError", (obj, text) => console.log("Error: " + text))
-	.cascade("logInfo", (obj, text) => console.log("Info: " + text))
-	.value;
-
-logger
-	.log("pam pam")
-	.logError("PAM PAM !!!")
-	.logInfo("informational pam");
+			return builder;
+		};
+		
+		var logger = build()
+			.cascade("log", (log, text) => log(text))
+			.cascade("logError", (log, text) => log("Error: " + text))
+			.cascade("logInfo", (log, text) => log("Info: " + text))
+			.value;
+		
+		logger(console.log.bind(console))
+			.log("pam pam")
+			.logError("PAM PAM !!!")
+			.logInfo("informational pam");
 
 nessy.chainFunc = (name, func) => {
 	return obj => {
