@@ -1,16 +1,4 @@
-var cascade = (func, context) => {
-	return (...args) => {
-		func(...args);
-		return context;
-	};
-};
-
 nessy.builder = (() => {
-	var cascadeThis = (func) => function(...args) {
-		func.call(this, ...args);
-		return this;
-	};
-
 	return () => {
 		var wrapper = function(obj) {
 			this.value = obj;
@@ -20,23 +8,28 @@ nessy.builder = (() => {
 			value: (obj) => new wrapper(obj)
 		};
 
-		builder.chain = cascade((name, func) => {
-			wrapper.prototype[name] = cascadeThis(function(...args) {
+		builder.chain = (name, func) => {
+			wrapper.prototype[name] = function(...args) {
 				this.value = func(this.value, ...args);
-			});
-		}, builder);
+				return this;
+			};
+			return builder;
+		};
 
-		builder.cascade = cascade((name, func) => {
-			wrapper.prototype[name] = cascadeThis(function(...args) {
+		builder.cascade = (name, func) => {
+			wrapper.prototype[name] = function(...args) {
 				func(this.value, ...args);
-			});
-		}, builder);
+				return this;
+			};
+			return builder;
+		};
 
-		builder.unbox = cascade((name, func) => {
+		builder.unbox = (name, func) => {
 			wrapper.prototype[name] = function(...args) {
 				return func(this.value, ...args);
 			};
-		}, builder);
+			return builder;
+		};
 
 		return builder;
 	};
