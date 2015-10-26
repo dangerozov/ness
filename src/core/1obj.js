@@ -1,21 +1,39 @@
-nessy.obj = ((builder) => {
+nessy.obj = (() => {
 	var o = {};
 
 	o.values = (obj, names) => names.map(name => obj[name]);
-
-	o.copy = (obj, target) => {
+	
+	o.forEach = (obj, callback) => {
 		for (var name in obj) {
-			target[name] = obj[name];
+			callback(obj[name], name, obj);
 		}
 	};
 
-	var result = builder()
-		.unbox("values", o.values)
-		.cascade("copy", o.copy)
+	o.copy = (obj, target) => {
+		o.forEach(obj, (value, name) => target[name] = value);
+		return target;
+	};
+	
+	o.with = (left, right) => {
+		var copy = o.copy(left, {});
+		o.forEach(right, (selector, name) => {
+			copy[name] = selector(copy[name]);
+		});
+		return copy;
+	};
+	
+	return o;	
+})();
+
+nessy.obj = ((obj) => {
+	
+	var result = nessy.builder()
+		.unbox("values", obj.values)
+		.cascade("copy", obj.copy)
 		.value;
 
-	o.copy(o, result);
-
+	result = obj.copy(obj, result);
+	 
 	return result;
 	
-})(nessy.builder);
+})(nessy.obj);

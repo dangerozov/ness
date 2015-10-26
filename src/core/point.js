@@ -1,29 +1,41 @@
-nessy.point = ((builder, func, obj) => {
+nessy.point = (() => {
 	var p = {
 		add: (left, right) => ({ x: left.x + right.x, y: left.y + right.y }),
 		sub: (left, right) => ({ x: left.x - right.x, y: left.y - right.y }),
 		mul: (left, right) => ({ x: left.x * right.x, y: left.y * right.y }),
 		div: (left, right) => ({ x: left.x / right.x, y: left.y / right.y })
 	};
-	
-	var result = builder()
-		.chain("add", p.add)
-		.chain("sub", p.sub)
-		.chain("mul", p.mul)
-		.chain("div", p.div)
-		.value;
-		
-	result = func(result)
-		.before(point => { if (typeof point === "undefined") throw "Not Point"; })
-		.before(point => { 
-			var invalid = obj(point)
-				.values(["x", "y"])
-				.some(value => typeof value === "undefined");
-				
-			if (invalid) throw "Not Point";
-		})
-		.value;
-		
+
+	return p;
+})();
+
+nessy.point = ((point) => {
+
+	var validate = func => nessy.func.before(func, (...args) => {
+			if (args.some(nessy.func.isUndefined)) throw "Not Point";
+			if (args.some(arg => nessy.obj.values(arg, ["x", "y"]).some(nessy.func.isUndefined))) 
+				throw "Not Point";
+		});
+
+	var result = nessy.obj
+		.with(point, {
+			add: validate,
+			sub: validate,
+			mul: validate,
+			div: validate
+		});
+
 	return result;
-		
-})(nessy.builder, nessy.func, nessy.obj);
+
+})(nessy.point);
+
+nessy.point = ((point) => {
+
+	var result = nessy.builder();	
+	["add", "sub", "mul", "div"]
+		.forEach(name => result.chain(name, point[name]));	
+	result = result.value;
+
+	return result;	
+
+})(nessy.point);

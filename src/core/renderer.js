@@ -19,7 +19,7 @@ nessy.Renderer.prototype = {
 			.value;
 		
 		var scale = point(rect(target).getSize())
-			.div(point(rect(source).getSize()))
+			.div(rect(source).getSize())
 			.value;
 
 		if (mode == "fill") {
