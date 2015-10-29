@@ -11,7 +11,7 @@ nessy.Texture = function(host) {
 			point = point || { x: 0, y: 0 };
 			scale = scale || { x: 1, y: 1 };
 	
-			host.graphics.drawImage(this.raw, point.x, point.y);
+			nessy.graphics.drawImage(host.graphics.__canvas, this.raw, point.x, point.y);
 		}
 	};
 	
@@ -39,7 +39,8 @@ nessy.Sprite = function(host) {
 		draw: function(args) {
 			if (args.visible && this.visible) {
 				var absolutePosition = nessy.point(args.position).add(this.position).value;
-				host.graphics.drawImage(this.texture.raw, absolutePosition.x, absolutePosition.y);
+				
+				nessy.graphics.drawImage(host.graphics.__canvas, this.texture.raw, absolutePosition.x, absolutePosition.y);
 			}
 		},
 		get bounds() {
@@ -69,7 +70,7 @@ nessy.CompositeSprite = function(host) {
 		get bounds() {
 			var bounds = this.sprites
 				.map(function(sprite) { return sprite.bounds; })
-				.aggregate((left, right) => nessy.rectangle(left).join(right).value);
+				.aggregate(nessy.rectangle.join);
 
 			bounds = nessy.rectangle(bounds).setTopLeft(this.position).value;
 			return bounds;

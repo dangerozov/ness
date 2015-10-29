@@ -1,3 +1,20 @@
+nessy.graphics = (() => {
+	var g = {};
+	
+	var proto = CanvasRenderingContext2D.prototype;
+	
+	["fillRect", "drawImage"].forEach(name => {
+		var func = proto[name];
+		g[name] = (canvas, ...args) => func.call(canvas.getContext("2d"), ...args);
+	});
+	
+	g.fillRect = nessy.func(g.fillRect)
+		.map((func, canvas, rect) => func(canvas, rect.x, rect.y, rect.width, rect.height))
+		.value;
+	
+	return g;
+})();
+
 nessy.Graphics = function(host, bounds) {
 	this.host = host;
 	

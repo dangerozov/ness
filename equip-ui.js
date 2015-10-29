@@ -112,7 +112,7 @@ Game.prototype = {
 		
 		var previousFillStyle = graphics.fillStyle;
 		graphics.fillStyle = "#181818";
-		graphics.fillRect(graphics.viewport);
+		nessy.graphics.fillRect(this.host.graphics.__canvas, graphics.viewport);
 		graphics.fillStyle = previousFillStyle;
 		
 		this.slots.forEach(slot => {

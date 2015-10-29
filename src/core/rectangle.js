@@ -66,7 +66,7 @@ nessy.rectangle = ((builder) => {
 	r.setBottomCenter = (rect, point) => set(rect, "getBottomCenter", point);
 	r.setBottomRight = (rect, point) => set(rect, "getBottomRight", point);
 	
-	return builder()
+	var result = builder()
 		.chain("join", r.join)
 		.chain("setTopLeft", r.setTopLeft)
 		.chain("setLeft", r.setLeft)
@@ -77,5 +77,9 @@ nessy.rectangle = ((builder) => {
 		.unbox("getTopLeft", r.getTopLeft)
 		.unbox("getSize", r.getSize)
 		.value;
+		
+	nessy.obj.copy(r, result);
+		
+	return result;
 		
 })(nessy.builder);
