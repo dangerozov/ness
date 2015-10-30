@@ -11,7 +11,7 @@ nessy.Texture = function(host) {
 			point = point || { x: 0, y: 0 };
 			scale = scale || { x: 1, y: 1 };
 	
-			nessy.graphics.drawImage(host.graphics.__canvas, this.raw, point.x, point.y);
+			nessy.graphics.drawImage(host.graphics.__canvas, this.raw, { x: point.x, y: point.y, width: this.raw.width, height: this.raw.height });
 		}
 	};
 	
@@ -40,7 +40,7 @@ nessy.Sprite = function(host) {
 			if (args.visible && this.visible) {
 				var absolutePosition = nessy.point(args.position).add(this.position).value;
 				
-				nessy.graphics.drawImage(host.graphics.__canvas, this.texture.raw, absolutePosition.x, absolutePosition.y);
+				nessy.graphics.drawImage(host.graphics.__canvas, this.texture.raw, { x: absolutePosition.x, y: absolutePosition.y, width: this.texture.raw.width, height: this.texture.raw.height });
 			}
 		},
 		get bounds() {

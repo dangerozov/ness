@@ -1,16 +1,50 @@
 nessy.graphics = (() => {
 	var g = {};
 	
-	var proto = CanvasRenderingContext2D.prototype;
-	
-	["fillRect", "drawImage"].forEach(name => {
-		var func = proto[name];
+	["clearRect", "fillRect", "strokeRect",
+	 "fillText", "strokeText", "measureText",
+	 "drawImage",
+	 "save", "restore"].forEach(name => {
+		var func = CanvasRenderingContext2D.prototype[name];
+		if (typeof func === "undefined") throw "Not Found";
 		g[name] = (canvas, ...args) => func.call(canvas.getContext("2d"), ...args);
 	});
 	
-	g.fillRect = nessy.func(g.fillRect)
-		.map((func, canvas, rect) => func(canvas, rect.x, rect.y, rect.width, rect.height))
-		.value;
+	["clearRect", "fillRect", "strokeRect"].forEach(name => {
+		g[name] = nessy.func(g[name])
+			.map((func, canvas, rect) => func(canvas, rect.x, rect.y, rect.width, rect.height))
+			.value;
+	});
+	
+	["fillText", "strokeText"].forEach(name => {
+		g[name] = nessy.func(g[name])
+			.map((func, canvas, text, point, maxWidth) => func(canvas, text, point.x, point.y, maxWidth))
+			.value;
+	});
+	
+	["drawImage"].forEach(name => {
+		g[name] = nessy.func(g[name])
+			.map((func, canvas, image, sourceRect, destRect) => {				
+				if (typeof destRect === "undefined") {
+					destRect = sourceRect;
+					sourceRect = { x: 0, y: 0, width: image.width, height: image.height };
+				}
+				
+				return func(
+					canvas, image,
+					sourceRect.x, sourceRect.y, sourceRect.width, sourceRect.height,
+					destRect.x, destRect.y, destRect.width, destRect.height);
+			})			
+			.value;
+	});
+	
+	g.getBounds = canvas => ({ x: 0, y: 0, width: canvas.width, height: canvas.height });
+	
+	g.sandbox = (canvas, callback) => {
+		g.save(canvas);
+		callback(canvas);
+		g.restore(canvas);			
+	};
 	
 	return g;
 })();
@@ -33,7 +67,7 @@ nessy.Graphics = function(host, bounds) {
 
 nessy.Graphics.prototype = {
 	draw: function() {
-		this.clear();
+		nessy.graphics.clearRect(this.__canvas, nessy.graphics.getBounds(this.__canvas));
 	},
 	get canvas() {
 		return this.__canvas;

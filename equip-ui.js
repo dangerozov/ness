@@ -108,12 +108,10 @@ Game.prototype = {
 		});
 	},
 	draw: function() {
-		var graphics = this.host.graphics;
-		
-		var previousFillStyle = graphics.fillStyle;
-		graphics.fillStyle = "#181818";
-		nessy.graphics.fillRect(this.host.graphics.__canvas, graphics.viewport);
-		graphics.fillStyle = previousFillStyle;
+		nessy.graphics.sandbox(this.host.graphics.__canvas, canvas => {
+			canvas.getContext("2d").fillStyle = "#181818";
+			nessy.graphics.fillRect(canvas, nessy.graphics.getBounds(canvas));
+		});		
 		
 		this.slots.forEach(slot => {
 			slot.texture.draw(rect(slot.bounds)
@@ -146,10 +144,10 @@ Game.prototype = {
 		
 		this.compSprite.draw();
 		
-		var previousStrokeStyle = graphics.strokeStyle;
-		graphics.strokeStyle = "red";
-		graphics.strokeRect(this.compSprite.bounds);
-		graphics.strokeStyle = previousStrokeStyle;
+		nessy.graphics.sandbox(this.host.graphics.__canvas, canvas => {
+			canvas.getContext("2d").strokeStyle = "red";
+			nessy.graphics.strokeRect(canvas, this.compSprite.bounds);
+		});
 	}
 };
 
