@@ -1,3 +1,15 @@
+nessy.image = (() => {
+	var i = {};
+	
+	i.getBounds = (image) => ({ x: 0, y: 0, width: image.width, height: image.height });
+	
+	i.render = (image, canvas) => {
+		nessy.graphics.drawImage(canvas, image, i.getBounds(image));
+	};
+	
+	return i;
+})();
+
 nessy.Texture = function(host) {
 	var Texture = function(texture, bounds) {
 		if (!(texture instanceof Image)) throw "Not Image";
@@ -17,6 +29,22 @@ nessy.Texture = function(host) {
 	
 	return Texture;
 };
+
+nessy.sprite = (() => {
+	var s = {};
+	
+	s.getBounds = (sprite) => ({ x: sprite.position.x, y: sprite.position.y, width: sprite.image.width, height: sprite.image.height });
+	
+	s.render = (sprite, canvas) => {
+		if (sprite.visible) {
+			var renderedImage = sprite.image; // nessy.image.render(sprite.image, canvas);
+			
+			nessy.graphics.drawImage(canvas, renderedImage, { x: sprite.position.x, y: sprite.position.y, width: renderedImage.width, height: renderedImage.height });
+		}
+	};
+	
+	return s;
+})();
 
 nessy.Sprite = function(host) {
 	var Sprite = function(args) {
@@ -60,16 +88,16 @@ nessy.CompositeSprite = function(host) {
 	};
 	
 	CompositeSprite.prototype = {
-		draw: function() {
+		draw: function () {
 			if (this.visible) {
-				this.sprites.forEach(function(sprite) {
-					sprite.draw(this);
-				}.bind(this));
+				this.sprites.forEach(sprite => {
+					nessy.sprite.render(sprite, host.graphics.__canvas);
+				});
 			}
 		},
-		get bounds() {
+		getBounds: function() {
 			var bounds = this.sprites
-				.map(function(sprite) { return sprite.bounds; })
+				.map(nessy.sprite.getBounds)
 				.aggregate(nessy.rectangle.join);
 
 			bounds = nessy.rectangle(bounds).setTopLeft(this.position).value;

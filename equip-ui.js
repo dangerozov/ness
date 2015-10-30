@@ -7,93 +7,87 @@ host2.plug("CompositeSprite", nessy.CompositeSprite);
 host2.plug("mouse", nessy.Mouse);
 host2.plug("moco", nessy.moco);
 
-var textures = {};
+var images = {};
 
 var rect = nessy.rectangle;
 
 var Game = function(host) {
 	this.host = host;
 	this.preload = host.moco.serial([
-		host.moco.loadImage("resources/background-default-large.png", function(img) { textures.backgroundLarge = (new host.Texture(img)); }),
-		host.moco.loadImage("resources/border-default-large.png", function(img) { textures.borderLarge = (new host.Texture(img)); }),
-		host.moco.loadImage("resources/race_human_male-large.jpg", function(img) { textures.humanMaleLarge = (new host.Texture(img)); }),
-		host.moco.loadImage("resources/hilite-default-large.png", function(img) { textures.hiliteLarge = (new host.Texture(img)); }),
-		host.moco.loadImage("resources/race_human_female-large.jpg", function(img) { textures.humanFemaleLarge = (new host.Texture(img)); }),
+		host.moco.loadImage("resources/background-default-large.png", function(img) { images.backgroundLarge = img; }),
+		host.moco.loadImage("resources/border-default-large.png", function(img) { images.borderLarge = img; }),
+		host.moco.loadImage("resources/race_human_male-large.jpg", function(img) { images.humanMaleLarge = img; }),
+		host.moco.loadImage("resources/hilite-default-large.png", function(img) { images.hiliteLarge = img; }),
+		host.moco.loadImage("resources/race_human_female-large.jpg", function(img) { images.humanFemaleLarge = img; }),
 	]);
 };
 
 Game.prototype = {
 	init: function() {
 		
-		var slots = linq.range(0, 4)
+		this.slots = linq.range(0, 4)
 			.map(_ => ({
-				texture: textures.backgroundLarge,
-				bounds: textures.backgroundLarge.bounds
+				image: images.backgroundLarge,
+				position: { x: 100, y: 100 },
+				visible: true
 			}));
 		
-		this.slots = slots;
-		
-		this.slots.forEach(slot => {
-			slot.bounds = rect(slot.bounds)
-				.setTopLeft({ x: 100, y: 100 })
-				.value;
-		});
-		
-		this.slots.aggregate(100, (value, slot) => {
-			slot.bounds = rect(slot.bounds)
+		this.slots.aggregate(100, (value, slot) => {			
+			slot.position = rect(nessy.sprite.getBounds(slot))
 				.setLeft(value)
-				.value;
+				.getTopLeft();
 				
-			return rect(slot.bounds)
+			return rect(nessy.sprite.getBounds(slot))
 				.getRight();
 		});
 		
-		var sprite1 = new this.host.Sprite({
-			texture: textures.borderLarge
-		});
+		var sprite1 = {
+			image: images.borderLarge,
+			position: { x: 0, y: 0 },
+			visible: true
+		};
 		
-		var sprite2 = new this.host.Sprite({
-			texture: textures.humanMaleLarge
-		});
+		var sprite2 = {
+			image: images.humanMaleLarge,
+			position: { x: 0, y: 0 },
+			visible: true
+		};
 		
-		var sprite3 = new this.host.Sprite({
-			texture: textures.hiliteLarge,
-			get visible() {
-				return slots[0].item.focus;
-			},
-			set visible(value) {
-				console.log(this, value);
-			}
-		});
+		var sprite3 = {
+			image: images.hiliteLarge,
+			position: { x: 0, y: 0 },
+			visible: true // slots[0].item.focus
+		};
 		
-		var r = [ sprite1, sprite2, sprite3 ].aggregate(rect(textures.borderLarge.bounds).getCenter(), (value, sprite) => {
-			sprite.position = rect(sprite.bounds)
+		var r = [ sprite1, sprite2, sprite3 ].aggregate(rect(nessy.image.getBounds(images.borderLarge)).getCenter(), (value, sprite) => {
+			sprite.position = rect(nessy.sprite.getBounds(sprite))
 				.setCenter(value)
 				.getTopLeft();
 				
-			return rect(sprite.bounds)
+			return rect(nessy.sprite.getBounds(sprite))
 				.getCenter();
 		});
 		
 		this.compSprite = new this.host.CompositeSprite({
 			sprites: [ sprite2, sprite3, sprite1 ],
-			position: { x: 200, y: 200 }
+			position: { x: 200, y: 200 },
+			visible: true
 		});
 		
 		this.slots[0].item = {
-			textures: {
-				border: textures.borderLarge,
-				face: textures.humanMaleLarge,
-				hilite: textures.hiliteLarge
+			images: {
+				border: images.borderLarge,
+				face: images.humanMaleLarge,
+				hilite: images.hiliteLarge
 			},
 			focus: false
 		};
 		
 		this.slots[2].item = {
-			textures: {
-				border: textures.borderLarge,
-				face: textures.humanFemaleLarge,
-				hilite: textures.hiliteLarge
+			images: {
+				border: images.borderLarge,
+				face: images.humanFemaleLarge,
+				hilite: images.hiliteLarge
 			},
 			focus: false
 		};		
@@ -103,42 +97,58 @@ Game.prototype = {
 		
 		this.slots.forEach(slot => {
 			if (slot.item !== undefined) {
-				slot.item.focus = rect(slot.bounds).intersects(mouseRect);
+				slot.item.images.hilite.visible = nessy.rectangle.intersects(nessy.sprite.getBounds(slot), mouseRect); 
 			}
 		});
 	},
 	draw: function() {
-		nessy.graphics.sandbox(this.host.graphics.__canvas, canvas => {
+		var canvas = this.host.graphics.__canvas;
+		
+		nessy.graphics.sandbox(canvas, canvas => {
 			canvas.getContext("2d").fillStyle = "#181818";
 			nessy.graphics.fillRect(canvas, nessy.graphics.getBounds(canvas));
-		});		
+		});
 		
 		this.slots.forEach(slot => {
-			slot.texture.draw(rect(slot.bounds)
-				.getTopLeft());
+			nessy.image.render(
+				slot.image,
+				canvas,
+				nessy.rectangle.getTopLeft(nessy.sprite.getBounds(slot))
+			);
+			
+			nessy.sprite.render(slot, canvas);
 			
 			if (slot.item !== undefined) {
 				
-				var facePos = rect(slot.item.textures.face.bounds)
-					.setCenter(rect(slot.bounds)
-						.getCenter())
+				var slotBounds = nessy.sprite.getBounds(slot);
+				
+				var facePos = nessy.rectangle(nessy.image.getBounds(slot.item.images.face))
+					.setCenter(nessy.rectangle.getCenter(slotBounds))
 					.getTopLeft();
 
-				var hilitePos = rect(slot.item.textures.hilite.bounds)
-					.setCenter(rect(slot.bounds)
-						.getCenter())
+				var hilitePos = nessy.rectangle(nessy.image.getBounds(slot.item.images.hilite))
+					.setCenter(nessy.rectangle.getCenter(slotBounds))
 					.getTopLeft();
 					
-				var borderPos = rect(slot.item.textures.border.bounds)
-					.setCenter(rect(slot.bounds)
-						.getCenter())
+				var borderPos = nessy.rectangle(nessy.image.getBounds(slot.item.images.border))
+					.setCenter(nessy.rectangle.getCenter(slotBounds))
 					.getTopLeft();
 				
-				slot.item.textures.face.draw(facePos);
-				if (slot.item.focus) {
-					slot.item.textures.hilite.draw(hilitePos);
-				}
-				slot.item.textures.border.draw(borderPos);
+				slot.item.images.face.image = slot.item.images.face;
+				slot.item.images.face.position = facePos;
+				slot.item.images.face.visible = true; 
+				
+				slot.item.images.hilite.image = slot.item.images.hilite;
+				slot.item.images.hilite.position = hilitePos;
+				slot.item.images.hilite.visible = true;
+				
+				slot.item.images.border.image = slot.item.images.border;
+				slot.item.images.border.position = borderPos;
+				slot.item.images.border.visible = true; 
+				
+				nessy.sprite.render(slot.item.images.face, canvas);
+				nessy.sprite.render(slot.item.images.hilite, canvas);
+				nessy.sprite.render(slot.item.images.border, canvas);
 			}
 		});
 		
@@ -146,7 +156,7 @@ Game.prototype = {
 		
 		nessy.graphics.sandbox(this.host.graphics.__canvas, canvas => {
 			canvas.getContext("2d").strokeStyle = "red";
-			nessy.graphics.strokeRect(canvas, this.compSprite.bounds);
+			nessy.graphics.strokeRect(canvas, this.compSprite.getBounds());
 		});
 	}
 };

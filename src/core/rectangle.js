@@ -77,6 +77,14 @@ nessy.rectangle = ((builder) => {
 		.unbox("getTopLeft", r.getTopLeft)
 		.unbox("getSize", r.getSize)
 		.value;
+	
+	var validate = func => nessy.func.before(func, (...args) => {
+			if (args.some(nessy.func.isUndefined)) throw "Not Rect";
+			if (args.some(arg => nessy.obj.values(arg, ["x", "y", "width", "height"]).some(nessy.func.isUndefined))) 
+				throw "Not Rect";
+		});
+		
+	result = validate(result);
 		
 	nessy.obj.copy(r, result);
 		
