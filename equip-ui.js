@@ -1,9 +1,6 @@
 var host2 = new nessy.Host();
 host2.plug("gameloop", nessy.GameLoop);
 host2.plug("graphics", nessy.Graphics, { width: 640, height: 480 });
-host2.plug("Texture", nessy.Texture);
-host2.plug("Sprite", nessy.Sprite);
-host2.plug("CompositeSprite", nessy.CompositeSprite);
 host2.plug("mouse", nessy.Mouse);
 host2.plug("moco", nessy.moco);
 
@@ -41,25 +38,26 @@ Game.prototype = {
 				.getRight();
 		});
 		
-		var sprite1 = {
+		var borderSprite = {
 			image: images.borderLarge,
 			position: { x: 0, y: 0 },
 			visible: true
 		};
 		
-		var sprite2 = {
-			image: images.humanMaleLarge,
-			position: { x: 0, y: 0 },
-			visible: true
-		};
+		var maleSprite = nessy.sprite.new({
+			image: images.humanMaleLarge
+		});
 		
-		var sprite3 = {
+		var femaleSprite = nessy.sprite.new({
+			image: images.humanFemaleLarge
+		});
+		
+		var hiliteSprite = nessy.sprite.new({
 			image: images.hiliteLarge,
-			position: { x: 0, y: 0 },
-			visible: true // slots[0].item.focus
-		};
+			// visible: slots[0].item.focus
+		});
 		
-		var r = [ sprite1, sprite2, sprite3 ].aggregate(rect(nessy.image.getBounds(images.borderLarge)).getCenter(), (value, sprite) => {
+		var r = [ borderSprite, maleSprite, hiliteSprite ].aggregate(rect(nessy.image.getBounds(images.borderLarge)).getCenter(), (value, sprite) => {
 			sprite.position = rect(nessy.sprite.getBounds(sprite))
 				.setCenter(value)
 				.getTopLeft();
@@ -68,11 +66,17 @@ Game.prototype = {
 				.getCenter();
 		});
 		
-		this.compSprite = new this.host.CompositeSprite({
-			sprites: [ sprite2, sprite3, sprite1 ],
+		this.compSprite = {
+			sprites: [ maleSprite, hiliteSprite, borderSprite ],
 			position: { x: 200, y: 200 },
 			visible: true
-		});
+		};
+		
+		var maleItem = {
+			sprites: [ maleSprite, hiliteSprite, borderSprite ],
+			position: { x: 0, y: 0 },
+			visible: true
+		};
 		
 		this.slots[0].item = {
 			images: {
@@ -90,7 +94,7 @@ Game.prototype = {
 				hilite: images.hiliteLarge
 			},
 			focus: false
-		};		
+		};
 	},
 	update: function() {
 		var mouseRect = { x: this.host.mouse.x, y: this.host.mouse.y, width: 1, height: 1 };
@@ -109,13 +113,7 @@ Game.prototype = {
 			nessy.graphics.fillRect(canvas, nessy.graphics.getBounds(canvas));
 		});
 		
-		this.slots.forEach(slot => {
-			nessy.image.render(
-				slot.image,
-				canvas,
-				nessy.rectangle.getTopLeft(nessy.sprite.getBounds(slot))
-			);
-			
+		this.slots.forEach(slot => {			
 			nessy.sprite.render(slot, canvas);
 			
 			if (slot.item !== undefined) {
@@ -136,7 +134,7 @@ Game.prototype = {
 				
 				slot.item.images.face.image = slot.item.images.face;
 				slot.item.images.face.position = facePos;
-				slot.item.images.face.visible = true; 
+				slot.item.images.face.visible = true;
 				
 				slot.item.images.hilite.image = slot.item.images.hilite;
 				slot.item.images.hilite.position = hilitePos;
@@ -144,7 +142,7 @@ Game.prototype = {
 				
 				slot.item.images.border.image = slot.item.images.border;
 				slot.item.images.border.position = borderPos;
-				slot.item.images.border.visible = true; 
+				slot.item.images.border.visible = true;
 				
 				nessy.sprite.render(slot.item.images.face, canvas);
 				nessy.sprite.render(slot.item.images.hilite, canvas);
@@ -152,11 +150,11 @@ Game.prototype = {
 			}
 		});
 		
-		this.compSprite.draw();
+		nessy.compositeSprite.render(this.compSprite, canvas);
 		
 		nessy.graphics.sandbox(this.host.graphics.__canvas, canvas => {
 			canvas.getContext("2d").strokeStyle = "red";
-			nessy.graphics.strokeRect(canvas, this.compSprite.getBounds());
+			nessy.graphics.strokeRect(canvas, nessy.compositeSprite.getBounds(this.compSprite));
 		});
 	}
 };

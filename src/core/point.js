@@ -36,6 +36,8 @@ nessy.point = ((point) => {
 		.forEach(name => result.chain(name, point[name]));	
 	result = result.value;
 
+	nessy.obj.copy(point, result);
+
 	return result;	
 
 })(nessy.point);
