@@ -79,8 +79,8 @@ nessy.rectangle = ((builder) => {
 		.value;
 	
 	var validate = func => nessy.func.before(func, (...args) => {
-			if (args.some(nessy.func.isUndefined)) throw "Not Rect";
-			if (args.some(arg => nessy.obj.values(arg, ["x", "y", "width", "height"]).some(nessy.func.isUndefined))) 
+			if (args.some(nessy.obj.isUndefined)) throw "Not Rect";
+			if (args.some(arg => nessy.obj.values(arg, ["x", "y", "width", "height"]).some(nessy.obj.isUndefined))) 
 				throw "Not Rect";
 		});
 		

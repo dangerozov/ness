@@ -1,23 +1,31 @@
 nessy.obj = (() => {
 	var o = {};
 
-	o.values = (obj, names) => names.map(name => obj[name]);
+	o.values = (obj, keys) => keys.map(key => obj[key]);
 	
-	o.forEach = (obj, callback) => {
-		for (var name in obj) {
-			callback(obj[name], name, obj);
+	o.keys = (obj) => {
+		var result = [];
+		for (var key in obj) {
+			result.push(key);
 		}
+		return result;
 	};
+	
+	o.forEach = (obj, callback) => o
+		.keys(obj)
+		.forEach(key => callback(obj[key], key, obj));
+	
+	o.isUndefined = (obj) => typeof obj === "undefined";
 
 	o.copy = (obj, target) => {
-		o.forEach(obj, (value, name) => target[name] = value);
+		o.forEach(obj, (value, key) => target[key] = value);
 		return target;
 	};
 	
 	o.with = (left, right) => {
 		var copy = o.copy(left, {});
-		o.forEach(right, (selector, name) => {
-			copy[name] = selector(copy[name]);
+		o.forEach(right, (selector, key) => {
+			copy[key] = selector(copy[key]);
 		});
 		return copy;
 	};

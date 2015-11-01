@@ -12,8 +12,8 @@ nessy.point = (() => {
 nessy.point = ((point) => {
 
 	var validate = func => nessy.func.before(func, (...args) => {
-			if (args.some(nessy.func.isUndefined)) throw "Not Point";
-			if (args.some(arg => nessy.obj.values(arg, ["x", "y"]).some(nessy.func.isUndefined))) 
+			if (args.some(nessy.obj.isUndefined)) throw "Not Point";
+			if (args.some(arg => nessy.obj.values(arg, ["x", "y"]).some(nessy.obj.isUndefined))) 
 				throw "Not Point";
 		});
 

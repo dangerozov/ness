@@ -6,7 +6,6 @@ nessy.func = (() => {
 		return func(...args);
 	};
 	f.map = (func, map) => (...args) => map(func, ...args);
-	f.isUndefined = (obj) => typeof obj === "undefined";
 	
 	f.overload = (func, condition, map) => (...args) => 
 		condition(...args) ? map(func, ...args) : func(...args);
