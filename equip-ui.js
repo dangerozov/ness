@@ -38,72 +38,71 @@ Game.prototype = {
 				.getRight();
 		});
 		
-		var borderSprite = {
-			image: images.borderLarge,
-			position: { x: 0, y: 0 },
-			visible: true
-		};
+		var borderSprite = nessy.sprite.mixin({
+			image: images.borderLarge
+		});
 		
-		var maleSprite = nessy.sprite.new({
+		var maleSprite = nessy.sprite.mixin({
 			image: images.humanMaleLarge
 		});
 		
-		var femaleSprite = nessy.sprite.new({
+		var femaleSprite = nessy.sprite.mixin({
 			image: images.humanFemaleLarge
 		});
 		
-		var hiliteSprite = nessy.sprite.new({
-			image: images.hiliteLarge,
+		var hiliteSprite = nessy.sprite.mixin({
+			image: images.hiliteLarge
 			// visible: slots[0].item.focus
 		});
 		
-		var r = [ borderSprite, maleSprite, hiliteSprite ].aggregate(rect(nessy.image.getBounds(images.borderLarge)).getCenter(), (value, sprite) => {
-			sprite.position = rect(nessy.sprite.getBounds(sprite))
-				.setCenter(value)
-				.getTopLeft();
-				
-			return rect(nessy.sprite.getBounds(sprite))
-				.getCenter();
-		});
-		
-		this.compSprite = {
-			sprites: [ maleSprite, hiliteSprite, borderSprite ],
-			position: { x: 200, y: 200 },
-			visible: true
+		var putToCenter = (items, center) => {
+			items.aggregate(rect(nessy.image.getBounds(images.borderLarge)).getCenter(), (value, sprite) => {
+				sprite.position = rect(nessy.sprite.getBounds(sprite))
+					.setCenter(value)
+					.getTopLeft();
+					
+				return rect(nessy.sprite.getBounds(sprite))
+					.getCenter();
+			});	
 		};
 		
-		var maleItem = {
-			sprites: [ maleSprite, hiliteSprite, borderSprite ],
+		var male = [images.humanMaleLarge, images.hiliteLarge, images.borderLarge]
+			.map(image => ({
+				image: image,
+				position: { x: 0, y: 0 },
+				visible: true
+			}));
+		putToCenter(male);
+		this.male = {
+			items: male,
 			position: { x: 0, y: 0 },
 			visible: true
 		};
 		
-		this.slots[0].item = {
-			images: {
-				border: images.borderLarge,
-				face: images.humanMaleLarge,
-				hilite: images.hiliteLarge
-			},
-			focus: false
+		var female = [images.humanFemaleLarge, images.hiliteLarge, images.borderLarge]
+			.map(image => ({
+				image: image,
+				position: { x: 0, y: 0 },
+				visible: true
+			}));
+		putToCenter(female);
+		female = {
+			items: female,
+			position: { x: 0, y: 0 },
+			visible: true	
 		};
 		
-		this.slots[2].item = {
-			images: {
-				border: images.borderLarge,
-				face: images.humanFemaleLarge,
-				hilite: images.hiliteLarge
-			},
-			focus: false
-		};
+		this.slots[0].item = this.male;
+		this.slots[2].item = female;
 	},
 	update: function() {
 		var mouseRect = { x: this.host.mouse.x, y: this.host.mouse.y, width: 1, height: 1 };
 		
-		this.slots.forEach(slot => {
-			if (slot.item !== undefined) {
-				slot.item.images.hilite.visible = nessy.rectangle.intersects(nessy.sprite.getBounds(slot), mouseRect); 
-			}
-		});
+		// this.slots.forEach(slot => {
+		// 	if (slot.item !== undefined) {
+		// 		slot.item.images.hilite.visible = nessy.rectangle.intersects(nessy.sprite.getBounds(slot), mouseRect); 
+		// 	}
+		// });
 	},
 	draw: function() {
 		var canvas = this.host.graphics.__canvas;
@@ -113,49 +112,76 @@ Game.prototype = {
 			nessy.graphics.fillRect(canvas, nessy.graphics.getBounds(canvas));
 		});
 		
-		this.slots.forEach(slot => {			
+		this.slots.forEach(slot => {
 			nessy.sprite.render(slot, canvas);
 			
 			if (slot.item !== undefined) {
-				
 				var slotBounds = nessy.sprite.getBounds(slot);
 				
-				var facePos = nessy.rectangle(nessy.image.getBounds(slot.item.images.face))
+				var prevPos = slot.item.position;
+				
+				slot.item.position = nessy.rectangle(nessy.compositeSprite.getBounds(slot.item, nessy.sprite.getBounds))
 					.setCenter(nessy.rectangle.getCenter(slotBounds))
-					.getTopLeft();
-
-				var hilitePos = nessy.rectangle(nessy.image.getBounds(slot.item.images.hilite))
-					.setCenter(nessy.rectangle.getCenter(slotBounds))
-					.getTopLeft();
-					
-				var borderPos = nessy.rectangle(nessy.image.getBounds(slot.item.images.border))
-					.setCenter(nessy.rectangle.getCenter(slotBounds))
-					.getTopLeft();
+					.getTopLeft();					
+				nessy.compositeSprite.render(slot.item, canvas, nessy.sprite.render);
 				
-				slot.item.images.face.image = slot.item.images.face;
-				slot.item.images.face.position = facePos;
-				slot.item.images.face.visible = true;
-				
-				slot.item.images.hilite.image = slot.item.images.hilite;
-				slot.item.images.hilite.position = hilitePos;
-				slot.item.images.hilite.visible = true;
-				
-				slot.item.images.border.image = slot.item.images.border;
-				slot.item.images.border.position = borderPos;
-				slot.item.images.border.visible = true;
-				
-				nessy.sprite.render(slot.item.images.face, canvas);
-				nessy.sprite.render(slot.item.images.hilite, canvas);
-				nessy.sprite.render(slot.item.images.border, canvas);
+				slot.item.position = prevPos;
 			}
 		});
 		
-		nessy.compositeSprite.render(this.compSprite, canvas);
+		var prevPos = this.male.position;
+		this.male.position = { x: 200, y: 200 };
+		nessy.compositeSprite.render(this.male, canvas, nessy.sprite.render);
 		
 		nessy.graphics.sandbox(this.host.graphics.__canvas, canvas => {
 			canvas.getContext("2d").strokeStyle = "red";
-			nessy.graphics.strokeRect(canvas, nessy.compositeSprite.getBounds(this.compSprite));
+			nessy.graphics.strokeRect(canvas, nessy.compositeSprite.getBounds(this.male, nessy.sprite.getBounds));
 		});
+		this.male.position = prevPos;
+		
+		
+		
+		var container = {
+			items: this.male.items,
+			position: { x: 300, y: 300 }
+		};
+		
+		var renderContainer = (cont, renderItem) => {
+			container.items.forEach((item) => {
+				renderItem(item, cont);
+			});
+			
+			// return container.items
+			//		.map(item => renderItem(item, container))
+			//		.aggregate(EmptyCanvas, nessy.canvas.join)
+		};
+		
+		var getBounds = (container, getBounds, aggregate) => {
+			return container.items
+				.map(item => getBounds(item, container))
+				.aggregate({ x: 0, y: 0, width: 0, height: 0 }, nessy.rectangle.join);
+		};
+		
+		var bnds = getBounds(container, (item, cont) => {
+				var prevPos = item.position;
+				item.position = nessy.point.add(item.position, cont.position);
+			var bounds = nessy.sprite.getBounds(item);
+				item.position = prevPos;
+			return bounds;
+		});
+		
+		renderContainer(
+			container,
+			(item, cont) => {
+					var prevPos = item.position;
+					item.position = nessy.point.add(item.position, cont.position);
+				nessy.sprite.render(item, canvas);
+					item.position = prevPos;
+					// return rendered image
+			});
+		
+		
+		
 	}
 };
 

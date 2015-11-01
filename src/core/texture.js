@@ -13,11 +13,12 @@ nessy.image = (() => {
 nessy.sprite = (() => {
 	var s = {};
 	
-	s.new = (obj) => ({
-		image: obj.image || null, // nessy.image.default
-		position: obj.position || { x: 0, y: 0 }, // nessy.point.default
-		visible: obj.visible === undefined ? true : obj.visible // nessy.boolean.default
-	});
+	s.mixin = (obj) => {
+		obj.image = obj.image || null;
+		obj.position = obj.position || { x: 0, y: 0 };
+		obj.visible = obj.hidden || false;
+		return obj;
+	};
 	
 	s.getBounds = (sprite) => ({ x: sprite.position.x, y: sprite.position.y, width: sprite.image.width, height: sprite.image.height });
 	
@@ -35,21 +36,21 @@ nessy.sprite = (() => {
 nessy.compositeSprite = (() => {
 	var cs = {};
 	
-	cs.getBounds = (compositeSprite) => {
-		var bounds = compositeSprite.sprites
-			.map(nessy.sprite.getBounds)
+	cs.getBounds = (compositeSprite, getItemBounds) => {
+		var bounds = compositeSprite.items
+			.map(getItemBounds)
 			.aggregate(nessy.rectangle.join);
-			
+
 		bounds = nessy.rectangle.setTopLeft(bounds, compositeSprite.position);
-		return bounds;	
+		return bounds;
 	};
 	
-	cs.render = (compositeSprite, canvas) => {
+	cs.render = (compositeSprite, canvas, renderItem) => {
 		if (compositeSprite.visible) {
-			compositeSprite.sprites.forEach(sprite => {
+			compositeSprite.items.forEach(sprite => {
 				var oldPosition = sprite.position;
 				sprite.position = nessy.point.add(sprite.position, compositeSprite.position);
-				nessy.sprite.render(sprite, canvas);
+				renderItem(sprite, canvas);
 				sprite.position = oldPosition;
 			});
 		}
