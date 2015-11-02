@@ -29,7 +29,7 @@ Game.prototype = {
 				visible: true
 			}));
 		
-		this.slots.aggregate(100, (value, slot) => {			
+		this.slots.aggregate(100, (value, slot) => {
 			slot.position = rect(nessy.sprite.getBounds(slot))
 				.setLeft(value)
 				.getTopLeft();
@@ -63,7 +63,7 @@ Game.prototype = {
 					
 				return rect(nessy.sprite.getBounds(sprite))
 					.getCenter();
-			});	
+			});
 		};
 		
 		var male = [images.humanMaleLarge, images.hiliteLarge, images.borderLarge]
@@ -122,7 +122,7 @@ Game.prototype = {
 				
 				slot.item.position = nessy.rectangle(nessy.compositeSprite.getBounds(slot.item, nessy.sprite.getBounds))
 					.setCenter(nessy.rectangle.getCenter(slotBounds))
-					.getTopLeft();					
+					.getTopLeft();
 				nessy.compositeSprite.render(slot.item, canvas, nessy.sprite.render);
 				
 				slot.item.position = prevPos;
@@ -138,7 +138,64 @@ Game.prototype = {
 			nessy.graphics.strokeRect(canvas, nessy.compositeSprite.getBounds(this.male, nessy.sprite.getBounds));
 		});
 		this.male.position = prevPos;
+
+
+		var toCenter = (left, right) => {
+			var center = nessy.rectangle(left)
+				.getCenter();
+			
+			var position = nessy.rectangle(right)
+				.setCenter(center)
+				.getTopLeft();
+
+			return { x: position.x, y: position.y, width: right.width, height: right.height };
+		};
 		
+		var inventoryItem = {
+			image: images.humanMaleLarge
+		};
+		
+		var toSprite = (item) => {
+			var image = item.image;
+			var hilite = images.hiliteLarge;
+			var border = images.borderLarge;
+			
+			var sprites = [image, hilite, border]
+				.map(image => ({
+					image: image,
+					position: { x: 0, y: 0 },
+					visible: true
+				}));
+			
+			var bounds = sprites
+				.map(nessy.sprite.getBounds)
+				.aggregate(nessy.rectangle.join);
+				
+			sprites
+				.aggregate(bounds, (leftBounds, right) => {
+					var rightBounds = nessy.sprite.getBounds(right);
+					var center = toCenter(leftBounds, rightBounds);
+					right.position = nessy.rectangle(center)
+						.getTopLeft();
+					
+					return leftBounds;
+				});
+				
+			return sprites;
+		};
+		
+		var renderInventoryItem = (inventoryItem) => {			
+			var cnv = nessy.graphics.create({ width: 68, height: 68 });
+			
+			var sprites = toSprite(inventoryItem);
+			sprites.forEach(sprite => nessy.sprite.render(sprite, cnv));
+			
+			return cnv;
+		};
+		
+		var cnv = renderInventoryItem(inventoryItem);			
+		
+		nessy.graphics.drawImage(canvas, cnv, 0, 0);
 		
 		
 		var container = {

@@ -22,28 +22,19 @@ nessy.graphics = (() => {
 			.value;
 	});
 	
-	["drawImage"].forEach(name => {
-		g[name] = nessy.func(g[name])
-			.map((func, canvas, image, sourceRect, destRect) => {				
-				if (typeof destRect === "undefined") {
-					destRect = sourceRect;
-					sourceRect = { x: 0, y: 0, width: image.width, height: image.height };
-				}
-				
-				return func(
-					canvas, image,
-					sourceRect.x, sourceRect.y, sourceRect.width, sourceRect.height,
-					destRect.x, destRect.y, destRect.width, destRect.height);
-			})			
-			.value;
-	});
-	
 	g.getBounds = canvas => ({ x: 0, y: 0, width: canvas.width, height: canvas.height });
 	
 	g.sandbox = (canvas, callback) => {
 		g.save(canvas);
 		callback(canvas);
 		g.restore(canvas);			
+	};
+	
+	g.create = (bounds) => {
+		var canvas = document.createElement("canvas");
+		canvas.width = bounds.width;
+		canvas.height = bounds.height;
+		return canvas;
 	};
 	
 	return g;

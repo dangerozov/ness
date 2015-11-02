@@ -26,7 +26,7 @@ nessy.sprite = (() => {
 		if (sprite.visible) {
 			var renderedImage = sprite.image; // nessy.image.render(sprite.image, canvas);
 			
-			nessy.graphics.drawImage(canvas, renderedImage, { x: sprite.position.x, y: sprite.position.y, width: renderedImage.width, height: renderedImage.height });
+			nessy.graphics.drawImage(canvas, renderedImage, sprite.position.x, sprite.position.y);
 		}
 	};
 	
