@@ -4,6 +4,7 @@ nessy.graphics = (() => {
 	["clearRect", "fillRect", "strokeRect",
 	 "fillText", "strokeText", "measureText",
 	 "drawImage",
+	 "createPattern",
 	 "save", "restore"].forEach(name => {
 		var func = CanvasRenderingContext2D.prototype[name];
 		if (typeof func === "undefined") throw "Not Found";
