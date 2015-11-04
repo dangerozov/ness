@@ -1,6 +1,6 @@
 var host2 = new nessy.Host();
 host2.plug("gameloop", nessy.GameLoop);
-host2.plug("graphics", nessy.Graphics, { width: 640, height: 480 });
+host2.plug("graphics", nessy.Graphics, { width: window.innerWidth, height: window.innerHeight });
 host2.plug("mouse", nessy.Mouse);
 host2.plug("moco", nessy.moco);
 

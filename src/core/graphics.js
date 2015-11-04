@@ -48,8 +48,6 @@ nessy.Graphics = function(host, bounds) {
 
 	var canvas = this.newCanvas();
 	var div = document.createElement("div");
-	div.style.margin = "200 auto 0 auto";
-	div.style.width = bounds.width;
 	div.appendChild(canvas);
 	document.body.appendChild(div);
 
