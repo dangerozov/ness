@@ -15,12 +15,17 @@ Water = function(host) {
 };
 
 var renderFill = (sprite, canvas) => {
-	var pattern = nessy.graphics.createPattern(canvas, sprite.image, "repeat");
+	var bounds =nessy.graphics.getBounds(canvas);
+	bounds.height += sprite.image.height;
+	var wtr = nessy.graphics.create(bounds);
+	var pattern = nessy.graphics.createPattern(wtr, sprite.image, "repeat");
 	
-	nessy.graphics.sandbox(canvas, canvas => {
-		canvas.getContext("2d").fillStyle = pattern;
-		nessy.graphics.fillRect(canvas, nessy.graphics.getBounds(canvas));
+	nessy.graphics.sandbox(wtr, wtr => {
+		wtr.getContext("2d").fillStyle = pattern;
+		nessy.graphics.fillRect(wtr, nessy.graphics.getBounds(wtr));
 	});
+	
+	nessy.graphics.drawImage(canvas, wtr, sprite.position.x, sprite.position.y);
 };
 
 var waterScrolling = (water) => {
@@ -28,9 +33,9 @@ var waterScrolling = (water) => {
 		water.host.moco.nextFrame(),
 		water.host.moco.delay(1 / 48),
 		water.host.moco.call(() => { 
-			water.texture.bounds.y = water.texture.bounds.y + 1;
-			if (water.texture.bounds.y >= 0) {
-				water.texture.bounds.y = -24;
+			water.position.y = water.position.y + 1;
+			if (water.position.y >= 0) {
+				water.position.y = -24;
 			}
 		})]))();
 
@@ -67,7 +72,8 @@ Game.prototype = {
 			image: images.water,
 			position: { x: 0, y: 0 },
 			visible: true,
-			fill: true
+			fill: true,
+			host: this.host
 		};
 		
 		var plane = {
@@ -86,19 +92,23 @@ Game.prototype = {
 		var canvas = this.host.graphics.canvas;
 
 		this.host.entities.onUpdate(["update"], function(entity) { entity.update(); });
-		this.host.entities.onDraw(["image", "position", "visible"], entity => nessy.sprite.render(entity, canvas));
-		this.host.entities.onDraw(["image", "position", "visible", "fill"], entity => renderFill(entity, canvas));
 
 		this.plane = plane;
 		this.water = water;
+		
+		this.waterScrolling = waterScrolling(water);
 	},	
 	update: function() {
+		this.waterScrolling();
 		if (this.host.keyboard.isDown(39)) this.plane.position.x += 10;
 		if (this.host.keyboard.isDown(37)) this.plane.position.x -= 10;
 		if (this.host.keyboard.isDown(40)) this.plane.position.y += 10;
 		if (this.host.keyboard.isDown(38)) this.plane.position.y -= 10;
 	},	
 	draw: function() {
+		var canvas = this.host.graphics.canvas;
+		renderFill(this.water, canvas);
+		nessy.sprite.render(this.plane, canvas);
 		
 		if (this.host.keyboard.isDown(13)) {
 			this.host.graphics.fillStyle = "white";
