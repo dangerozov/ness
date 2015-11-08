@@ -35,6 +35,7 @@ nessy.builder = (() => {
 	};
 })();
 
+console.log("===== builder =====");
 var logger = nessy.builder()
 	.cascade("log", (log, text) => log(text))
 	.cascade("logError", (log, text) => log("Error: " + text))

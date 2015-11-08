@@ -38,6 +38,7 @@ nessy.func = ((func) => {
 
 
 // mapping args
+console.log("===== mapping args =====");
 var fillRect = (x, y, width, height) => console.log(x, y, width, height);
 
 fillRect = nessy.func(fillRect) 
@@ -47,6 +48,7 @@ fillRect = nessy.func(fillRect)
 fillRect({ x: 10, y: 20, width: 30, height: 40 });
 
 // overloading
+console.log("===== function overloading =====");
 var abc = (x, y, z) => console.log(x, y, z);
 
 abc = nessy.func(abc)

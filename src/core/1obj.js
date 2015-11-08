@@ -1,7 +1,15 @@
 nessy.obj = (() => {
 	var o = {};
-
-	o.values = (obj, keys) => keys.map(key => obj[key]);
+	
+	o.toArray = (object, layout, array) => {
+		array = array || [];
+		layout.forEach((key, index) => {
+			array[index] = object[key];
+		});
+		return array;
+	};
+	
+	o.values = (obj) => o.toArray(obj, o.keys(obj));
 	
 	o.keys = (obj) => {
 		var result = [];
