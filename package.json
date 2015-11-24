@@ -1,27 +1,29 @@
 {
-  "name": "nessy",
-  "version": "1.0.0",
-  "description": "Game engine",
-  "main": "gulpfile.js",
-  "dependencies": {
-    "gulp": "^3.9.0"
-  },
-  "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-concat": "^2.6.0",
-    "gulp-uglify": "^1.2.0"
-  },
+  "name": "ness",
+  "version": "0.0.1",
+  "description": "Harnessing game development",
+  "main": "./build/ness.js",
   "scripts": {
-    "test": "alert(1)"
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
-    "url": "http://bitbucket.org/mopozoff/nessy"
+    "url": "https://github.com/dangerozov/ness.git"
   },
   "keywords": [
-    "gamedev",
-    "js"
+    "game",
+    "javascript",
+    "typescript"
   ],
-  "author": "Andrew Morozov",
-  "license": "ISC"
+  "author": "Andrew Morozov <morozovmav@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dangerozov/ness/issues"
+  },
+  "homepage": "https://github.com/dangerozov/ness#readme",
+  "devDependencies": {
+    "ts-loader": "^0.7.1",
+    "typescript": "^1.6.2",
+    "webpack": "^1.12.9"
+  }
 }
