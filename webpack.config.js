@@ -1,4 +1,5 @@
 module.exports = {
+	entry: './src/main.ts',
 	output: {
 		filename: 'build/ness.js'
 	},
