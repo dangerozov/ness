@@ -1,5 +1,9 @@
 {
 	"compilerOptions": {
-		"module": "commonjs"
-	}
+		"module": "commonjs",
+		"sourceMap": true
+	},
+	"files": [
+		"src/main.ts"
+	]
 }
