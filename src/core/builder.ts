@@ -1,11 +1,11 @@
 export interface Builder<TObject, TContext> {
 	chain: (name: string, func: (context: TContext, ...args: any[]) => TContext) => Builder<TObject, TContext>;
 	cascade: (name: string, func: (context: TContext, ...args: any[]) => void) => Builder<TObject, TContext>;
-	unbox: <TValue>(name: string, func: (context: TContext, ...args: any[]) => TValue) => Builder<TObject, TContext>;
+	unbox: (name: string, func: (context: TContext, ...args: any[]) => any) => Builder<TObject, TContext>;
 	value: (context: TContext) => TObject
 }
 
-let buildInternal = <TObject, TContext>() => {
+export let build = <TObject, TContext>() => {
 	
 	class Wrapper {
 		public value: TContext;
@@ -36,7 +36,7 @@ let buildInternal = <TObject, TContext>() => {
 			});
 			return builder;
 		},
-		unbox: <TValue>(name: string, func: (context: TContext, ...args: any[]) => TValue) => {
+		unbox: (name, func) => {
 			addToPrototype(name, function(...args) {
 				return func((<Wrapper>this).value, ...args);
 			});
@@ -47,22 +47,20 @@ let buildInternal = <TObject, TContext>() => {
 	return builder;
 };
 
-export let build = buildInternal;
-
 interface Logger {
 	log: (text: string) => Logger;
-	logQ: (text: string) => Logger;
-	logW: (text: string) => string;
+	logError: (text: string) => Logger;
+	logInfo: (text: string) => Logger;
 }
 
-let logger = build<Logger, number>()
-	.chain("logQ", (num, text) => num + 5)
-	.cascade("log", (num, text) => console.log(num, text))
-	.unbox("logW", (num, text) => "hohoho")
+console.log("===== builder =====");
+var logger = build<Logger, (message: string) => void>()
+	.cascade("log", (log, text) => log(text))
+	.cascade("logError", (log, text) => log("Error: " + text))
+	.cascade("logInfo", (log, text) => log("Info: " + text))
 	.value;
 
-let s: string = logger(123)
-	.logQ("qwe")
-	.log("text")
-	.logW("asd");
-console.log(s);
+logger(console.log.bind(console))
+	.log("pam pam")
+	.logError("PAM PAM !!!")
+	.logInfo("informational pam");

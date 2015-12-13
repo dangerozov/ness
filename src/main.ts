@@ -1,5 +1,8 @@
 import object = require("./core/object");
 import builder = require("./core/builder");
+import rect = require("./core/rectangle-builder");
+
+
 
 interface ObjectUtils {
 	values: () => any[];
