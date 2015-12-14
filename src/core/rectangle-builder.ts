@@ -1,7 +1,7 @@
 import rectangle = require("./rectangle");
 import builder = require("./builder");
 import object = require("./object");
-\
+
 export interface Rectangle {
 	copy: () => rectangle.Rectangle;
 	
