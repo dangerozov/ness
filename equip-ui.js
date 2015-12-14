@@ -56,13 +56,17 @@ Game.prototype = {
 		});
 		
 		var putToCenter = (items, center) => {
-			items.aggregate(rect(nessy.image.getBounds(images.borderLarge)).getCenter(), (value, sprite) => {
-				sprite.position = rect(nessy.sprite.getBounds(sprite))
-					.setCenter(value)
+			
+			var joined = items
+				.map(item => nessy.sprite.getBounds(item))
+				.aggregate(nessy.rectangle.join);
+				
+			var center = nessy.rectangle.getCenter(joined);		
+			
+			items.forEach(item => {
+				item.position = rect(nessy.sprite.getBounds(item))
+					.setCenter(center)
 					.getTopLeft();
-					
-				return rect(nessy.sprite.getBounds(sprite))
-					.getCenter();
 			});
 		};
 		
