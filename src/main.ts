@@ -2,7 +2,9 @@ import object = require("./core/object");
 import builder = require("./core/builder");
 import rect = require("./core/rectangle-builder");
 
-
+import array = require("./core/array");
+let q = array.contains([1,2,3], 2);
+array.toObject([1,2,3], ["x", "y", "z"]);
 
 interface ObjectUtils {
 	values: () => any[];
