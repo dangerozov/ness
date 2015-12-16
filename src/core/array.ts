@@ -49,8 +49,8 @@ let array: ArrayUtils = {
 	},
 	
 	concat: (left: any[], right: any[], out: any[] = [left.length + right.length]) => {
-		array.copyTo(left, 0, out, out.length, left.length);
-		array.copyTo(right, 0, out, out.length, right.length);
+		array.copyTo(left, 0, out, 0, left.length);
+		array.copyTo(right, 0, out, left.length, right.length);
 		return out;
 	},
 	except<T>(left: T[], right: T[]) {
