@@ -16,11 +16,18 @@ var Game = function(host) {
 		host.moco.loadImage("resources/race_human_male-large.jpg", function(img) { images.humanMaleLarge = img; }),
 		host.moco.loadImage("resources/hilite-default-large.png", function(img) { images.hiliteLarge = img; }),
 		host.moco.loadImage("resources/race_human_female-large.jpg", function(img) { images.humanFemaleLarge = img; }),
+		host.moco.loadImage("resources/cursor-small.png", img => images.cursor = img)
 	]);
 };
 
 Game.prototype = {
 	init: function() {
+		
+		this.cursor = {
+			image: images.cursor,
+			position: { x: 200, y: 50 },
+			visible: true
+		};
 		
 		this.slots = linq.range(0, 4)
 			.map(_ => ({
@@ -107,6 +114,9 @@ Game.prototype = {
 		// 		slot.item.images.hilite.visible = nessy.rectangle.intersects(nessy.sprite.getBounds(slot), mouseRect); 
 		// 	}
 		// });
+		
+		this.cursor.position.x = Math.floor(this.host.mouse.x / 24) * 24;
+		this.cursor.position.y = Math.floor(this.host.mouse.y / 24) * 24;
 	},
 	draw: function() {
 		var canvas = this.host.graphics.__canvas;
@@ -241,7 +251,7 @@ Game.prototype = {
 					// return rendered image
 			});
 		
-		
+		nessy.sprite.render(this.cursor, canvas);
 		
 	}
 };
