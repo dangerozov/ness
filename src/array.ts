@@ -24,8 +24,9 @@ interface ArrayUtils {
 	deserialize: <T extends {}>(array: any[], layout: string[], count: number) => T[];
 }
 
-function aggregate<T>(source: T[], merge: (result: T, item: T) => T): T;
-function aggregate<T>(source: T[], merge: (result: T, item: T) => T, accumulate?: T): T {
+export function aggregate<T>(source: T[], merge: (result: T, item: T) => T): T;
+export function aggregate<T>(source: T[], merge: (result: T, item: T) => T, accumulate: T): T;
+export function aggregate<T>(source: T[], merge: (result: T, item: T) => T, accumulate?: T): T {
 	let startIndex = 0;
 	if (accumulate === void 0) {
 		if (source.length < 1) throw "Can't aggregate empty array";
@@ -39,82 +40,85 @@ function aggregate<T>(source: T[], merge: (result: T, item: T) => T, accumulate?
 	return accumulate;
 };
 
-let array: ArrayUtils = {
-	range: (start, count) => {
-		let result: number[] = [];
-		for (let i = start; i < count; i++) {
-			result.push(i);
-		}
-		return result;
-	},
-	
-	concat: (left: any[], right: any[], out: any[] = [left.length + right.length]) => {
-		array.copyTo(left, 0, out, 0, left.length);
-		array.copyTo(right, 0, out, left.length, right.length);
-		return out;
-	},
-	except<T>(left: T[], right: T[]) {
-		let result: T[] = [];
-		for (let item of left) {
-			if (!array.contains(right, item)) result.push(item);
-		}
-		return result;
-	},
-	aggregate: aggregate,
-	
-	first<T>(source: T[], predicate: (item: T) => boolean) {
-		let result: T = null;
-		for (let item of source) {
-			if (predicate(item)) {
-				result = item;
-				break;
-			}
-		}
-		return result;
-	},	
-	contains: (source: any[], value: any) => array.some(source, item => item === value),
-	all: (source: any, predicate: (item: any) => boolean) => !array.some(source, predicate),
-	some: (source: any, predicate: (item: any) => boolean = () => true) => Array.prototype.some.call(source, predicate),
-	
-	min: (source: number[], base: number) => Math.min(...[base, ...source]),
-	max: (source: number[], base: number) => Math.max(...[base, ...source]),
-	sum: (source: number[]) => array.aggregate(source, (sum, item) => sum + item, 0),
-	
-	copyTo: (input: any[], inputIndex: number, output: any[], outputIndex: number, length: number) => {
-		for (let i = 0; i < length; i++) {
-			output[outputIndex + i] = input[inputIndex + i];
-		}
-	},
-	toObject: (source: any[], layout: string[], out: { [key: string]: any } = {}) => {
-		for (let i = 0; i < layout.length; i++) {
-			out[layout[i]] = source[i];
-		}
-		return out;
-	},
-	toArray: (object: { [key: string]: any }, layout: string[], out: any[] = []) => {
-		layout.forEach((key, index) => {
-			out[index] = object[key];
-		});
-		return out;
-	},
-	serialize: (objects: {}[], layout: string[], out: any[] = []) => {
-		let temp: any[] = [layout.length];
-		objects.forEach((object, index) => {
-			array.toArray(object, layout, temp);
-			out.push(...temp);
-		})
-		return out;
-	},
-	deserialize: (source: any[], layout: string[], count: number) => {
-		let result: any[] = [];
-		let temp: any[] = [layout.length];
-		for(let index = 0; index < count; index++) {
-			array.copyTo(source, index * layout.length, temp, 0, layout.length);
-			let object = array.toObject(temp, layout);
-			result.push(object);
-		}
-		return result;
-	}
+export let range = (start: number, count: number) => {
+    let result: number[] = [];
+    for (let i = start; i < count; i++) {
+        result.push(i);
+    }
+    return result;
+};
+
+export let concat = (left: any[], right: any[], out: any[] = [left.length + right.length]) => {
+    copyTo(left, 0, out, 0, left.length);
+    copyTo(right, 0, out, left.length, right.length);
+    return out;
+};
+
+export let except = <T>(left: T[], right: T[]) => {
+    let result: T[] = [];
+    for (let item of left) {
+        if (!contains(right, item)) result.push(item);
+    }
+    return result;
+};
+
+export let first = <T>(source: T[], predicate: (item: T) => boolean) => {
+    let result: T = null;
+    for (let item of source) {
+        if (predicate(item)) {
+            result = item;
+            break;
+        }
+    }
+    return result;
+};
+
+export let contains = (source: any[], value: any) => some(source, item => item === value);
+export let all = (source: any, predicate: (item: any) => boolean) => !some(source, predicate);
+export let some = (source: any, predicate: (item: any) => boolean = () => true) => Array.prototype.some.call(source, predicate);
+
+export let min = (source: number[], base: number) => Math.min(...[base, ...source]);
+export let max = (source: number[], base: number) => Math.max(...[base, ...source]);
+export let sum = (source: number[]) => aggregate(source, (sum, item) => sum + item, 0);
+
+export let copyTo = (input: any[], inputIndex: number, output: any[], outputIndex: number, length: number) => {
+    for (let i = 0; i < length; i++) {
+        output[outputIndex + i] = input[inputIndex + i];
+    }
+};
+
+export let toObject = (source: any[], layout: string[], out: { [key: string]: any } = {}) => {
+    for (let i = 0; i < layout.length; i++) {
+        out[layout[i]] = source[i];
+    }
+    return out;
+};
+
+export let toArray = (object: { [key: string]: any }, layout: string[], out: any[] = []) => {
+    layout.forEach((key, index) => {
+        out[index] = object[key];
+    });
+    return out;
+};
+
+export let serialize = (objects: {}[], layout: string[], out: any[] = []) => {
+    let temp: any[] = [layout.length];
+    objects.forEach((object, index) => {
+        toArray(object, layout, temp);
+        out.push(...temp);
+    })
+    return out;
+};
+
+export let deserialize = (source: any[], layout: string[], count: number) => {
+    let result: any[] = [];
+    let temp: any[] = [layout.length];
+    for(let index = 0; index < count; index++) {
+        copyTo(source, index * layout.length, temp, 0, layout.length);
+        let object = toObject(temp, layout);
+        result.push(object);
+    }
+    return result;
 };
 
 console.log("===== array serialization =====");
@@ -125,10 +129,8 @@ var rects = [
 ];
 
 var layout = ["x", "y", "w", "h"];
-var source = array.serialize(rects, layout);
+var source = serialize(rects, layout);
 console.log(source);
 
-var objects = array.deserialize(source, layout, 3);
-objects.forEach(object => console.log(object));
-
-export = array;
+var objects = deserialize(source, layout, 3);
+objects.forEach((object: any) => console.log(object));
