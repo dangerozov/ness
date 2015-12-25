@@ -5,6 +5,6 @@
 		"noImplicitAny": true
 	},
 	"files": [
-		"src/main.ts"
+        "equip-ui.ts"
 	]
 }

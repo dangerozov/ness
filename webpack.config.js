@@ -1,9 +1,9 @@
 var webpack = require('webpack');
 
 module.exports = {
-	entry: './src/main.ts',
+	entry: './equip-ui.ts',
 	output: {
-		filename: 'build/ness.js'
+		filename: 'build/equip-ui.js'
 	},
 	devtool: 'source-map',
 	resolve: {
