@@ -2,26 +2,28 @@ import rectangle = require("./rectangle");
 import builder = require("./builder");
 import object = require("./object");
 
-export interface Rectangle {
-	copy: () => rectangle.Rectangle;
+interface WrappedRectangle {
+    value: rectangle.Rectangle;
+    
+	copy: () => WrappedRectangle;
 	
-	setX: (value: number) => rectangle.Rectangle;
-	setY: (value: number) => rectangle.Rectangle;
-	setWidth: (value: number) => rectangle.Rectangle;
-	setHeight: (value: number) => rectangle.Rectangle;
+	setX: (value: number) => WrappedRectangle;
+	setY: (value: number) => WrappedRectangle;
+	setWidth: (value: number) => WrappedRectangle;
+	setHeight: (value: number) => WrappedRectangle;
 	
 	getLeft: () => number;
 	getRight: () => number;
 	getTop: () => number;
 	getBottom: () => number;
 	
-	setLeft: (value: number) => rectangle.Rectangle;
-	setRight: (value: number) => rectangle.Rectangle;
-	setTop: (value: number) => rectangle.Rectangle;
-	setBottom: (value: number) => rectangle.Rectangle;
+	setLeft: (value: number) => WrappedRectangle;
+	setRight: (value: number) => WrappedRectangle;
+	setTop: (value: number) => WrappedRectangle;
+	setBottom: (value: number) => WrappedRectangle;
 	
 	getSize: () => rectangle.Size;
-	setSize: (size: rectangle.Size) => rectangle.Rectangle;
+	setSize: (size: rectangle.Size) => WrappedRectangle;
 	
 	getCenter: () => rectangle.Point;
 	getTopCenter: () => rectangle.Point;
@@ -33,22 +35,22 @@ export interface Rectangle {
 	getMiddleRight: () => rectangle.Point;
 	getBottomRight: () => rectangle.Point;
 	
-	setTopLeft: (point: rectangle.Point) => rectangle.Rectangle;
-	setTopCenter: (point: rectangle.Point) => rectangle.Rectangle;
-	setTopRight: (point: rectangle.Point) => rectangle.Rectangle;
-	setMiddleLeft: (point: rectangle.Point) => rectangle.Rectangle;
-	setCenter: (point: rectangle.Point) => rectangle.Rectangle;
-	setMiddleRight: (point: rectangle.Point) => rectangle.Rectangle;
-	setBottomLeft: (point: rectangle.Point) => rectangle.Rectangle;
-	setBottomCenter: (point: rectangle.Point) => rectangle.Rectangle;
-	setBottomRight: (point: rectangle.Point) => rectangle.Rectangle;
+	setTopLeft: (point: rectangle.Point) => WrappedRectangle;
+	setTopCenter: (point: rectangle.Point) => WrappedRectangle;
+	setTopRight: (point: rectangle.Point) => WrappedRectangle;
+	setMiddleLeft: (point: rectangle.Point) => WrappedRectangle;
+	setCenter: (point: rectangle.Point) => WrappedRectangle;
+	setMiddleRight: (point: rectangle.Point) => WrappedRectangle;
+	setBottomLeft: (point: rectangle.Point) => WrappedRectangle;
+	setBottomCenter: (point: rectangle.Point) => WrappedRectangle;
+	setBottomRight: (point: rectangle.Point) => WrappedRectangle;
 	
-	join: (rect: rectangle.Rectangle) => rectangle.Rectangle;
+	join: (rect: rectangle.Rectangle) => WrappedRectangle;
 	
 	intersects: (rect: rectangle.Rectangle) => boolean;
 }
 
-let result = builder.build<Rectangle, rectangle.Rectangle>()
+let rectangleFunc = builder.build<WrappedRectangle, rectangle.Rectangle>()
 	.chain("copy", rectangle.copy)
 	
 	.chain("setX", rectangle.setX)
@@ -95,9 +97,6 @@ let result = builder.build<Rectangle, rectangle.Rectangle>()
 	
 	.value;
 
-interface RectangleUtils {
-	(context: rectangle.Rectangle): Rectangle;
-	
-}
+let result = object.assign(rectangleFunc, rectangle);
 
-result = object.copy(rectangle, result);
+export = result;

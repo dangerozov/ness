@@ -8,58 +8,11 @@ export interface Size {
 	height: number;
 }
 
-export interface Rectangle extends Point, Size {
-	
-}
+export interface Rectangle extends Point, Size { }
 
 type RectToPoint = (rect: Rectangle) => Point;
 
-export interface RectangleUtils {
-	copy: (rect: Rectangle) => Rectangle;
-	
-	setX: (rect: Rectangle, value: number) => Rectangle;
-	setY: (rect: Rectangle, value: number) => Rectangle;
-	setWidth: (rect: Rectangle, value: number) => Rectangle;
-	setHeight: (rect: Rectangle, value: number) => Rectangle;
-	
-	getLeft: (rect: Rectangle) => number;
-	getRight: (rect: Rectangle) => number;
-	getTop: (rect: Rectangle) => number;
-	getBottom: (rect: Rectangle) => number;
-	
-	setLeft: (rect: Rectangle, value: number) => Rectangle;
-	setRight: (rect: Rectangle, value: number) => Rectangle;
-	setTop: (rect: Rectangle, value: number) => Rectangle;
-	setBottom: (rect: Rectangle, value: number) => Rectangle;
-	
-	getSize: (rect: Rectangle) => Size;
-	setSize: (rect: Rectangle, size: Size) => Rectangle;
-	
-	getCenter: RectToPoint;
-	getTopCenter: RectToPoint;
-	getBottomCenter: RectToPoint;
-	getTopLeft: RectToPoint;
-	getMiddleLeft: RectToPoint;
-	getBottomLeft: RectToPoint;
-	getTopRight: RectToPoint;
-	getMiddleRight: RectToPoint;
-	getBottomRight: RectToPoint;
-
-
-	setTopLeft: RectPointToRect;
-	setTopCenter: RectPointToRect;
-	setTopRight: RectPointToRect;
-	setMiddleLeft: RectPointToRect;
-	setCenter: RectPointToRect;
-	setMiddleRight: RectPointToRect;
-	setBottomLeft: RectPointToRect;
-	setBottomCenter: RectPointToRect;
-	setBottomRight: RectPointToRect;
-	
-	join: (leftRect: Rectangle, rightRect: Rectangle) => Rectangle;
-	
-	intersects: (leftRect: Rectangle, rightRect: Rectangle) => boolean;	
-}
+type RectPointToRect = (rect: Rectangle, point: Point) => Rectangle; 
 
 export let copy: (rect: Rectangle) => Rectangle = (rect) => ({ x: rect.x, y: rect.y, width: rect.width, height: rect.height });
 
@@ -98,8 +51,6 @@ export let getBottomLeft: RectToPoint = (rect) => ({ x: getLeft(rect), y: getBot
 export let getTopRight: RectToPoint = (rect) => ({ x: getRight(rect), y: getTop(rect) });
 export let getMiddleRight: RectToPoint = (rect) => ({ x: getRight(rect), y: getCenter(rect).y });
 export let getBottomRight: RectToPoint = (rect) => ({ x: getRight(rect), y: getBottom(rect) });
-
-type RectPointToRect = (rect: Rectangle, point: Point) => Rectangle; 
 
 export let setTopLeft: RectPointToRect = (rect, point) => set(rect, getTopLeft, point);
 export let setTopCenter: RectPointToRect = (rect, point) => set(rect, getTopCenter, point);
