@@ -6,14 +6,20 @@ import array = require("./core/array");
 let q = array.contains([1,2,3], 2);
 array.toObject([1,2,3], ["x", "y", "z"]);
 
+import point = require("./core/point");
+point.add({ x: 10, y: 20 }, { x: 30, y: 40 });
+
+import pointBld = require("./core/point-builder");
+console.log(pointBld({x:1,y:2}).add({x:3,y:4}).value);
+
 interface ObjectUtils {
 	values: () => any[];
-	copy: (out: Object) => Object;
+	assign: (out: Object) => Object;
 }
 
 let obj = builder.build<ObjectUtils, Object>()
 	.unbox("values", object.values)
-	.cascade("copy", object.copy)
+	.cascade("assign", object.assign)
 	.value;
 
 // nessy.obj = ((obj) => {
@@ -42,5 +48,5 @@ let pos = {
 	y: 20
 };
 
-let result = object.toArray(pos, ["x", "y"]);
+let result = array.toArray(pos, ["x", "y"]);
 console.log(result);
