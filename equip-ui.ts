@@ -3,14 +3,14 @@ import point = require("./src/point");
 import rectangle = require("./src/rectangle-builder");
 import sprite = require("./src/sprite");
 import compositeSprite = require("./src/compositeSprite");
+import graphics = require("./src/graphics");
 
 declare let nessy: {
     Host: any,
     GameLoop: any,
     Graphics: any,
     Mouse: any,
-    moco: any,
-    graphics: any
+    moco: any
 };
 
 var host2 = new nessy.Host();
@@ -158,9 +158,9 @@ Game.prototype = {
 	draw: function() {
 		var canvas = this.host.graphics.__canvas;
 		
-		nessy.graphics.sandbox(canvas, (canvas: any) => {
+		graphics.sandbox(canvas, (canvas: any) => {
 			canvas.getContext("2d").fillStyle = "#181818";
-			nessy.graphics.fillRect(canvas, nessy.graphics.getBounds(canvas));
+			graphics.fillRect(canvas, graphics.getBounds(canvas));
 		});
 		
 		this.slots.forEach((slot: any) => {
@@ -184,9 +184,9 @@ Game.prototype = {
 		this.male.position = { x: 200, y: 200 };
 		compositeSprite.render(this.male, canvas, sprite.render);
 		
-		nessy.graphics.sandbox(this.host.graphics.__canvas, (canvas: any) => {
+		graphics.sandbox(this.host.graphics.__canvas, (canvas: any) => {
 			canvas.getContext("2d").strokeStyle = "red";
-			nessy.graphics.strokeRect(canvas, compositeSprite.getBounds(this.male, sprite.getBounds));
+			graphics.strokeRect(canvas, compositeSprite.getBounds(this.male, sprite.getBounds));
 		});
 		this.male.position = prevPos;
 
@@ -238,7 +238,7 @@ Game.prototype = {
 		};
 		
 		var renderInventoryItem = (inventoryItem: any) => {			
-			var cnv = nessy.graphics.create({ width: 68, height: 68 });
+			var cnv = graphics.create({ width: 68, height: 68 });
 			
 			var sprites = toSprite(inventoryItem);
 			sprites.forEach(item => sprite.render(item, cnv));
@@ -248,7 +248,7 @@ Game.prototype = {
 		
 		var cnv = renderInventoryItem(inventoryItem);			
 		
-		nessy.graphics.drawImage(canvas, cnv, 0, 0);
+		graphics.drawImage(canvas, cnv, 0, 0);
 		
 		
 		var container = {

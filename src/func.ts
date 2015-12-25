@@ -1,0 +1,1 @@
+export let map = (func: any, map: (func: any, ...args: any[]) => any) => (...args: any[]) => map(func, ...args);
