@@ -1,12 +1,7 @@
-export let toArray = (object: { [key: string]: any }, layout: string[], out: any[] = []) => {
-	layout.forEach((key, index) => {
-		out[index] = object[key];
-	});
-	return out;
-};
+import array = require("./array");
 
 export let values = (object: Object) =>
-	toArray(object, keys(object));
+	array.toArray(object, keys(object));
 
 export let keys = (object: Object) => {
 	let result: string[] = [];
@@ -21,9 +16,9 @@ export let forEach = <T extends { [key: string]: any }, TValue>(object: T, callb
 
 export let isUndefined = (object: Object) => object === void 0;
 
-export let copy = (object: { [key: string]: any }, out: { [key: string]: any } = {}) => {
-	forEach(object, (value, key) => out[key] = value);
-	return out;
+export let assign: <T1, T2>(target: T1, source: T2) => T1 & T2 = (target: { [key: string]: any }, source: { [key: string]: any }) => {
+    forEach(source, (value, key) => target[key] = value);
+    return target;
 };
 
 export interface PropertyMap {
@@ -31,7 +26,7 @@ export interface PropertyMap {
 }
 
 export let map = (left: Object, right: PropertyMap) => {
-	let copied = copy(left);
+	let copied: { [key: string]: any }  = assign({}, left);
 	forEach<PropertyMap, (value: any) => any>(right, (selector, key) => {
 		copied[key] = selector(copied[key]);
 	});
