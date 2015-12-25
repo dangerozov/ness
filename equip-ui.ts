@@ -1,4 +1,6 @@
 import array = require("./src/array");
+import point = require("./src/point");
+import rectangle = require("./src/rectangle-builder");
 import sprite = require("./src/sprite");
 import compositeSprite = require("./src/compositeSprite");
 
@@ -8,9 +10,7 @@ declare let nessy: {
     Graphics: any,
     Mouse: any,
     moco: any,
-    rectangle: any,
-    graphics: any,
-    point: any
+    graphics: any
 };
 
 var host2 = new nessy.Host();
@@ -34,8 +34,6 @@ var images: {
     humanFemaleLarge: null,
     cursor: null
 };
-
-var rect = nessy.rectangle;
 
 var Game = function(host: any) {
 	this.host = host;
@@ -68,11 +66,11 @@ Game.prototype = {
 		array.aggregate(
             this.slots,
             (value: any, slot: any) => {
-                slot.position = rect(sprite.getBounds(slot))
+                slot.position = rectangle(sprite.getBounds(slot))
                     .setLeft(value)
                     .getTopLeft();
                         
-                return rect(sprite.getBounds(slot))
+                return rectangle(sprite.getBounds(slot))
                     .getRight();
             },
             100);
@@ -105,12 +103,12 @@ Game.prototype = {
 			
 			var joined = array.aggregate(
                 items.map((item: any) => sprite.getBounds(item)),
-                nessy.rectangle.join);
+                rectangle.join);
 				
-			var center = nessy.rectangle.getCenter(joined);		
+			var center = rectangle.getCenter(joined);		
 			
 			items.forEach((item: any) => {
-				item.position = rect(sprite.getBounds(item))
+				item.position = rectangle(sprite.getBounds(item))
 					.setCenter(center)
 					.getTopLeft();
 			});
@@ -173,8 +171,8 @@ Game.prototype = {
 				
 				var prevPos = slot.item.position;
 				
-				slot.item.position = nessy.rectangle(compositeSprite.getBounds(slot.item, sprite.getBounds))
-					.setCenter(nessy.rectangle.getCenter(slotBounds))
+				slot.item.position = rectangle(compositeSprite.getBounds(slot.item, sprite.getBounds))
+					.setCenter(rectangle.getCenter(slotBounds))
 					.getTopLeft();
 				compositeSprite.render(slot.item, canvas, sprite.render);
 				
@@ -194,10 +192,10 @@ Game.prototype = {
 
 
 		var toCenter = (left: any, right: any) => {
-			var center = nessy.rectangle(left)
+			var center = rectangle(left)
 				.getCenter();
 			
-			var position = nessy.rectangle(right)
+			var position = rectangle(right)
 				.setCenter(center)
 				.getTopLeft();
 
@@ -222,14 +220,14 @@ Game.prototype = {
 			
 			var bounds = array.aggregate(
                 sprites.map(sprite.getBounds),
-                nessy.rectangle.join);
+                rectangle.join);
 				
 			array.aggregate(
                 sprites,
                 (leftBounds: any, right: any) => {
                     var rightBounds = sprite.getBounds(right);
                     var center = toCenter(leftBounds, rightBounds);
-                    right.position = nessy.rectangle(center)
+                    right.position = rectangle(center)
                         .getTopLeft();
                     
                     return leftBounds;
@@ -271,13 +269,13 @@ Game.prototype = {
 		var getBounds = (container: any, getBounds: any) => {
 			return array.aggregate(
                 container.items.map((item: any) => getBounds(item, container)),
-				nessy.rectangle.join,
+				rectangle.join,
                 { x: 0, y: 0, width: 0, height: 0 });
 		};
 		
 		var bnds = getBounds(container, (item: any, cont: any) => {
 				var prevPos = item.position;
-				item.position = nessy.point.add(item.position, cont.position);
+				item.position = point.add(item.position, cont.position);
 			var bounds = sprite.getBounds(item);
 				item.position = prevPos;
 			return bounds;
@@ -287,7 +285,7 @@ Game.prototype = {
 			container,
 			(item: any, cont: any) => {
 					var prevPos = item.position;
-					item.position = nessy.point.add(item.position, cont.position);
+					item.position = point.add(item.position, cont.position);
 				sprite.render(item, canvas);
 					item.position = prevPos;
 					// return rendered image

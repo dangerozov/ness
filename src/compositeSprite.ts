@@ -1,7 +1,6 @@
 import rectangle = require("./rectangle");
 import array = require("./array");
-
-declare let nessy: any;
+import point = require("./point");
 
 export interface Sprite {
     position: { x: number, y: number };
@@ -16,7 +15,7 @@ export interface CompositeSprite<T> {
 export let getBounds = <T>(sprite: CompositeSprite<T>, getItemBounds: (item: T) => rectangle.Rectangle) => {
     var bounds = array.aggregate(
         sprite.items.map(getItemBounds),
-        nessy.rectangle.join);
+        rectangle.join);
 
     bounds = rectangle.setTopLeft(bounds, sprite.position);
     return bounds;
@@ -26,7 +25,7 @@ export let render = <T extends Sprite>(compositeSprite: CompositeSprite<T>, canv
     if (compositeSprite.visible) {
 			compositeSprite.items.forEach(sprite => {
 				var oldPosition = sprite.position;
-				sprite.position = nessy.point.add(sprite.position, compositeSprite.position);
+				sprite.position = point.add(sprite.position, compositeSprite.position);
 				renderItem(sprite, canvas);
 				sprite.position = oldPosition;
 			});
