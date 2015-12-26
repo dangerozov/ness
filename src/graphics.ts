@@ -22,6 +22,8 @@ interface Graphics {
     getBounds: (canvas: HTMLCanvasElement) => Rectangle;
     sandbox: (canvas: HTMLCanvasElement, callback: (canvas: HTMLCanvasElement) => void) => void;
     create: (bounds: { width: number, height: number }) => HTMLCanvasElement;
+    
+    init: (host: any, bounds: { width: number, height: number }) => any;
 }
 
 let graphics: any = { };
@@ -66,6 +68,23 @@ graphics.create = (bounds: { width: number, height: number }) => {
     canvas.width = bounds.width;
     canvas.height = bounds.height;
     return canvas;
+};
+
+graphics.init = (host: any, bounds: { width: number, height: number }) => {
+    let cnv = graphics.create(bounds);
+    let div = document.createElement("div");
+    div.appendChild(cnv);
+    document.body.appendChild(div);    
+    
+    let self = {
+        host: host,
+        width: bounds.width,
+        height: bounds.height,
+        canvas: cnv,
+        draw: () => graphics.clearRect(self.canvas, graphics.getBounds(self.canvas))        
+    }
+    
+    return self;
 };
 
 export = <Graphics>graphics;

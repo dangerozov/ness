@@ -1,4 +1,4 @@
-declare let nessy;
+import graphics = require("./graphics");
 
 export let getBounds = (image: HTMLImageElement) => ({
     x: 0,
@@ -8,5 +8,5 @@ export let getBounds = (image: HTMLImageElement) => ({
 });
 
 export let render = (image: HTMLImageElement, canvas: any) => {
-    nessy.graphics.drawImage(canvas, image, getBounds(image));
+    graphics.drawImage(canvas, image, image.x, image.y);
 };

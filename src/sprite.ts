@@ -1,4 +1,4 @@
-declare let nessy: any;
+import graphics = require("./graphics");
 
 export interface Sprite {
     image: HTMLImageElement;
@@ -15,6 +15,6 @@ export let getBounds = (sprite: Sprite) => ({
 
 export let render = (sprite: Sprite, canvas: any) => {
     if (sprite.visible) {
-        nessy.graphics.drawImage(canvas, sprite.image, sprite.position.x, sprite.position.y);
+        graphics.drawImage(canvas, sprite.image, sprite.position.x, sprite.position.y);
     }
 };

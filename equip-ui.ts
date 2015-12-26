@@ -8,14 +8,13 @@ import graphics = require("./src/graphics");
 declare let nessy: {
     Host: any,
     GameLoop: any,
-    Graphics: any,
     Mouse: any,
     moco: any
 };
 
 var host2 = new nessy.Host();
 host2.plug("gameloop", nessy.GameLoop);
-host2.plug("graphics", nessy.Graphics, { width: window.innerWidth, height: window.innerHeight });
+host2.plug("graphics", graphics.init(host2, { width: window.innerWidth, height: window.innerHeight }));
 host2.plug("mouse", nessy.Mouse);
 host2.plug("moco", nessy.moco);
 
@@ -156,7 +155,7 @@ Game.prototype = {
 		this.cursor.position.y = Math.floor(this.host.mouse.y / 24) * 24;
 	},
 	draw: function() {
-		var canvas = this.host.graphics.__canvas;
+		var canvas = this.host.graphics.canvas;
 		
 		graphics.sandbox(canvas, (canvas: any) => {
 			canvas.getContext("2d").fillStyle = "#181818";
@@ -184,7 +183,7 @@ Game.prototype = {
 		this.male.position = { x: 200, y: 200 };
 		compositeSprite.render(this.male, canvas, sprite.render);
 		
-		graphics.sandbox(this.host.graphics.__canvas, (canvas: any) => {
+		graphics.sandbox(this.host.graphics.canvas, (canvas: any) => {
 			canvas.getContext("2d").strokeStyle = "red";
 			graphics.strokeRect(canvas, compositeSprite.getBounds(this.male, sprite.getBounds));
 		});
