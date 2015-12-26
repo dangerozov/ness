@@ -4,18 +4,18 @@ import rectangle = require("./src/rectangle-builder");
 import sprite = require("./src/sprite");
 import compositeSprite = require("./src/compositeSprite");
 import graphics = require("./src/graphics");
+import mouse = require("./src/mouse");
 
 declare let nessy: {
     Host: any,
     GameLoop: any,
-    Mouse: any,
     moco: any
 };
 
 var host2 = new nessy.Host();
 host2.plug("gameloop", nessy.GameLoop);
 host2.plug("graphics", graphics.init(host2, { width: window.innerWidth, height: window.innerHeight }));
-host2.plug("mouse", nessy.Mouse);
+host2.plug("mouse", mouse.init(host2));
 host2.plug("moco", nessy.moco);
 
 var images: {
