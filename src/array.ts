@@ -1,29 +1,3 @@
-interface ArrayUtils {
-	range: (start: number, count: number) => number[];
-	
-	concat: <T>(left: T[], right: T[], out: T[]) => T[];
-	except: <T>(left: T[], right: T[]) => T[];
-	aggregate: {
-		<T>(source: T[], merge: (result: T, item: T) => T): T;
-		<T>(source: T[], merge: (result: T, item: T) => T, accumulate: T): T;
-	};
-	
-	first: <T>(source: T[], predicate: (item: T) => boolean) => T;
-	contains: <T>(source: T[], value: T) => boolean;
-	all: <T>(source: T[], predicate: (item: T) => boolean) => boolean;
-	some: <T>(source: T[], predicate: (item: T) => boolean) => boolean;
-	
-	min: (source: number[], base: number) => number;
-	max: (source: number[], base: number) => number;
-	sum: (source: number[]) => number;
-	
-	copyTo: <T>(input: T[], inputIndex: number, output: T[], outputIndex: number, length: number) => void;
-	toObject: (source: any[], layout: string[], out?: {}) => {};
-	toArray: (object: {}, layout: string[], out?: any[]) => any[];
-	serialize: <T extends {}>(source: T[], layout: string[], out?: any[]) => any[];
-	deserialize: <T extends {}>(array: any[], layout: string[], count: number) => T[];
-}
-
 export function aggregate<T>(source: T[], merge: (result: T, item: T) => T): T;
 export function aggregate<T>(source: T[], merge: (result: T, item: T) => T, accumulate: T): T;
 export function aggregate<T>(source: T[], merge: (result: T, item: T) => T, accumulate?: T): T {
@@ -73,9 +47,18 @@ export let first = <T>(source: T[], predicate: (item: T) => boolean) => {
     return result;
 };
 
-export let contains = (source: any[], value: any) => some(source, item => item === value);
-export let all = (source: any, predicate: (item: any) => boolean) => !some(source, predicate);
-export let some = (source: any, predicate: (item: any) => boolean = () => true) => Array.prototype.some.call(source, predicate);
+export let contains = <T>(source: T[], value: T) => some(source, item => <any>item === <any>value);
+export let all = <T>(source: T[], predicate: (item: T) => boolean) => {
+    let result = true;
+    for (let item of source) {
+        if (!predicate(item)) {
+            result = false;
+            break;
+        }
+    }
+    return result;
+};
+export let some = <T>(source: T[], predicate: (item: T) => boolean = () => true) => Array.prototype.some.call(source, predicate);
 
 export let min = (source: number[], base: number) => Math.min(...[base, ...source]);
 export let max = (source: number[], base: number) => Math.max(...[base, ...source]);

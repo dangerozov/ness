@@ -1,4 +1,18 @@
-Water = function(host) {
+import graphics = require("./src/graphics");
+import rectangle = require("./src/rectangle-builder");
+import sprite = require("./src/sprite");
+import mouse = require("./src/mouse");
+import entities = require("./src/entities");
+
+let images: {
+    water: HTMLImageElement,
+    plane: HTMLImageElement
+} = {
+    water: null,
+    plane: null
+};
+
+let Water = function(host: any) {
 	this.host = host;
 	this.bounds = host.graphics.viewport;
 	this.texture = {
@@ -9,26 +23,24 @@ Water = function(host) {
 	this.texture.bounds = host.graphics.viewport;
 	this.texture.bounds.height += 24;
 
-	this.update = Water.scrolling;
-
 	host.entities.add(this);
 };
 
-var renderFill = (sprite, canvas) => {
-	var bounds =nessy.graphics.getBounds(canvas);
+var renderFill = (sprite: any, canvas: HTMLCanvasElement) => {
+	var bounds = graphics.getBounds(canvas);
 	bounds.height += sprite.image.height;
-	var wtr = nessy.graphics.create(bounds);
-	var pattern = nessy.graphics.createPattern(wtr, sprite.image, "repeat");
+	var wtr = graphics.create(bounds);
+	var pattern = graphics.createPattern(wtr, sprite.image, "repeat");
 	
-	nessy.graphics.sandbox(wtr, wtr => {
+	graphics.sandbox(wtr, wtr => {
 		wtr.getContext("2d").fillStyle = pattern;
-		nessy.graphics.fillRect(wtr, nessy.graphics.getBounds(wtr));
+		graphics.fillRect(wtr, graphics.getBounds(wtr));
 	});
 	
-	nessy.graphics.drawImage(canvas, wtr, sprite.position.x, sprite.position.y);
+	graphics.drawImage(canvas, wtr, sprite.position.x, sprite.position.y);
 };
 
-var waterScrolling = (water) => {
+var waterScrolling = (water: any) => {
 	var task = water.host.moco.repeat(water.host.moco.serial([
 		water.host.moco.nextFrame(),
 		water.host.moco.delay(1 / 48),
@@ -42,26 +54,33 @@ var waterScrolling = (water) => {
 	return function() { task(); };
 };
 
+declare let nessy: {
+    Host: any,
+    GameLoop: any,
+    Timer: any,
+    Renderer: any,
+    Keyboard: any,
+    moco: any
+};
+
 var host2 = new nessy.Host();
 host2.plug("gameloop", nessy.GameLoop);
 host2.plug("timer", nessy.Timer);
-host2.plug("graphics", nessy.Graphics, { width: window.innerWidth, height: window.innerHeight });
+host2.plug("graphics", graphics.init(host2, { width: window.innerWidth, height: window.innerHeight }));
 host2.plug("renderer", nessy.Renderer);
 host2.plug("keyboard", nessy.Keyboard);
-host2.plug("mouse", nessy.Mouse);
-host2.plug("entities", nessy.EntityStore);
+host2.plug("mouse", mouse.init(host2));
+host2.plug("entities", entities.init());
 host2.plug("moco", nessy.moco);
 
 host2.debug = true;
 
-var images = {};
-
-var Game = function(host) {
+var Game = function(host: any) {
 	this.host = host;
 	
 	this.preload = this.host.moco.serial([
-		this.host.moco.loadImage("resources/plane.png", img => images.plane = img),
-		this.host.moco.loadImage("resources/water.png", img => images.water = img)
+		this.host.moco.loadImage("resources/plane.png", (img: HTMLImageElement) => images.plane = img),
+		this.host.moco.loadImage("resources/water.png", (img: HTMLImageElement) => images.water = img)
 	]);
 };
 
@@ -82,8 +101,8 @@ Game.prototype = {
 			visible: true
 		};
 		
-		plane.position = nessy.rectangle(nessy.sprite.getBounds(plane))
-			.setCenter(nessy.rectangle.getCenter(nessy.graphics.getBounds(this.host.graphics.canvas)))
+		plane.position = rectangle(sprite.getBounds(plane))
+			.setCenter(rectangle.getCenter(graphics.getBounds(this.host.graphics.canvas)))
 			.getTopLeft();
 
 		this.host.entities.add(water);
@@ -91,7 +110,9 @@ Game.prototype = {
 
 		var canvas = this.host.graphics.canvas;
 
-		this.host.entities.onUpdate(["update"], function(entity) { entity.update(); });
+		this.host.entities.onUpdate(["update"], function(entity: any) {
+            entity.update();
+        });
 
 		this.plane = plane;
 		this.water = water;
@@ -108,7 +129,7 @@ Game.prototype = {
 	draw: function() {
 		var canvas = this.host.graphics.canvas;
 		renderFill(this.water, canvas);
-		nessy.sprite.render(this.plane, canvas);
+		sprite.render(this.plane, canvas);
 		
 		if (this.host.keyboard.isDown(13)) {
 			this.host.graphics.fillStyle = "white";
