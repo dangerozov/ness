@@ -1,13 +1,13 @@
 import func = require("./func");
 
-interface Rectangle {
+type Rectangle = {
     x: number,
     y: number,
     width: number,
     height: number
 }
 
-interface Graphics {
+type Graphics = {
     clearRect: (canvas: CanvasRenderingContext2D, rect: Rectangle) => void;
     fillRect: (canvas: CanvasRenderingContext2D, rect: Rectangle) => void;
     strokeRect: (canvas: CanvasRenderingContext2D, rect: Rectangle) => void;

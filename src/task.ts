@@ -1,8 +1,8 @@
-export interface Task<T> {
+type Task<T> = {
 	(state: T): State;
 }
 
-export interface State {
+type State = {
 	done: boolean;
 	next: (input: any) => any;
 }

@@ -1,17 +1,8 @@
-export interface Point {
-	x: number;
-	y: number;
-}
-
-export interface Size {
-	width: number;
-	height: number;
-}
-
-export interface Rectangle extends Point, Size { }
+type Point = { x: number, y: number };
+type Size = { width: number, height: number };
+type Rectangle = Point & Size;
 
 type RectToPoint = (rect: Rectangle) => Point;
-
 type RectPointToRect = (rect: Rectangle, point: Point) => Rectangle; 
 
 export let copy: (rect: Rectangle) => Rectangle = (rect) => ({ x: rect.x, y: rect.y, width: rect.width, height: rect.height });

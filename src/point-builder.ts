@@ -2,7 +2,7 @@ import point = require("./point");
 import builder = require("./builder");
 import object = require("./object");
 
-interface WrappedPoint {
+type WrappedPoint = {
     value: point.Point;
     add: (point: point.Point) => WrappedPoint;
     sub: (point: point.Point) => WrappedPoint;

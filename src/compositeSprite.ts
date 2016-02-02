@@ -2,17 +2,19 @@ import rectangle = require("./rectangle");
 import array = require("./array");
 import point = require("./point");
 
-export interface Sprite {
-    position: { x: number, y: number };
+type Sprite = {
+    position: { x: number, y: number }
+};
+
+type CompositeSprite<T> = {
+    items: T[],
+    position: { x: number, y: number },
+    visible: boolean
 }
 
-export interface CompositeSprite<T> {
-    items: T[];
-    position: { x: number, y: number };
-    visible: boolean;
-}
+type Rectangle = { x: number, y: number, width: number, height: number };
 
-export let getBounds = <T>(sprite: CompositeSprite<T>, getItemBounds: (item: T) => rectangle.Rectangle) => {
+export let getBounds = <T>(sprite: CompositeSprite<T>, getItemBounds: (item: T) => Rectangle) => {
     var bounds = array.aggregate(
         sprite.items.map(getItemBounds),
         rectangle.join);

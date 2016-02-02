@@ -21,7 +21,7 @@ export let assign: <T1, T2>(target: T1, source: T2) => T1 & T2 = (target: { [key
     return target;
 };
 
-export interface PropertyMap {
+type PropertyMap = {
 	[key: string]: (value: any) => any;
 }
 

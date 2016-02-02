@@ -1,6 +1,6 @@
 import array = require("./array");
 
-export interface System {
+type System = {
     components: string[];
     callback: (entity: any) => void;
 }

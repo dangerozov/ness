@@ -1,8 +1,4 @@
-export interface Point {
-    x: number;
-    y: number;
-}
-
+type Point = { x: number, y: number };
 type PointsToPoint = (left: Point, right: Point) => Point;
 
 export let add: PointsToPoint = (left, right) => ({ 

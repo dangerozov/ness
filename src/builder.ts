@@ -1,4 +1,4 @@
-export interface Builder<TObject, TContext> {
+type Builder<TObject, TContext> = {
 	chain: (name: string, func: (context: TContext, ...args: any[]) => TContext) => Builder<TObject, TContext>;
 	cascade: (name: string, func: (context: TContext, ...args: any[]) => void) => Builder<TObject, TContext>;
 	unbox: (name: string, func: (context: TContext, ...args: any[]) => any) => Builder<TObject, TContext>;
@@ -47,7 +47,7 @@ export let build = <TObject, TContext>() => {
 	return builder;
 };
 
-interface Logger {
+type Logger = {
 	log: (text: string) => Logger;
 	logError: (text: string) => Logger;
 	logInfo: (text: string) => Logger;

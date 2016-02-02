@@ -75,7 +75,7 @@ host2.plug("moco", nessy.moco);
 
 host2.debug = true;
 
-interface Host {
+type Host = {
     moco: any;
     entities: any;
     graphics: { canvas: HTMLCanvasElement & { context: CanvasRenderingContext2D } };
