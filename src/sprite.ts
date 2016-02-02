@@ -13,8 +13,8 @@ export let getBounds = (sprite: Sprite) => ({
     height: sprite.image.height
 });
 
-export let render = (sprite: Sprite, canvas: any) => {
+export let render = (sprite: Sprite, context: CanvasRenderingContext2D) => {
     if (sprite.visible) {
-        graphics.drawImage(canvas, sprite.image, sprite.position.x, sprite.position.y);
+        graphics.drawImage(context, sprite.image, sprite.position.x, sprite.position.y);
     }
 };

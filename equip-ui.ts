@@ -240,7 +240,7 @@ Game.prototype = {
 			var cnv = graphics.create({ width: 68, height: 68 });
 			
 			var sprites = toSprite(inventoryItem);
-			sprites.forEach(item => sprite.render(item, cnv));
+			sprites.forEach(item => sprite.render(item, cnv.context));
 			
 			return cnv;
 		};
