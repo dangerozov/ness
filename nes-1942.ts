@@ -161,12 +161,12 @@ let Game = function(host: Host) {
             if (self.host.keyboard.isDown(13)) {
                 canvas.context.font = "bold 12pt Consolas";
                 canvas.context.fillStyle = "white";
-                graphics.fillText(canvas.context, "pEnter pressed", 200, 200);
+                graphics.fillText(canvas.context, "pEnter pressed", { x: 200, y: 200 });
             }
             if (self.host.mouse.isDown) {
                 canvas.context.font = "bold 12pt Consolas";
                 canvas.context.fillStyle = "white";
-                graphics.fillText(canvas.context, "pMouse pressed", self.host.mouse.x + 2, self.host.mouse.y + 2);
+                graphics.fillText(canvas.context, "pMouse pressed", { x: self.host.mouse.x + 2, y: self.host.mouse.y + 2 });
             }
         }
     }

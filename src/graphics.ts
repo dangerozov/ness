@@ -11,8 +11,8 @@ type Graphics = {
     clearRect: (canvas: CanvasRenderingContext2D, rect: Rectangle) => void;
     fillRect: (canvas: CanvasRenderingContext2D, rect: Rectangle) => void;
     strokeRect: (canvas: CanvasRenderingContext2D, rect: Rectangle) => void;
-    fillText: (canvas: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth?: number) => void;
-    strokeText: (canvas: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth?: number) => void;
+    fillText: (canvas: CanvasRenderingContext2D, text: string, point: { x: number, y: number }, maxWidth?: number) => void;
+    strokeText: (canvas: CanvasRenderingContext2D, text: string, point: { x: number, y: number }, maxWidth?: number) => void;
     measureText: (canvas: CanvasRenderingContext2D, text: string) => TextMetrics;
     drawImage: (canvas: CanvasRenderingContext2D, image: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement, offsetX: number, offsetY: number, width?: number, height?: number, canvasOffsetX?: number, canvasOffsetY?: number, canvasImageWidth?: number, canvasImageHeight?: number) => void;
     createPattern: (canvas: CanvasRenderingContext2D, image: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement, repetition: string) => CanvasPattern;
@@ -48,7 +48,7 @@ let graphics: any = { };
 ["fillText", "strokeText"].forEach(name => {
     graphics[name] = func.map(
         graphics[name],
-        (func, context, text, point, maxWidth) => func(context, text, point.x, point.y, maxWidth));
+        (func, context, text, point) => func(context, text, point.x, point.y));
 });
 
 graphics.getBounds = (canvas: HTMLCanvasElement) => ({
