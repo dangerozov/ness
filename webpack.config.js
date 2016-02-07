@@ -1,9 +1,9 @@
 var webpack = require('webpack');
 
 module.exports = {
-	entry: './nes-1942.ts',
+	entry: './webgl.ts',
 	output: {
-		filename: 'build/nes-1942.js'
+		filename: 'build/webgl.js'
 	},
 	devtool: 'source-map',
 	resolve: {
