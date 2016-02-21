@@ -1,15 +1,7 @@
-function Slot(obj) {
-	if (obj instanceof Slot) return obj;
-	if (!(this instanceof Slot)) return new Slot(obj);
+import array = require("./src/array");
 
-	this.type = obj.type;
-	this.item = obj.item;
-	this.parent = obj.parent;
-}
-
-Slot.empty = function(slot) {
-	return slot.item === undefined;
-};
+type Slot = { type: string[], item: Item, parent: Item };
+type Item = { template: string, type: string[], slots: Slot[] };
 
 // [[offhand], [mainhand]] => offhand OR mainhand
 // [offhand, mainhand] => offhand AND mainhand
@@ -19,96 +11,107 @@ Slot.empty = function(slot) {
 
 // bag - item with slots, that we can put another items into
 
+
+
 var templates = {
 	Soul: {
 		template: "Soul",
-		type: [],
+		type: <string[]>[],
 		slots: [
 			{
-				type: ["body"]
+				type: ["body"],
+                item: <Item>null,
+                parent: <Item>null
 			}
 		]
 	},
 
 	Human: {
 		template: "Human",
-		type: ["body"],
+		type: <string[]>["body"],
 		slots: [
 			{
-				type: ["mainhand"]
+				type: ["mainhand"],
+                item: <Item>null,
+                parent: <Item>null
 			},
 			{
-				type: ["offhand"]
+				type: ["offhand"],
+                item: <Item>null,
+                parent: <Item>null
 			},
 			{
-				type: ["bag"]
+				type: ["bag"],
+                item: <Item>null,
+                parent: <Item>null
 			}
 		]
 	},
 
 	Sword: {
 		template: "Sword",
-		type: ["mainhand"],
-		slots: []
+		type: <string[]>["mainhand"],
+		slots: <Slot[]>[]
 	},
 
 	Shield: {
 		template: "Shield",
-		type: ["offhand"],
-		slots: []
+		type: <string[]>["offhand"],
+		slots: <Slot[]>[]
 	},
 
 	Axe: {
 		template: "Axe",
-		type: ["mainhand", "offhand"],
-		slots: []
+		type: <string[]>["mainhand", "offhand"],
+		slots: <Slot[]>[]
 	},
 
 	Bow: {
 		template: "Bow",
-		type: ["mainhand", "offhand"],
-		slots: [{ type: ["arrow"] }]
+		type: <string[]>["mainhand", "offhand"],
+		slots: <Slot[]>[{ type: ["arrow"] }]
 	},
 	
 	Arrow: {
 		template: "Arrow",
-		type: ["arrow"],
-		slots: []
+		type: <string[]>["arrow"],
+		slots: <Slot[]>[]
 	},
 
 	Bag: {
 		template: "Bag",
-		type: ["bag"],
-		slots: linq.range(0, 5).map(function() { return { type: [] }; })
+		type: <string[]>["bag"],
+		slots: <Slot[]>array.range(0, 5).map(() => ({ type: [] }))
 	},
 	
 	Cursor: {
 		template: "Cursor",
-		type: ["cursor"],
-		slots: [{ type: [] }]	
+		type: <string[]>["cursor"],
+		slots: <Slot[]>[{ type: [] }]	
 	},
 
 	Potion: {
 		template: "Potion",
-		type: ["potion"],
-		slots: []	
+		type: <string[]>["potion"],
+		slots: <Slot[]>[]	
 	}
 };
 
-function create(template) {
-	var obj = { };
-	obj.type = template.type.toArray();
-	obj.slots = template.slots.map(function(slot) { slot.parent = obj; return slot; }).map(Slot);
-	obj.template = template.template;
-	
+function create(template: Item) {
+	var obj = {
+        type: template.type,
+        slots: template.slots.map(function(slot) { slot.parent = obj; return slot; }),
+        template: template.template
+    };
+    
 	return obj;
 }
 
-function findSlots(bag, item) {
+function findSlots(bag: Item, item: Item) {
 	var slots = bag.slots
 		.filter(function(slot) {
-			var a = item.type.except(slot.type);
-			return !a.some() || a.length < item.type.length;
+			var a = array.except(item.type, slot.type);
+			return !array.some(a) || a.length < item.type.length;
 		});
 
 	slots.map(function(slot) { console.log(slot); });
@@ -116,24 +119,23 @@ function findSlots(bag, item) {
 	return slots;
 }
 
-function exchange(leftSlot, rightSlot) {
+function exchange(leftSlot: Slot, rightSlot: Slot) {
 	var leftItem = leftSlot.item;
 	leftSlot.item = rightSlot.item;
 	rightSlot.item = leftItem;
 }
 
-function findSlot(bag, item) {
-	var slot = bag.slots
-		.filter(Slot.empty)
-		.first(function(slot) { return canContain(slot, item); });
+function findSlot(bag: Item, item: Item) {
+    var emptySlots = bag.slots.filter(slot => slot.item === void 0 || slot.item === null);
+	var slot = array.first(
+        emptySlots,
+		slot => canContain(slot, item));
 		
 	return slot;
 }
 
-function canContain(slot, item) {
-	var result = !slot.type
-		.except(item.type)
-		.some();
+function canContain(slot: Slot, item: Item) {
+	var result = !array.some(array.except(slot.type, item.type));
 
 	return result;
 }
@@ -143,9 +145,9 @@ function canContain(slot, item) {
 
 		return result
 	}*/
-function run() {
+(function run() {
 	log("This is your Soul");
-	var soul = create(templates.Soul)	;	
+	var soul = create(templates.Soul);	
 	log(soul);
 	
 	// cursor is not an item with slot, it's just cursor 
@@ -193,7 +195,7 @@ function run() {
 
 	var axe = create(templates.Axe);
 	var slots = findSlots(human, axe);
-}
+})();
 
 // stackable items - to design
 var arrow1 = {
@@ -206,7 +208,7 @@ var arrow2 = {
 	count: 5
 };
 
-function stack(left, right) {
+function stack(left: any, right: any) {
 	if (left.type == right.type) {
 		return {
 			type: left.type,
@@ -239,13 +241,13 @@ When attribute gains level, it gains skillpoints, that player can distribute int
 For example, Soul can have Passive skill "You can have an additional body (so you don't need to create new character
 when you want to change race, class etc)" */
 
-function getTab(count) {
-	return linq.range(0, count)
+function getTab(count: number) {
+	return array.range(0, count)
 		.map(function() { return "- - "; })
 		.join("");
 }
 
-function toStr(obj, tabCount) {
+function toStr(obj: any, tabCount: number) {
 	/**
 	* Soul [
 	* 		"body": Human [
@@ -254,7 +256,7 @@ function toStr(obj, tabCount) {
 	* ]
 	*/
 	
-	if (obj === undefined) return "[empty]";
+	if (obj === void 0 || obj === null) return "[empty]";
 	
 	var tab = getTab(tabCount);
 	
@@ -275,7 +277,7 @@ function toStr(obj, tabCount) {
 	return text;
 }
 
-function log(obj) {
+function log(obj: any) {
 	var div = document.createElement("div");
 	div.innerText = (obj instanceof Object) ? toStr(obj, 1) : obj;
 	document.body.appendChild(div);
