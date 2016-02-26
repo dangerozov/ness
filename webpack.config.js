@@ -1,9 +1,9 @@
 var webpack = require('webpack');
 
 module.exports = {
-	entry: './equip.ts',
+	entry: './webgl.ts',
 	output: {
-		filename: 'build/equip.js'
+		filename: 'build/webgl.js'
 	},
 	devtool: 'source-map',
 	resolve: {

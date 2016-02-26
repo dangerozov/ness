@@ -6,24 +6,6 @@
 	<script src="src/moco.js"></script>
 	<script src="src/renderer.js"></script>
 	<script src="src/timer.js"></script>
-    <script id="shader-fs" type="x-shader/x-fragment">
-        varying lowp vec4 vColor;
-        
-        void main(void) {
-            gl_FragColor = vColor;
-        }
-    </script>
-    <script id="shader-vs" type="x-shader/x-vertex">
-        attribute vec3 aVertexPosition;
-        attribute vec4 aVertexColor;
-        
-        varying lowp vec4 vColor;
-        
-        void main(void) {
-            gl_Position = vec4(aVertexPosition, 1.0);
-            vColor = aVertexColor;
-        }
-    </script>
 </head>
 <body style="margin: 0;">
 	<script src="build/webgl.js"></script>
