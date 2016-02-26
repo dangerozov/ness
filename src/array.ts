@@ -1,28 +1,22 @@
-export function aggregate<T>(source: T[], merge: (result: T, item: T) => T): T;
-export function aggregate<T>(source: T[], merge: (result: T, item: T) => T, accumulate: T): T;
-export function aggregate<T>(source: T[], merge: (result: T, item: T) => T, accumulate?: T): T {
-	let startIndex = 0;
-	if (accumulate === void 0) {
-		if (source.length < 1) throw "Can't aggregate empty array";
-		accumulate = source[0];
-		startIndex = 1;
-	}
-	
-	for(let i = startIndex; i < source.length; i++) {
-		accumulate = merge(accumulate, source[i]);
-	}
-	return accumulate;
+export let forEach = <T>(source: ArrayLike<T>, callback: (value: T, index: number, source: ArrayLike<T>) => void) => Array.prototype.forEach.call(source, callback);
+
+export function reduce<T>(source: T[], func: (result: T, current: T, index: number, source: T[]) => T): T;
+export function reduce<T>(source: T[], func: (result: T, current: T, index: number, source: T[]) => T, initial: T): T;
+export function reduce<T>(source: T[], func: (result: T, current: T, index: number, source: T[]) => T, initial?: T): T {
+    return initial === void 0
+        ? Array.prototype.reduce.call(source, func)
+        : Array.prototype.reduce.call(source, func, initial);
 };
 
 export let range = (start: number, count: number) => {
-    let result: number[] = [];
+    let result: number[] = new Array(count);
     for (let i = start; i < count; i++) {
-        result.push(i);
+        result[i];
     }
     return result;
 };
 
-export let concat = (left: any[], right: any[], out: any[] = [left.length + right.length]) => {
+export let concat = <T>(left: T[], right: T[], out: T[] = new Array<T>(left.length + right.length)) => {
     copyTo(left, 0, out, 0, left.length);
     copyTo(right, 0, out, left.length, right.length);
     return out;
@@ -48,57 +42,73 @@ export let first = <T>(source: T[], predicate: (item: T) => boolean) => {
 };
 
 export let contains = <T>(source: T[], value: T) => some(source, item => <any>item === <any>value);
-export let all = <T>(source: T[], predicate: (item: T) => boolean) => {
-    let result = true;
-    for (let item of source) {
-        if (!predicate(item)) {
-            result = false;
-            break;
-        }
-    }
-    return result;
-};
+export let every = <T>(source: T[], predicate: (item: T) => boolean = () => true) => Array.prototype.every.call(source, predicate);
 export let some = <T>(source: T[], predicate: (item: T) => boolean = () => true) => Array.prototype.some.call(source, predicate);
 
 export let min = (source: number[], base: number) => Math.min(...[base, ...source]);
 export let max = (source: number[], base: number) => Math.max(...[base, ...source]);
-export let sum = (source: number[]) => aggregate(source, (sum, item) => sum + item, 0);
+export let sum = (source: number[]) => reduce(source, (sum, item) => sum + item, 0);
 
-export let copyTo = (input: any[], inputIndex: number, output: any[], outputIndex: number, length: number) => {
+export let copyTo = (input: ArrayLike<any>, inputIndex: number, output: ArrayLike<any>, outputIndex: number, length: number) => {
     for (let i = 0; i < length; i++) {
         output[outputIndex + i] = input[inputIndex + i];
     }
 };
 
-export let toObject = (source: any[], layout: string[], out: { [key: string]: any } = {}) => {
-    for (let i = 0; i < layout.length; i++) {
-        out[layout[i]] = source[i];
+type Indexer = { get: (index: number) => any, set: (index: number, value: any) => void };
+export function withLayout(layout: number[]) : Indexer;
+export function withLayout(layout: string[]) : Indexer;
+export function withLayout(layout: number[] | string[]) : Indexer {
+    if (typeof layout[0] === 'number') {
+        let array: any[] = [];
+        return {
+            get: (index: number) => {
+                
+            },
+            set: (index: number, value: any) => {
+                
+            }
+        }
     }
+};
+
+export let undestrArray = (source: any[], layout: any[], out: any[] = new Array(layout.length)) => {
+    layout.forEach((value, index) => {
+        out[value] = source[index];
+    });
     return out;
 };
 
-export let toArray = (object: { [key: string]: any }, layout: string[], out: any[] = []) => {
+export let undestrObject = (source: any[], layout: any[], out: { [key: string]: any } = {}): { [key: string]: any } => {
+    layout.forEach((value, index) => {
+        out[value] = source[index];
+    });
+    return out;
+};
+
+export let destr = (object: { [key: string]: any }, layout: any[], out: any[] = new Array(layout.length)): any[] => {
     layout.forEach((key, index) => {
         out[index] = object[key];
     });
     return out;
 };
 
-export let serialize = (objects: {}[], layout: string[], out: any[] = []) => {
-    let temp: any[] = [layout.length];
-    objects.forEach((object, index) => {
-        toArray(object, layout, temp);
-        out.push(...temp);
+export let serialize = <T>(objects: ArrayLike<any>, layout: any[], out: ArrayLike<T> = new Array(objects.length * layout.length)) => {
+    let temp: any[] = new Array(layout.length);
+    forEach(objects, (object, index) => {
+        destr(object, layout, temp);
+        copyTo(temp, 0, out, index * layout.length, layout.length);
     })
     return out;
 };
 
-export let deserialize = (source: any[], layout: string[], count: number) => {
-    let result: any[] = [];
-    let temp: any[] = [layout.length];
+export let deserialize = (source: ArrayLike<any>, layout: string[]) => {
+    let count = source.length / layout.length;
+    let result: any[] = new Array(count);
+    let temp: any[] = new Array(layout.length);
     for(let index = 0; index < count; index++) {
         copyTo(source, index * layout.length, temp, 0, layout.length);
-        let object = toObject(temp, layout);
+        let object = undestrObject(temp, layout);
         result.push(object);
     }
     return result;
@@ -113,7 +123,10 @@ var rects = [
 
 var layout = ["x", "y", "w", "h"];
 var source = serialize(rects, layout);
+// var source = reduce(
+//     rects.map(rect => toArray(rect, layout)),
+//     (result, current) => concat(result, current));
 console.log(source);
 
-var objects = deserialize(source, layout, 3);
+var objects = deserialize(source, layout);
 objects.forEach((object: any) => console.log(object));
