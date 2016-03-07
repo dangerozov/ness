@@ -1,8 +1,22 @@
+export let bind = <T, U>(source: T[], callback: (item: T) => U[]) => {
+    let result: U[] = [];
+    forEach(source, (item) => result.push(...callback(item)));
+    return result;
+};
+
+export let extract = (layout: string[]) => (object: any) => {
+    let out: any[] = [];
+    layout.forEach((prop, index) => {
+        out[index] = object[prop];
+    });
+    return out;
+};
+
 export let forEach = <T>(source: ArrayLike<T>, callback: (value: T, index: number, source: ArrayLike<T>) => void) => Array.prototype.forEach.call(source, callback);
 
-export function reduce<T>(source: T[], func: (result: T, current: T, index: number, source: T[]) => T): T;
-export function reduce<T>(source: T[], func: (result: T, current: T, index: number, source: T[]) => T, initial: T): T;
-export function reduce<T>(source: T[], func: (result: T, current: T, index: number, source: T[]) => T, initial?: T): T {
+export function reduce<T, U>(source: T[], func: (result: U, current: T, index: number, source: T[]) => T): U;
+export function reduce<T, U>(source: T[], func: (result: U, current: T, index: number, source: T[]) => T, initial: U): U;
+export function reduce<T, U>(source: T[], func: (result: U, current: T, index: number, source: T[]) => T, initial?: U): U {
     return initial === void 0
         ? Array.prototype.reduce.call(source, func)
         : Array.prototype.reduce.call(source, func, initial);
