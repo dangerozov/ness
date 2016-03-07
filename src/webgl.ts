@@ -1,8 +1,8 @@
 import maybe = require('./maybe');
+import reader = require('./reader');
+reader._return(5);
 
 export let compileShader = (gl: WebGLRenderingContext, source: string, type: number) => {
-    let result: maybe.Maybe<WebGLShader>;
-    
     let shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -11,18 +11,16 @@ export let compileShader = (gl: WebGLRenderingContext, source: string, type: num
     if (!compiled) {
         console.warn(`Failed to compile shader: ${ gl.getShaderInfoLog(shader) }`);
         gl.deleteShader(shader);
-        
-        result = maybe.nothing<WebGLShader>();
-    } else {
-        result = maybe.just(shader);
     }
+    
+    let result = compiled 
+        ? maybe.just(shader)
+        : maybe.nothing<WebGLShader>();
     
     return result;
 };
 
 export let linkProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[]) => {
-    let result: maybe.Maybe<WebGLProgram>;
-    
     let program = gl.createProgram();
     shaders.forEach(shader => gl.attachShader(program, shader));
     gl.linkProgram(program);
@@ -31,11 +29,11 @@ export let linkProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[]) => 
     if (!linked) {
         console.warn(`Failed to link program: ${ gl.getProgramInfoLog(program) }`);
         gl.deleteProgram(program);
-        
-        result = maybe.nothing();
-    } else {
-        result = maybe.just(program);
     }
+    
+    let result = linked
+        ? maybe.just(program)
+        : maybe.nothing<WebGLProgram>();
     
     return result;
 };
