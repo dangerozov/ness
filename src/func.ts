@@ -1,3 +1,22 @@
+import string = require('./string');
+
+export let fromGetter = (key: string | number) => (object: any) => object[key];
+export let toStatic = (func: Function) => (context: any, ...args: any[]) => func.call(context, ...args);
+export let fromObjectProperty = (object: any, key: string) => {
+    let name = key;
+    let value: Function;
+    try {
+        const property = object[key];
+        value = typeof property === 'function'
+            ? toStatic(property)
+            : fromGetter(key);
+    } catch(ex) {
+        name = 'get' + string.capitalize(key);
+        value = fromGetter(key);
+    }
+    return { name, value };
+};
+
 export let before = (func: any, pre: any) =>
     (...args: any[]) => {
         pre(...args);

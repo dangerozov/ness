@@ -1,8 +1,33 @@
 import maybe = require('./maybe');
 import reader = require('./reader');
-reader._return(5);
+import object = require('./object');
+import array = require('./array');
+import string = require('./string');
+import func = require('./func');
 
-export let compileShader = (gl: WebGLRenderingContext, source: string, type: number) => {
+const objectKeys = array.except(
+    object.keys(WebGLRenderingContext.prototype),
+    object.keys(WebGLRenderingContext));
+console.log(objectKeys);
+
+const _webgl: { [key: string]: any } = {};
+objectKeys.forEach(key => {
+    const wrapped = func.fromObjectProperty(WebGLRenderingContext.prototype, key);
+    _webgl[wrapped.name] = wrapped.value;
+});
+console.log(_webgl);
+
+export type Vec2 = { x: number, y: number };
+export type Attribute<T> = {
+    value: T[],
+    location: number,
+    size: number,
+    normalized: boolean,
+    stride: number,
+    offset: number
+};
+
+export let toShader = (source: string, type: number, gl: WebGLRenderingContext) => {
     let shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -20,7 +45,7 @@ export let compileShader = (gl: WebGLRenderingContext, source: string, type: num
     return result;
 };
 
-export let linkProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[]) => {
+export let toProgram = (shaders: WebGLShader[], gl: WebGLRenderingContext) => {
     let program = gl.createProgram();
     shaders.forEach(shader => gl.attachShader(program, shader));
     gl.linkProgram(program);
@@ -39,9 +64,18 @@ export let linkProgram = (gl: WebGLRenderingContext, shaders: WebGLShader[]) => 
 };
 
 export let bindBufferToAttribute = (gl: WebGLRenderingContext, buffer: WebGLBuffer, vertexSize: number, program: WebGLProgram, name: string) => {
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);
     
     let attributePosition = gl.getAttribLocation(program, name);
+    console.log(name, attributePosition);
     gl.enableVertexAttribArray(attributePosition);
     gl.vertexAttribPointer(attributePosition, vertexSize, gl.FLOAT, false, 0, 0);
-}
+};
+
+export let toBuffer = (array: ArrayBuffer | ArrayBufferView, gl: WebGLRenderingContext) => {
+    let buffer = gl.createBuffer();
+    gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);
+    gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, array, WebGLRenderingContext.STATIC_DRAW);
+
+    return buffer;
+};

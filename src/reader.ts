@@ -1,24 +1,24 @@
-type Reader<T, U> = (deps: U) => T;
+type Reader<T, U> = (args: U) => T;
 
-export let run = <T, U>(reader: Reader<T, U>, deps: U) => {
-    return reader(deps);
+export let run = <T, U>(reader: Reader<T, U>, args: U) => {
+    return reader(args);
 };
 
 export let _return = <T, U>(value: T) => 
-    (deps: U) => {
+    (args: U) => {
         return value;
     };
 
 export let map = <T, U, V>(reader: Reader<T, U>, map: (item: T) => V) => {
-    let result: Reader<V, U> = (deps: U) => {
-        return map(run(reader, deps));
+    let result: Reader<V, U> = (args: U) => {
+        return map(run(reader, args));
     };
     return result;
 };
 
 export let bind = <T, U, V>(reader: Reader<T, U>, bind: (item: T) => Reader<V, U>) => {
-    let result: Reader<V, U> = (deps: U) => {
-        return run(bind(run(reader, deps)), deps);
+    let result: Reader<V, U> = (args: U) => {
+        return run(bind(run(reader, args)), args);
     };
     return result;
 };
