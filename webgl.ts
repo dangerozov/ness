@@ -1,5 +1,6 @@
 import webgl = require('./src/webgl');
 import array = require('./src/array');
+import object = require('./src/object');
 
 let create = (bounds: { width: number, height: number }) => {
     let canvas = document.createElement("canvas");
@@ -22,53 +23,65 @@ gl.clearColor(0, 0, 0, 1);
 gl.clear(gl.COLOR_BUFFER_BIT);
 
 // shaders
-let vertex = [
-    "attribute vec2 aVertexPosition;",
-    "attribute vec2 aTextureCoord;", 
-    
-    "varying highp vec2 vTextureCoord;",
-    
-    "void main(void) {",
-    "    vTextureCoord = aTextureCoord;",
-    "    gl_Position = vec4(aVertexPosition, 0.0, 1.0);",
-    "}"
-].join("\n");
+let vertexShaderSource =
+    "attribute vec2 aVertexPosition;\
+    attribute vec2 aTextureCoord;\
+    varying highp vec2 vTextureCoord;\
+    void main(void) {\
+        vTextureCoord = aTextureCoord;\
+        gl_Position = vec4(aVertexPosition, 0.0, 1.0);\
+    }";
 
-let fragment = [
-    'varying highp vec2 vTextureCoord;',
-        
-    'uniform sampler2D uSampler;',
-        
-    'void main(void) {',
-    '   gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));',
-    '}'
-].join('\n');
+type VertexShader = {
+    aVertexPosition: webgl.Attribute<webgl.Vec2>,
+    aTextureCoord: webgl.Attribute<webgl.Vec2>
+};
 
-let vertexShader = webgl.compileShader(gl, vertex, gl.VERTEX_SHADER);
-let fragmentShader = webgl.compileShader(gl, fragment, gl.FRAGMENT_SHADER);
+let fragmentShaderSource =
+    'varying highp vec2 vTextureCoord;\
+    uniform sampler2D uSampler;\
+    void main(void) {\
+       gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
+    }';
+
+let vertexShader = webgl.toShader(vertexShaderSource, gl.VERTEX_SHADER, gl);
+let fragmentShader = webgl.toShader(fragmentShaderSource, gl.FRAGMENT_SHADER, gl);
 
 let shaderProgram = webgl
-    .linkProgram(gl, [vertexShader.value, fragmentShader.value])
+    .toProgram([vertexShader.value, fragmentShader.value], gl)
     .value;
-gl.useProgram(shaderProgram);
+//gl.useProgram(shaderProgram);
+
+let totalAttributes = <number>gl.getProgramParameter(shaderProgram, gl.ACTIVE_ATTRIBUTES);
+for (var index = 0; index < totalAttributes; index++) {
+    console.log(index, gl.getActiveAttrib(shaderProgram, index));    
+}
+
+let totalUniforms = <number>gl.getProgramParameter(shaderProgram, gl.ACTIVE_UNIFORMS);
+for (var index = 0; index < totalUniforms; index++) {
+    console.log(index, gl.getActiveUniform(shaderProgram, index));    
+}
 
 // vertices
+type Vertex = { x: number, y: number };
+let vertexToPoints = object.toArray<number>(["x", "y"]);
+
+type Quad = { topLeft: Vertex, topRight: Vertex, bottomLeft: Vertex, bottomRight: Vertex };
+let quadToVertices = object.toArray<Vertex>(["topLeft", "topRight", "bottomLeft", "bottomRight"]);
+
+let quadToPoints = (quad: Quad) => array.bind(quadToVertices(quad), vertexToPoints);
+
 let quad = {
     topLeft: { x: -1, y: 1 },
     topRight: { x: 1, y: 1 },
     bottomLeft: { x: -1, y: -1 },
     bottomRight: { x: 1, y: -1 }
 };
-let quadLayout = ["topLeft", "topRight", "bottomLeft", "bottomRight"];
-let vertexLayout = ["x", "y"];
-let verticesBuffer = new Float32Array(array.bind(array.extract(quadLayout)(quad), array.extract(vertexLayout)));
 
-let squareVerticesBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, verticesBuffer, gl.STATIC_DRAW);
+let verticesBuffer = webgl.toBuffer(new Float32Array(quadToPoints(quad)), gl);
 
 webgl.bindBufferToAttribute(gl,
-    squareVerticesBuffer, vertexLayout.length,
+    verticesBuffer, 2,
     shaderProgram, "aVertexPosition"
 );
 
@@ -104,6 +117,7 @@ image.onload = () => {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     
+    gl.useProgram(shaderProgram);
     gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 
     let textureCoords = [

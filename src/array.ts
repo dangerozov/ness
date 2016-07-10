@@ -4,14 +4,6 @@ export let bind = <T, U>(source: T[], callback: (item: T) => U[]) => {
     return result;
 };
 
-export let extract = (layout: string[]) => (object: any) => {
-    let out: any[] = [];
-    layout.forEach((prop, index) => {
-        out[index] = object[prop];
-    });
-    return out;
-};
-
 export let forEach = <T>(source: ArrayLike<T>, callback: (value: T, index: number, source: ArrayLike<T>) => void) => Array.prototype.forEach.call(source, callback);
 
 export function reduce<T, U>(source: T[], func: (result: U, current: T, index: number, source: T[]) => T): U;

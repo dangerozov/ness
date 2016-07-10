@@ -1,15 +1,25 @@
 import array = require("./array");
 
-export let values = (object: Object) =>
-	array.toArray(object, keys(object));
-
-export let keys = (object: Object) => {
-	let result: string[] = [];
-	for (var key in object) {
-		result.push(key);
-	}
-	return result;
+export let toArray = <T>(layout: string[]) => (object: any) => {
+    let out: T[] = [];
+    layout.forEach((prop, index) => {
+        out[index] = object[prop];
+    });
+    return out;
 };
+
+export let values = (object: Object) =>
+	toArray<any>(keys(object))(object);
+
+export let keys = typeof Object.keys == 'function'
+	? Object.keys
+	: (object: any) => {
+		let result: string[] = [];
+		for (var key in object) {
+			result.push(key);
+		}
+		return result;
+	};
 
 export let forEach = <T extends { [key: string]: any }, TValue>(object: T, callback: (value: TValue, key: string, object: T) => void) =>
 	keys(object).forEach(key => callback(object[key], key, object));
