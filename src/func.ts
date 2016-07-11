@@ -1,20 +1,15 @@
 import string = require('./string');
+import object = require('./object');
+import maybe = require('./monads/maybe');
 
-export let fromGetter = (key: string | number) => (object: any) => object[key];
+export let fromGetter = (key: string | number) => (context: any) => context[key];
 export let toStatic = (func: Function) => (context: any, ...args: any[]) => func.call(context, ...args);
-export let fromObjectProperty = (object: any, key: string) => {
-    let name = key;
-    let value: Function;
-    try {
-        const property = object[key];
-        value = typeof property === 'function'
-            ? toStatic(property)
-            : fromGetter(key);
-    } catch(ex) {
-        name = 'get' + string.capitalize(key);
-        value = fromGetter(key);
-    }
-    return { name, value };
+export let fromObjectProperty = (key: string | number, obj: any) => {
+    const value = object.get(key, obj);
+    
+    return maybe.map(value, value => typeof value === 'function'
+        ? toStatic(value)
+        : fromGetter(key));
 };
 
 export let before = (func: any, pre: any) =>

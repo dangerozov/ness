@@ -1,4 +1,4 @@
-import webgl = require('./src/webgl');
+import webgl = require('./src/webgl-exts');
 import array = require('./src/array');
 import object = require('./src/object');
 

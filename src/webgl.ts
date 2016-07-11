@@ -1,81 +1,171 @@
-import maybe = require('./maybe');
-import reader = require('./reader');
 import object = require('./object');
 import array = require('./array');
-import string = require('./string');
 import func = require('./func');
 
-const objectKeys = array.except(
-    object.keys(WebGLRenderingContext.prototype),
-    object.keys(WebGLRenderingContext));
-console.log(objectKeys);
+type WebGLReader<T> = (gl: WebGLRenderingContext) => T;
+interface MyWebGLRenderingContext {
+    // canvas: HTMLCanvasElement;
+    // drawingBufferHeight: number;
+    // drawingBufferWidth: number;
+    activeTexture(texture: number): WebGLReader<void>;
+    attachShader(program: WebGLProgram, shader: WebGLShader): WebGLReader<void>;
+    bindAttribLocation(program: WebGLProgram, index: number, name: string): WebGLReader<void>;
+    bindBuffer(target: number, buffer: WebGLBuffer): WebGLReader<void>;
+    bindFramebuffer(target: number, framebuffer: WebGLFramebuffer): WebGLReader<void>;
+    bindRenderbuffer(target: number, renderbuffer: WebGLRenderbuffer): WebGLReader<void>;
+    bindTexture(target: number, texture: WebGLTexture): WebGLReader<void>;
+    blendColor(red: number, green: number, blue: number, alpha: number): WebGLReader<void>;
+    blendEquation(mode: number): WebGLReader<void>;
+    blendEquationSeparate(modeRGB: number, modeAlpha: number): WebGLReader<void>;
+    blendFunc(sfactor: number, dfactor: number): WebGLReader<void>;
+    blendFuncSeparate(srcRGB: number, dstRGB: number, srcAlpha: number, dstAlpha: number): WebGLReader<void>;
+    bufferData(target: number, size: number | ArrayBufferView | ArrayBuffer, usage: number): WebGLReader<void>;
+    bufferSubData(target: number, offset: number, data: ArrayBufferView | ArrayBuffer): WebGLReader<void>;
+    checkFramebufferStatus(target: number): WebGLReader<number>;
+    clear(mask: number): WebGLReader<void>;
+    clearColor(red: number, green: number, blue: number, alpha: number): WebGLReader<void>;
+    clearDepth(depth: number): WebGLReader<void>;
+    clearStencil(s: number): WebGLReader<void>;
+    colorMask(red: boolean, green: boolean, blue: boolean, alpha: boolean): WebGLReader<void>;
+    compileShader(shader: WebGLShader): WebGLReader<void>;
+    compressedTexImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, data: ArrayBufferView): WebGLReader<void>;
+    compressedTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, data: ArrayBufferView): WebGLReader<void>;
+    copyTexImage2D(target: number, level: number, internalformat: number, x: number, y: number, width: number, height: number, border: number): WebGLReader<void>;
+    copyTexSubImage2D(target: number, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): WebGLReader<void>;
+    createBuffer(): WebGLReader<WebGLBuffer>;
+    createFramebuffer(): WebGLReader<WebGLFramebuffer>;
+    createProgram(): WebGLReader<WebGLProgram>;
+    createRenderbuffer(): WebGLReader<WebGLRenderbuffer>;
+    createShader(type: number): WebGLReader<WebGLShader>;
+    createTexture(): WebGLReader<WebGLTexture>;
+    cullFace(mode: number): WebGLReader<void>;
+    deleteBuffer(buffer: WebGLBuffer): WebGLReader<void>;
+    deleteFramebuffer(framebuffer: WebGLFramebuffer): WebGLReader<void>;
+    deleteProgram(program: WebGLProgram): WebGLReader<void>;
+    deleteRenderbuffer(renderbuffer: WebGLRenderbuffer): WebGLReader<void>;
+    deleteShader(shader: WebGLShader): WebGLReader<void>;
+    deleteTexture(texture: WebGLTexture): WebGLReader<void>;
+    depthFunc(func: number): WebGLReader<void>;
+    depthMask(flag: boolean): WebGLReader<void>;
+    depthRange(zNear: number, zFar: number): WebGLReader<void>;
+    detachShader(program: WebGLProgram, shader: WebGLShader): WebGLReader<void>;
+    disable(cap: number): WebGLReader<void>;
+    disableVertexAttribArray(index: number): WebGLReader<void>;
+    drawArrays(mode: number, first: number, count: number): WebGLReader<void>;
+    drawElements(mode: number, count: number, type: number, offset: number): WebGLReader<void>;
+    enable(cap: number): WebGLReader<void>;
+    enableVertexAttribArray(index: number): WebGLReader<void>;
+    finish(): WebGLReader<void>;
+    flush(): WebGLReader<void>;
+    framebufferRenderbuffer(target: number, attachment: number, renderbuffertarget: number, renderbuffer: WebGLRenderbuffer): WebGLReader<void>;
+    framebufferTexture2D(target: number, attachment: number, textarget: number, texture: WebGLTexture, level: number): WebGLReader<void>;
+    frontFace(mode: number): WebGLReader<void>;
+    generateMipmap(target: number): WebGLReader<void>;
+    getActiveAttrib(program: WebGLProgram, index: number): WebGLReader<WebGLActiveInfo>;
+    getActiveUniform(program: WebGLProgram, index: number): WebGLReader<WebGLActiveInfo>;
+    getAttachedShaders(program: WebGLProgram): WebGLReader<WebGLShader[]>;
+    getAttribLocation(program: WebGLProgram, name: string): WebGLReader<number>;
+    getBufferParameter(target: number, pname: number): WebGLReader<any>;
+    getContextAttributes(): WebGLReader<WebGLContextAttributes>;
+    getError(): WebGLReader<number>;
+    getExtension(name: string): WebGLReader<any>;
+    getFramebufferAttachmentParameter(target: number, attachment: number, pname: number): WebGLReader<any>;
+    getParameter(pname: number): WebGLReader<any>;
+    getProgramInfoLog(program: WebGLProgram): WebGLReader<string>;
+    getProgramParameter(program: WebGLProgram, pname: number): WebGLReader<any>;
+    getRenderbufferParameter(target: number, pname: number): WebGLReader<any>;
+    getShaderInfoLog(shader: WebGLShader): WebGLReader<string>;
+    getShaderParameter(shader: WebGLShader, pname: number): WebGLReader<any>;
+    getShaderPrecisionFormat(shadertype: number, precisiontype: number): WebGLReader<WebGLShaderPrecisionFormat>;
+    getShaderSource(shader: WebGLShader): WebGLReader<string>;
+    getSupportedExtensions(): WebGLReader<string[]>;
+    getTexParameter(target: number, pname: number): WebGLReader<any>;
+    getUniform(program: WebGLProgram, location: WebGLUniformLocation): WebGLReader<any>;
+    getUniformLocation(program: WebGLProgram, name: string): WebGLReader<WebGLUniformLocation>;
+    getVertexAttrib(index: number, pname: number): WebGLReader<any>;
+    getVertexAttribOffset(index: number, pname: number): WebGLReader<number>;
+    hint(target: number, mode: number): WebGLReader<void>;
+    isBuffer(buffer: WebGLBuffer): WebGLReader<boolean>;
+    isContextLost(): WebGLReader<boolean>;
+    isEnabled(cap: number): WebGLReader<boolean>;
+    isFramebuffer(framebuffer: WebGLFramebuffer): WebGLReader<boolean>;
+    isProgram(program: WebGLProgram): WebGLReader<boolean>;
+    isRenderbuffer(renderbuffer: WebGLRenderbuffer): WebGLReader<boolean>;
+    isShader(shader: WebGLShader): WebGLReader<boolean>;
+    isTexture(texture: WebGLTexture): WebGLReader<boolean>;
+    lineWidth(width: number): WebGLReader<void>;
+    linkProgram(program: WebGLProgram): WebGLReader<void>;
+    pixelStorei(pname: number, param: number): WebGLReader<void>;
+    polygonOffset(factor: number, units: number): WebGLReader<void>;
+    readPixels(x: number, y: number, width: number, height: number, format: number, type: number, pixels: ArrayBufferView): WebGLReader<void>;
+    renderbufferStorage(target: number, internalformat: number, width: number, height: number): WebGLReader<void>;
+    sampleCoverage(value: number, invert: boolean): WebGLReader<void>;
+    scissor(x: number, y: number, width: number, height: number): WebGLReader<void>;
+    shaderSource(shader: WebGLShader, source: string): WebGLReader<void>;
+    stencilFunc(func: number, ref: number, mask: number): WebGLReader<void>;
+    stencilFuncSeparate(face: number, func: number, ref: number, mask: number): WebGLReader<void>;
+    stencilMask(mask: number): WebGLReader<void>;
+    stencilMaskSeparate(face: number, mask: number): WebGLReader<void>;
+    stencilOp(fail: number, zfail: number, zpass: number): WebGLReader<void>;
+    stencilOpSeparate(face: number, fail: number, zfail: number, zpass: number): WebGLReader<void>;
+    texImage2D(target: number, level: number, internalformat: number, width: number, height: number, border: number, format: number, type: number, pixels: ArrayBufferView): WebGLReader<void>;
+    texImage2D(target: number, level: number, internalformat: number, format: number, type: number, image: HTMLImageElement): WebGLReader<void>;
+    texImage2D(target: number, level: number, internalformat: number, format: number, type: number, canvas: HTMLCanvasElement): WebGLReader<void>;
+    texImage2D(target: number, level: number, internalformat: number, format: number, type: number, video: HTMLVideoElement): WebGLReader<void>;
+    texImage2D(target: number, level: number, internalformat: number, format: number, type: number, pixels: ImageData): WebGLReader<void>;
+    texParameterf(target: number, pname: number, param: number): WebGLReader<void>;
+    texParameteri(target: number, pname: number, param: number): WebGLReader<void>;
+    texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, width: number, height: number, format: number, type: number, pixels: ArrayBufferView): WebGLReader<void>;
+    texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, format: number, type: number, image: HTMLImageElement): WebGLReader<void>;
+    texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, format: number, type: number, canvas: HTMLCanvasElement): WebGLReader<void>;
+    texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, format: number, type: number, video: HTMLVideoElement): WebGLReader<void>;
+    texSubImage2D(target: number, level: number, xoffset: number, yoffset: number, format: number, type: number, pixels: ImageData): WebGLReader<void>;
+    uniform1f(location: WebGLUniformLocation, x: number): WebGLReader<void>;
+    uniform1fv(location: WebGLUniformLocation, v: Float32Array): WebGLReader<void>;
+    uniform1i(location: WebGLUniformLocation, x: number): WebGLReader<void>;
+    uniform1iv(location: WebGLUniformLocation, v: Int32Array): WebGLReader<void>;
+    uniform2f(location: WebGLUniformLocation, x: number, y: number): WebGLReader<void>;
+    uniform2fv(location: WebGLUniformLocation, v: Float32Array): WebGLReader<void>;
+    uniform2i(location: WebGLUniformLocation, x: number, y: number): WebGLReader<void>;
+    uniform2iv(location: WebGLUniformLocation, v: Int32Array): WebGLReader<void>;
+    uniform3f(location: WebGLUniformLocation, x: number, y: number, z: number): WebGLReader<void>;
+    uniform3fv(location: WebGLUniformLocation, v: Float32Array): WebGLReader<void>;
+    uniform3i(location: WebGLUniformLocation, x: number, y: number, z: number): WebGLReader<void>;
+    uniform3iv(location: WebGLUniformLocation, v: Int32Array): WebGLReader<void>;
+    uniform4f(location: WebGLUniformLocation, x: number, y: number, z: number, w: number): WebGLReader<void>;
+    uniform4fv(location: WebGLUniformLocation, v: Float32Array): WebGLReader<void>;
+    uniform4i(location: WebGLUniformLocation, x: number, y: number, z: number, w: number): WebGLReader<void>;
+    uniform4iv(location: WebGLUniformLocation, v: Int32Array): WebGLReader<void>;
+    uniformMatrix2fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array): WebGLReader<void>;
+    uniformMatrix3fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array): WebGLReader<void>;
+    uniformMatrix4fv(location: WebGLUniformLocation, transpose: boolean, value: Float32Array): WebGLReader<void>;
+    useProgram(program: WebGLProgram): WebGLReader<void>;
+    validateProgram(program: WebGLProgram): WebGLReader<void>;
+    vertexAttrib1f(indx: number, x: number): WebGLReader<void>;
+    vertexAttrib1fv(indx: number, values: Float32Array): WebGLReader<void>;
+    vertexAttrib2f(indx: number, x: number, y: number): WebGLReader<void>;
+    vertexAttrib2fv(indx: number, values: Float32Array): WebGLReader<void>;
+    vertexAttrib3f(indx: number, x: number, y: number, z: number): WebGLReader<void>;
+    vertexAttrib3fv(indx: number, values: Float32Array): WebGLReader<void>;
+    vertexAttrib4f(indx: number, x: number, y: number, z: number, w: number): WebGLReader<void>;
+    vertexAttrib4fv(indx: number, values: Float32Array): WebGLReader<void>;
+    vertexAttribPointer(indx: number, size: number, type: number, normalized: boolean, stride: number, offset: number): WebGLReader<void>;
+    viewport(x: number, y: number, width: number, height: number): WebGLReader<void>;
+}
 
-const _webgl: { [key: string]: any } = {};
-objectKeys.forEach(key => {
-    const wrapped = func.fromObjectProperty(WebGLRenderingContext.prototype, key);
-    _webgl[wrapped.name] = wrapped.value;
-});
-console.log(_webgl);
+const webgl: MyWebGLRenderingContext = ((obj: MyWebGLRenderingContext & { [key: string]: any }) => {
+    array
+        .except(
+            object.keys(WebGLRenderingContext.prototype),
+            object.keys(WebGLRenderingContext))
+        .map(key => ({ key, value: func.fromObjectProperty(key, WebGLRenderingContext.prototype) }))
+        .filter(keyValue => keyValue.value.hasValue)
+        .map(keyValue => ({ key: keyValue.key, value: keyValue.value.value }))
+        .map(keyValue => (<{ key: string, value: (...args: any[]) => (context: any) => any }>{ key: keyValue.key, value: (...args: any[]) => (context: any) => keyValue.value(context, ...args) }))
+        .forEach(keyValue => obj[keyValue.key] = keyValue.value);
 
-export type Vec2 = { x: number, y: number };
-export type Attribute<T> = {
-    value: T[],
-    location: number,
-    size: number,
-    normalized: boolean,
-    stride: number,
-    offset: number
-};
+    return obj;
+})(<MyWebGLRenderingContext>{});
+console.log(webgl);
 
-export let toShader = (source: string, type: number, gl: WebGLRenderingContext) => {
-    let shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    
-    let compiled: boolean = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-    if (!compiled) {
-        console.warn(`Failed to compile shader: ${ gl.getShaderInfoLog(shader) }`);
-        gl.deleteShader(shader);
-    }
-    
-    let result = compiled 
-        ? maybe.just(shader)
-        : maybe.nothing<WebGLShader>();
-    
-    return result;
-};
-
-export let toProgram = (shaders: WebGLShader[], gl: WebGLRenderingContext) => {
-    let program = gl.createProgram();
-    shaders.forEach(shader => gl.attachShader(program, shader));
-    gl.linkProgram(program);
-    
-    let linked: boolean = gl.getProgramParameter(program, gl.LINK_STATUS);
-    if (!linked) {
-        console.warn(`Failed to link program: ${ gl.getProgramInfoLog(program) }`);
-        gl.deleteProgram(program);
-    }
-    
-    let result = linked
-        ? maybe.just(program)
-        : maybe.nothing<WebGLProgram>();
-    
-    return result;
-};
-
-export let bindBufferToAttribute = (gl: WebGLRenderingContext, buffer: WebGLBuffer, vertexSize: number, program: WebGLProgram, name: string) => {
-    gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);
-    
-    let attributePosition = gl.getAttribLocation(program, name);
-    console.log(name, attributePosition);
-    gl.enableVertexAttribArray(attributePosition);
-    gl.vertexAttribPointer(attributePosition, vertexSize, gl.FLOAT, false, 0, 0);
-};
-
-export let toBuffer = (array: ArrayBuffer | ArrayBufferView, gl: WebGLRenderingContext) => {
-    let buffer = gl.createBuffer();
-    gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);
-    gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, array, WebGLRenderingContext.STATIC_DRAW);
-
-    return buffer;
-};
+export = webgl;

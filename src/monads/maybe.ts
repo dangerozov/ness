@@ -1,10 +1,10 @@
-type Maybe<T> = { hasValue: boolean, value: T };
+interface Maybe<T> { hasValue: boolean, value: T };
 
-export let just = <T>(value: T) => {
+export let just = <T>(value: T): Maybe<T> => {
     return { hasValue: true, value: value };
 };
 
-export let nothing = <T>() => {
+export let nothing = <T>(): Maybe<T> => {
     return { hasValue: false, value: <T>void 0 };
 };
 

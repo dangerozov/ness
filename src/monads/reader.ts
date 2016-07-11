@@ -1,10 +1,10 @@
-type Reader<T, U> = (args: U) => T;
+interface Reader<T, U> { (args: U): T };
 
 export let run = <T, U>(reader: Reader<T, U>, args: U) => {
     return reader(args);
 };
 
-export let _return = <T, U>(value: T) => 
+export let _return = <T, U>(value: T): Reader<T, U> => 
     (args: U) => {
         return value;
     };

@@ -1,4 +1,5 @@
 import array = require("./array");
+import maybe = require("./monads/maybe");
 
 export let toArray = <T>(layout: string[]) => (object: any) => {
     let out: T[] = [];
@@ -20,6 +21,14 @@ export let keys = typeof Object.keys == 'function'
 		}
 		return result;
 	};
+
+export let get = (key: string | number, object: any) => {
+	let value: any;
+	try { value = object[key]; } catch(ex) { }
+	return isUndefined(value)
+		? maybe.nothing()
+		: maybe.just(value);
+};
 
 export let forEach = <T extends { [key: string]: any }, TValue>(object: T, callback: (value: TValue, key: string, object: T) => void) =>
 	keys(object).forEach(key => callback(object[key], key, object));
