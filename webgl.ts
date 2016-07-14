@@ -44,8 +44,8 @@ let fragmentShaderSource =
        gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
     }';
 
-let vertexShader = webgl.toShader(vertexShaderSource, gl.VERTEX_SHADER, gl);
-let fragmentShader = webgl.toShader(fragmentShaderSource, gl.FRAGMENT_SHADER, gl);
+let vertexShader = webgl.toShader(vertexShaderSource, gl.VERTEX_SHADER)(gl);
+let fragmentShader = webgl.toShader(fragmentShaderSource, gl.FRAGMENT_SHADER)(gl);
 
 let shaderProgram = webgl
     .toProgram([vertexShader.value, fragmentShader.value], gl)

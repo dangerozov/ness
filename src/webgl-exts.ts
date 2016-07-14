@@ -1,5 +1,6 @@
 import maybe = require('./monads/maybe');
 import webgl = require('./webgl');
+import reader = require('./monads/reader');
 
 export type Vec2 = { x: number, y: number };
 export type Attribute<T> = {
@@ -11,23 +12,21 @@ export type Attribute<T> = {
     offset: number
 };
 
-export let toShader = (source: string, type: number, gl: WebGLRenderingContext) => {
-    let shader = webgl.createShader(type)(gl);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    
-    let compiled: boolean = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-    if (!compiled) {
-        console.warn(`Failed to compile shader: ${ gl.getShaderInfoLog(shader) }`);
-        gl.deleteShader(shader);
-    }
-    
-    let result = compiled 
-        ? maybe.just(shader)
-        : maybe.nothing<WebGLShader>();
-    
-    return result;
-};
+export let toShader = (source: string, type: number) => reader.bind(reader.bind(reader.bind(
+    webgl.createShader(type),
+    shader => gl => { webgl.shaderSource(shader, source)(gl); return shader; }),
+    shader => gl => { webgl.compileShader(shader)(gl); return shader; } ),
+    shader => gl => { 
+        let compiled: boolean = webgl.getShaderParameter(shader, WebGLRenderingContext.COMPILE_STATUS)(gl);
+        if (!compiled) {
+            console.warn(`Failed to compile shader: ${ gl.getShaderInfoLog(shader) }`);
+            webgl.deleteShader(shader)(gl);
+        }
+
+        return compiled
+            ? maybe.just(shader)
+            : maybe.nothing<WebGLShader>();
+    });
 
 export let toProgram = (shaders: WebGLShader[], gl: WebGLRenderingContext) => {
     let program = gl.createProgram();
