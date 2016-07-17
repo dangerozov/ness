@@ -1,50 +1,58 @@
 import maybe = require('./monads/maybe');
 import webgl = require('./webgl');
 import reader = require('./monads/reader');
+import either = require('./monads/either');
+import monads = require('./monads');
 
-export type Vec2 = { x: number, y: number };
-export type Attribute<T> = {
-    value: T[],
-    location: number,
-    size: number,
-    normalized: boolean,
-    stride: number,
-    offset: number
-};
+let readerEitherBind = <T, U, V, W>(rdr: monads.Reader<T, monads.Either<U, V>>, bind: (value: V) => monads.Reader<T, monads.Either<U, W>>) =>
+    (args: T) => {
+        let eitherValue = rdr(args);
+        return eitherValue.hasRight
+            ? bind(eitherValue.right)(args)
+            : either.left<U, W>(eitherValue.left);
+    };
 
-export let toShader = (source: string, type: number) => reader.bind(reader.bind(reader.bind(
+export let compileProgram = (vertexSource: string, fragmentSource: string) =>
+    readerEitherBind(compileShader(vertexSource, WebGLRenderingContext.VERTEX_SHADER),
+        vertex => readerEitherBind(compileShader(fragmentSource, WebGLRenderingContext.FRAGMENT_SHADER),
+            fragment => linkProgram(vertex, fragment)));
+
+export let compileShader = (source: string, type: number) => reader.bind(reader.bind(reader.bind(
     webgl.createShader(type),
-    shader => gl => { webgl.shaderSource(shader, source)(gl); return shader; }),
-    shader => gl => { webgl.compileShader(shader)(gl); return shader; } ),
-    shader => gl => { 
-        let compiled: boolean = webgl.getShaderParameter(shader, WebGLRenderingContext.COMPILE_STATUS)(gl);
-        if (!compiled) {
-            console.warn(`Failed to compile shader: ${ gl.getShaderInfoLog(shader) }`);
-            webgl.deleteShader(shader)(gl);
-        }
+    webgl.shaderSource(source)),
+    webgl.compileShader),
+    shader => gl => {
+        let compiled = webgl.getShaderParameter(WebGLRenderingContext.COMPILE_STATUS)(shader)(gl);
+        
+        let result = compiled
+            ? either.right<string, WebGLShader>(shader)
+            : either.left<string, WebGLShader>(
+                `Failed to compile shader type ${type}:\nInfoLog: ${webgl.getShaderInfoLog(shader)(gl)}`);
 
-        return compiled
-            ? maybe.just(shader)
-            : maybe.nothing<WebGLShader>();
+        if (!compiled) webgl.deleteShader(shader)(gl);
+
+        return result;
     });
 
-export let toProgram = (shaders: WebGLShader[], gl: WebGLRenderingContext) => {
-    let program = gl.createProgram();
-    shaders.forEach(shader => gl.attachShader(program, shader));
-    gl.linkProgram(program);
-    
-    let linked: boolean = gl.getProgramParameter(program, gl.LINK_STATUS);
-    if (!linked) {
-        console.warn(`Failed to link program: ${ gl.getProgramInfoLog(program) }`);
-        gl.deleteProgram(program);
-    }
-    
-    let result = linked
-        ? maybe.just(program)
-        : maybe.nothing<WebGLProgram>();
-    
-    return result;
-};
+export let linkProgram = (vertex: WebGLShader, fragment: WebGLShader) => reader.bind(reader.bind(reader.bind(reader.bind(
+    webgl.createProgram(),
+    webgl.attachShader(vertex)),
+    webgl.attachShader(fragment)),
+    webgl.linkProgram),
+    program => gl => {
+        let linked = webgl.getProgramParameter(WebGLRenderingContext.LINK_STATUS)(program)(gl);
+
+        let result = linked
+            ? either.right<string, WebGLProgram>(program)
+            : either.left<string, WebGLProgram>(
+                `Failed to link program:
+                ValidateStatus: ${webgl.getProgramParameter(WebGLRenderingContext.VALIDATE_STATUS)}
+                InfoLog: ${webgl.getProgramInfoLog(program)(gl)}`);
+
+        if (!linked) webgl.deleteProgram(program)(gl);
+
+        return result;
+    });
 
 export let bindBufferToAttribute = (gl: WebGLRenderingContext, buffer: WebGLBuffer, vertexSize: number, program: WebGLProgram, name: string) => {
     gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);

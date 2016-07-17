@@ -1,6 +1,7 @@
 import webgl = require('./src/webgl-exts');
 import array = require('./src/array');
 import object = require('./src/object');
+import either = require('./src/monads/either');
 
 let create = (bounds: { width: number, height: number }) => {
     let canvas = document.createElement("canvas");
@@ -24,33 +25,24 @@ gl.clear(gl.COLOR_BUFFER_BIT);
 
 // shaders
 let vertexShaderSource =
-    "attribute vec2 aVertexPosition;\
-    attribute vec2 aTextureCoord;\
-    varying highp vec2 vTextureCoord;\
-    void main(void) {\
-        vTextureCoord = aTextureCoord;\
-        gl_Position = vec4(aVertexPosition, 0.0, 1.0);\
-    }";
-
-type VertexShader = {
-    aVertexPosition: webgl.Attribute<webgl.Vec2>,
-    aTextureCoord: webgl.Attribute<webgl.Vec2>
-};
+    `attribute vec2 aVertexPosition;
+    attribute vec2 aTextureCoord;
+    varying highp vec2 vTextureCoord;
+    void main(void) {
+        vTextureCoord = aTextureCoord;
+        gl_Position = vec4(aVertexPosition, 0.0, 1.0);
+    }`;
 
 let fragmentShaderSource =
-    'varying highp vec2 vTextureCoord;\
-    uniform sampler2D uSampler;\
-    void main(void) {\
-       gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
-    }';
+    `varying highp vec2 vTextureCoord;
+    uniform sampler2D uSampler;
+    void main(void) {
+       gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    }`;
 
-let vertexShader = webgl.toShader(vertexShaderSource, gl.VERTEX_SHADER)(gl);
-let fragmentShader = webgl.toShader(fragmentShaderSource, gl.FRAGMENT_SHADER)(gl);
-
-let shaderProgram = webgl
-    .toProgram([vertexShader.value, fragmentShader.value], gl)
-    .value;
-//gl.useProgram(shaderProgram);
+let _program = webgl.compileProgram(vertexShaderSource, fragmentShaderSource)(gl);
+console.log('Error', _program.left);
+let shaderProgram = _program.right;
 
 let totalAttributes = <number>gl.getProgramParameter(shaderProgram, gl.ACTIVE_ATTRIBUTES);
 for (var index = 0; index < totalAttributes; index++) {
