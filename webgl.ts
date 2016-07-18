@@ -1,7 +1,8 @@
-import webgl = require('./src/webgl-exts');
 import array = require('./src/array');
 import object = require('./src/object');
 import either = require('./src/monads/either');
+import buffer = require('./src/webgl/buffer');
+import shader = require('./src/webgl/shader');
 
 let create = (bounds: { width: number, height: number }) => {
     let canvas = document.createElement("canvas");
@@ -40,7 +41,7 @@ let fragmentShaderSource =
        gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
     }`;
 
-let _program = webgl.compileProgram(vertexShaderSource, fragmentShaderSource)(gl);
+let _program = shader.compileProgram(vertexShaderSource, fragmentShaderSource)(gl);
 console.log('Error', _program.left);
 let shaderProgram = _program.right;
 
@@ -70,9 +71,9 @@ let quad = {
     bottomRight: { x: 1, y: -1 }
 };
 
-let verticesBuffer = webgl.toBuffer(new Float32Array(quadToPoints(quad)), gl);
+let verticesBuffer = buffer.toBuffer(new Float32Array(quadToPoints(quad)), gl);
 
-webgl.bindBufferToAttribute(gl,
+buffer.bindBufferToAttribute(gl,
     verticesBuffer, 2,
     shaderProgram, "aVertexPosition"
 );
@@ -101,7 +102,11 @@ image.crossOrigin = "anonymous";
 image.onload = () => {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
     gl.generateMipmap(gl.TEXTURE_2D);

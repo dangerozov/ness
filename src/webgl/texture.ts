@@ -1,0 +1,1 @@
+import webgl = require('../webgl');

@@ -1,10 +1,18 @@
-import maybe = require('./monads/maybe');
-import webgl = require('./webgl');
-import reader = require('./monads/reader');
-import either = require('./monads/either');
-import monads = require('./monads');
+import monads = require('../monads');
+import maybe = require('../monads/maybe');
+import reader = require('../monads/reader');
+import either = require('../monads/either');
+import webgl = require('../webgl');
 
-let readerEitherBind = <T, U, V, W>(rdr: monads.Reader<T, monads.Either<U, V>>, bind: (value: V) => monads.Reader<T, monads.Either<U, W>>) =>
+let readerEitherMap = <T, U, V, W>(rdr: monads.Reader<T, monads.Either<U, V>>, map: (value: V) => W): monads.Reader<T, monads.Either<U, W>> =>
+    (args: T) => {
+        let eitherValue = rdr(args);
+        return eitherValue.hasRight
+            ? either.right<U, W>(map(eitherValue.right))
+            : either.left<U, W>(eitherValue.left);
+    };
+
+let readerEitherBind = <T, U, V, W>(rdr: monads.Reader<T, monads.Either<U, V>>, bind: (value: V) => monads.Reader<T, monads.Either<U, W>>): monads.Reader<T, monads.Either<U, W>> =>
     (args: T) => {
         let eitherValue = rdr(args);
         return eitherValue.hasRight
@@ -15,7 +23,12 @@ let readerEitherBind = <T, U, V, W>(rdr: monads.Reader<T, monads.Either<U, V>>, 
 export let compileProgram = (vertexSource: string, fragmentSource: string) =>
     readerEitherBind(compileShader(vertexSource, WebGLRenderingContext.VERTEX_SHADER),
         vertex => readerEitherBind(compileShader(fragmentSource, WebGLRenderingContext.FRAGMENT_SHADER),
-            fragment => linkProgram(vertex, fragment)));
+            fragment => readerEitherBind(linkProgram(vertex, fragment),
+                program => (gl) => {
+                    webgl.deleteShader(vertex)(gl),
+                    webgl.deleteShader(fragment)(gl);
+                    return either.right(program);
+                })));
 
 export let compileShader = (source: string, type: number) => reader.bind(reader.bind(reader.bind(
     webgl.createShader(type),
@@ -53,20 +66,3 @@ export let linkProgram = (vertex: WebGLShader, fragment: WebGLShader) => reader.
 
         return result;
     });
-
-export let bindBufferToAttribute = (gl: WebGLRenderingContext, buffer: WebGLBuffer, vertexSize: number, program: WebGLProgram, name: string) => {
-    gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);
-    
-    let attributePosition = gl.getAttribLocation(program, name);
-    console.log(name, attributePosition);
-    gl.enableVertexAttribArray(attributePosition);
-    gl.vertexAttribPointer(attributePosition, vertexSize, gl.FLOAT, false, 0, 0);
-};
-
-export let toBuffer = (array: ArrayBuffer | ArrayBufferView, gl: WebGLRenderingContext) => {
-    let buffer = gl.createBuffer();
-    gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, buffer);
-    gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, array, WebGLRenderingContext.STATIC_DRAW);
-
-    return buffer;
-};
