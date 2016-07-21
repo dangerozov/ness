@@ -24,7 +24,7 @@ export let init = () => {
         update: () => {
             self.entities.forEach(entity => {
                 self.onUpdateSystems
-                    .filter(system => array.all(
+                    .filter(system => array.every(
                         system.components,
                         component => entity[component] !== void 0))
                     .forEach(system => system.callback(entity))
@@ -34,7 +34,7 @@ export let init = () => {
         draw: () => {
             self.entities.forEach(entity => {
                 self.onDrawSystems
-                    .filter(system => array.all(system.components, component => entity[component] !== void 0))
+                    .filter(system => array.every(system.components, component => entity[component] !== void 0))
                     .forEach(system => system.callback(entity));
             });
         },
