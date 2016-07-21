@@ -30,39 +30,41 @@ export let compileProgram = (vertexSource: string, fragmentSource: string) =>
                     return either.right(program);
                 })));
 
-export let compileShader = (source: string, type: number) => reader.bind(reader.bind(reader.bind(
-    webgl.createShader(type),
-    webgl.shaderSource(source)),
-    webgl.compileShader),
-    shader => gl => {
-        let compiled = webgl.getShaderParameter(WebGLRenderingContext.COMPILE_STATUS)(shader)(gl);
-        
-        let result = compiled
-            ? either.right<string, WebGLShader>(shader)
-            : either.left<string, WebGLShader>(
-                `Failed to compile shader type ${type}:\nInfoLog: ${webgl.getShaderInfoLog(shader)(gl)}`);
+export let compileShader = (source: string, type: number) =>
+    reader.chain(webgl.createShader(type))
+        .bind(webgl.shaderSource(source))
+        .bind(webgl.compileShader)
+        .bind(shader => gl => {
+            let compiled = webgl.getShaderParameter(WebGLRenderingContext.COMPILE_STATUS)(shader)(gl);
+            
+            let result = compiled
+                ? either.right<string, WebGLShader>(shader)
+                : either.left<string, WebGLShader>(
+                    `Failed to compile shader type ${type}:\nInfoLog: ${webgl.getShaderInfoLog(shader)(gl)}`);
 
-        if (!compiled) webgl.deleteShader(shader)(gl);
+            if (!compiled) webgl.deleteShader(shader)(gl);
 
-        return result;
-    });
+            return result;
+        })
+        .value;
 
-export let linkProgram = (vertex: WebGLShader, fragment: WebGLShader) => reader.bind(reader.bind(reader.bind(reader.bind(
-    webgl.createProgram(),
-    webgl.attachShader(vertex)),
-    webgl.attachShader(fragment)),
-    webgl.linkProgram),
-    program => gl => {
-        let linked = webgl.getProgramParameter(WebGLRenderingContext.LINK_STATUS)(program)(gl);
+export let linkProgram = (vertex: WebGLShader, fragment: WebGLShader) =>
+    reader.chain(webgl.createProgram())
+        .bind(webgl.attachShader(vertex))
+        .bind(webgl.attachShader(fragment))
+        .bind(webgl.linkProgram)
+        .bind(program => gl => {
+            let linked = webgl.getProgramParameter(WebGLRenderingContext.LINK_STATUS)(program)(gl);
 
-        let result = linked
-            ? either.right<string, WebGLProgram>(program)
-            : either.left<string, WebGLProgram>(
-                `Failed to link program:
-                ValidateStatus: ${webgl.getProgramParameter(WebGLRenderingContext.VALIDATE_STATUS)}
-                InfoLog: ${webgl.getProgramInfoLog(program)(gl)}`);
+            let result = linked
+                ? either.right<string, WebGLProgram>(program)
+                : either.left<string, WebGLProgram>(
+                    `Failed to link program:
+                    ValidateStatus: ${webgl.getProgramParameter(WebGLRenderingContext.VALIDATE_STATUS)}
+                    InfoLog: ${webgl.getProgramInfoLog(program)(gl)}`);
 
-        if (!linked) webgl.deleteProgram(program)(gl);
+            if (!linked) webgl.deleteProgram(program)(gl);
 
-        return result;
-    });
+            return result;
+        })
+        .value;
