@@ -1,3 +1,4 @@
+let noop = () => {};
 let array = {
     shift: (array) => {
         let previous = array[array.length - 1];
@@ -47,7 +48,9 @@ let task = {
             result = ev;
             subscribers.forEach(callback => callback(ev));
         });
-        return (callback) => completed ? callback(result) : subscribers.push(callback);
+        return (callback) => completed
+            ? setTimeout(callback, 0, result)
+            : subscribers.push(callback);
     },
     map: (subscribeOnce, selector) => {
         let subscribers = [];
@@ -74,6 +77,36 @@ onCustom('custom 1'); // two subscribers above will handle event only once
 requestCustom(console.log);
 onCustom('custom 2'); // one subscriber above will handle event only once
 
+let event = {
+    fromSubscribeOnce: (subscribeOnce, callback) => {
+        subscribeOnce(function on(ev) {
+            subscribeOnce(on);
+            callback(ev);
+        })
+    },
+    map: (subscribe, selector, callback) => {
+        subscribe((ev) => callback(selector(ev)));
+    }
+};
+
+let createEventHandler = () => {
+    let subscribers = [];
+    let handler = (ev) => {
+        subscribers.forEach(callback => callback(ev));
+    };
+    handler.subscribe = (callback) => subscribers.push(callback);
+    handler.unsubscribe = (id) => subscribers.splice(id - 1, 1);
+
+    return handler; 
+};
+
+let onframe = noop;
+event.fromSubscribeOnce(requestAnimationFrame, (ev) => onframe(ev));
+let ontime = noop;
+event.map((callback) => onframe = callback, (ev) => ev, (ev) => ontime("ontime"));
+//onframe = console.log;
+//ontime = console.log;
+
 // RequestAnimationFrame is a built-in SubscribeOnce event
 // that returns Elapsed time from the beggining of page load
 // here we map/Select its result to return additional info
@@ -96,26 +129,58 @@ let raf = task.map(requestAnimationFrame, (() => {
     };
 })());
 
-let delay = (delay) => {
-    return (callback) => {
-        let elapsed = 0;
-        raf(function on(time) {
-            elapsed += time.delta;
-            if (elapsed >= delay) {
-                callback(elapsed - delay);
-                console.log('delay:finished', elapsed - delay);
-            } else {
-                raf(on);
-            }
-        })
-    };
+let onTime;
+let requestTime = task.fromEvent(callback => onTime = callback);
+raf(function on(time) {
+    raf(on);
+    onTime(time.delta);
+});
+
+let delay = (ms) => {
+    
+    let completed;
+    let waitTask = task.fromOneTimeEvent(callback => completed = callback);
+
+    let elapsed = 0;
+    requestTime(function on(delta) {
+        console.log('upd', delta);
+        elapsed += delta;
+        if (elapsed >= ms) {
+            setTimeout(onTime, 0, elapsed - ms);
+            console.log('finished', elapsed - ms);
+            completed();
+        } else {
+            requestTime(on);
+        }
+    });
+    
+    return waitTask;
 };
 
-let repeat = (async) => (callback, token) => {
-    async(function on(e) {
-        if (!token.cancelled) async(on);
-        else callback(e);
+// let delay = (delay) => {
+//     return (callback) => {
+//         let elapsed = 0;
+//         raf(function on(time) {
+//             elapsed += time.delta;
+//             if (elapsed >= delay) {
+//                 callback(elapsed - delay);
+//                 console.log('delay:finished', elapsed - delay);
+//             } else {
+//                 raf(on);
+//             }
+//         })
+//     };
+// };
+
+let repeat = (createTask) => {
+
+    let task = createTask();
+    task(function on() {
+        task = createTask();
+        task(on);
     });
+
+    return noop;
 };
 
 // Async<T> monad - something that returns result via callback
@@ -125,6 +190,11 @@ let async = {
         subscribe(r => selector(r)(r => callback(r)));
     }
 };
+
+/*let w2000 = delay(2000);
+w2000(() => console.log('2000'));
+w2000(() => console.log('2000'));
+w2000(() => console.log('2000'));*/
 
 // wait for window to load
 let preload = task.fromOneTimeEvent(callback => window.onload = callback);
@@ -137,9 +207,11 @@ async.bind(preload, () => preload)(console.log);
 let token = {
     cancelled: false
 };
-let game = async.bind(async.bind(
+/*let game = async.bind(async.bind(
     delay(2000), // wait 2000 ms
     () => raf), // wait 1 frame
     () => raf); // wait another frame
-game = ((gm) => (clb) => repeat(gm)(clb, token))(game);
-game(r => console.log(r)); // game is Async<T> that we can subscribe to
+game = ((gm) => (clb) => repeat(gm)(clb, token))(game);*/
+//game(r => console.log(r)); // game is Async<T> that we can subscribe to
+
+//repeat(() => delay(1));
