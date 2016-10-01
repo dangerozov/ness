@@ -10,6 +10,44 @@ var colors = {
     gray: 'gray'
 };
 
+var brush = {
+    rect: {
+        get: function(x, y, b) {
+            var i = y * 3 + x;
+            return [b.chars[i], b.fores[i], b.backs[i]];
+        },
+        double: {
+            chars: [chars.null + '╔', '══', '╗' + chars.null,
+                    chars.null + '║', null, '║' + chars.null,
+                    chars.null + '╚', '══', '╝' + chars.null],
+            fores: ['white', 'white', 'white',
+                    'white', null, 'white',
+                    'white', 'white', 'white'],
+            backs: ['black', 'black', 'black',
+                    'black', null, 'black',
+                    'black', 'black', 'black']
+        },
+        fill: function(char, fore, back) {
+            return {
+                 chars: [char, char, char, char, char, char, char, char, char],
+                 fores: [fore, fore, fore, fore, fore, fore, fore, fore, fore],
+                 backs: [back, back, back, back, back, back, back, back, back]
+            };
+        },
+        outline: function(char, fore, back) {
+            return {
+                chars: [char, char, char, char, null, char, char, char, char],
+                fores: [fore, fore, fore, fore, null, fore, fore, fore, fore],
+                backs: [back, back, back, back, null, back, back, back, back]
+            };
+        }
+    }
+};
+
+var get = function(x, y, arr, w, h) {
+    return arr[y * w + x];
+};
+
 var createCanvas = (function() {
     var createSpan = function() {
         var span = document.createElement('span');
@@ -91,6 +129,7 @@ var context = {
     },
     write: function(char, fore, back, x, y, ctx) {
         var index = y * ctx.canvas.width + x;
+        if (index >= ctx.buffer.size) return;
         ctx.buffer.chars[index] = char || ctx.buffer.chars[index];
         ctx.buffer.foreColors[index] = fore || ctx.buffer.foreColors[index];
         ctx.buffer.backColors[index] = back || ctx.buffer.backColors[index];
@@ -100,47 +139,32 @@ var context = {
             context.write(string[i], fore, back, x + i, y, ctx);
         }
     },
-    drawRect: function(fore, back, x, y, width, height, ctx) {
+    drawRect: function(br, x, y, width, height, ctx) {
         var x0 = x, y0 = y, x1 = x + width - 1, y1 = y + height - 1;
+        
+        context.write(...brush.rect.get(0, 0, br), x0, y0, ctx);
+        context.write(...brush.rect.get(0, 2, br), x0, y1, ctx);
+        context.write(...brush.rect.get(2, 0, br), x1, y0, ctx);
+        context.write(...brush.rect.get(2, 2, br), x1, y1, ctx);
 
-        context.write(chars.null + '╔', fore, back, x0, y0, ctx);
-        context.write('╗' + chars.null, fore, back, x1, y0, ctx);
-        context.write('╝' + chars.null, fore, back, x1, y1, ctx);
-        context.write(chars.null + '╚', fore, back, x0, y1, ctx);
-
+        var topCenter = brush.rect.get(1, 0, br);
+        var bottomCenter = brush.rect.get(1, 2, br);
         for (var i = x + 1; i < x1; i++) {
-            context.write('══', fore, back, i, y0, ctx);
-            context.write('══', fore, back, i, y1, ctx);
+            context.write(topCenter[0], topCenter[1], topCenter[2], i, y0, ctx);
+            context.write(bottomCenter[0], bottomCenter[1], bottomCenter[2], i, y1, ctx);
         }
         
+        var middleLeft = brush.rect.get(0, 1, br);
+        var middleRight = brush.rect.get(2, 1, br);
         for (var i = y + 1; i < y1; i++) {
-            context.write(chars.null + '║', fore, back, x0, i, ctx);
-            context.write('║' + chars.null, fore, back, x1, i, ctx);
+            context.write(middleLeft[0], middleLeft[1], middleLeft[2], x0, i, ctx);
+            context.write(middleRight[0], middleRight[1], middleRight[2], x1, i, ctx);
         }
-    },
-    drawRect2: function(char, fore, back, x, y, width, height, ctx) {
-        var x0 = x, y0 = y, x1 = x + width - 1, y1 = y + height - 1;
 
-        context.write(char, fore, back, x0, y0, ctx);
-        context.write(char, fore, back, x1, y0, ctx);
-        context.write(char, fore, back, x1, y1, ctx);
-        context.write(char, fore, back, x0, y1, ctx);
-
-        for (var i = x + 1; i < x1; i++) {
-            context.write(char, fore, back, i, y0, ctx);
-            context.write(char, fore, back, i, y1, ctx);
-        }
-        
-        for (var i = y + 1; i < y1; i++) {
-            context.write(char, fore, back, x0, i, ctx);
-            context.write(char, fore, back, x1, i, ctx);
-        }
-    },
-    fillRect: function(char, fore, back, x, y, width, height, ctx) {
-        var x0 = x, y0 = y, x1 = x + width, y1 = y + height;
-        for (var i = x; i < x1; i++)
-            for (var j = y; j < y1; j++)
-                context.write(char, fore, back, i, j, ctx);
+        var center = brush.rect.get(1, 1, br);
+        for (var i = x + 1; i < x1; i++)
+            for (var j = y + 1; j < y1; j++)
+                context.write(center[0], center[1], center[2], i, j, ctx);
     }
 };
 
@@ -173,7 +197,7 @@ window.onload = function() {
 
     var ctx = context.create(canvas);
     context.clear(colors.black, ctx);
-    context.drawRect('white', null, 0, 0, canvas.width, canvas.height, ctx);
+    context.drawRect(brush.rect.double, 0, 0, canvas.width, canvas.height, ctx);
     context.render(ctx);
 
     var x = Math.floor(canvas.width / 2 - 'ASCII'.length / 2);
@@ -183,16 +207,15 @@ window.onload = function() {
         y++; if (y >= canvas.height - 1) y = 1;
 
         context.clear(colors.black, ctx);
+        context.drawRect(brush.rect.double, 0, 0, canvas.width, canvas.height, ctx);
 
-        context.fillRect(null, null, 'purple', 5, 10, 50, 50, ctx);
+        context.drawRect(brush.rect.fill(null, null, 'purple'), 5, 10, 50, 50, ctx);
 
         context.writeLine(html('With interval'), 'lightblue', null, x, y, ctx);
         context.writeLine(splitText(makeEven(html('Text without interval')), 2), 'lightblue', null, x, y + 1, ctx);
 
-        context.fillRect(chars.middot, 'white', 'blue', 3, 3, 5, 5, ctx);
-        context.drawRect2('#', 'white', 'green', 3, 3, 5, 5, ctx);
-
-        context.drawRect('white', 'black', 0, 0, canvas.width, canvas.height, ctx);
+        context.drawRect(brush.rect.fill(chars.middot, 'white', 'blue'), 4, 4, 3, 3, ctx);
+        context.drawRect(brush.rect.outline('#', 'white', 'green'), 3, 3, 5, 5, ctx);        
 
         context.render(ctx);
     }, 1000);
