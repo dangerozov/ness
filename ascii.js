@@ -185,10 +185,14 @@ var draw = {
     rect: function(br, x, y, width, height, buf) {
         var x0 = x, y0 = y, x1 = x + width - 1, y1 = y + height - 1;
         
-        draw.one(...brush.rect.get(0, 0, br), x0, y0, buf);
-        draw.one(...brush.rect.get(0, 2, br), x0, y1, buf);
-        draw.one(...brush.rect.get(2, 0, br), x1, y0, buf);
-        draw.one(...brush.rect.get(2, 2, br), x1, y1, buf);
+        var topLeft = brush.rect.get(0, 0, br); 
+        draw.one(topLeft[0], topLeft[1], topLeft[2], x0, y0, buf);
+        var bottomLeft = brush.rect.get(0, 2, br);
+        draw.one(bottomLeft[0], bottomLeft[1], bottomLeft[2], x0, y1, buf);
+        var topRight = brush.rect.get(2, 0, br);
+        draw.one(topRight[0], topRight[1], topRight[2], x1, y0, buf);
+        var bottomRight = brush.rect.get(2, 2, br);
+        draw.one(bottomRight[0], bottomRight[1], bottomRight[2], x1, y1, buf);
 
         var topCenter = brush.rect.get(1, 0, br);
         var bottomCenter = brush.rect.get(1, 2, br);
@@ -210,15 +214,15 @@ var draw = {
                 draw.one(center[0], center[1], center[2], i, j, buf);
     },
     line: function(br, x0, y0, x1, y1, buf) {
-        draw.one(...br[0], x0, y0, buf);
+        draw.one(br[0][0], br[0][1], br[0][2], x0, y0, buf);
         if (x0 !== x1) {
             for (var i = x0 + 1; i < x1; i++)
-                draw.one(...br[1], i, y0, buf);
+                draw.one(br[1][0], br[1][1], br[1][2], i, y0, buf);
         } else if (y0 !== y1) {
             for (var i = y0 + 1; i < y1; i++)
-                draw.one(...br[1], x0, i, buf);
+                draw.one(br[1][0], br[1][1], br[1][2], x0, i, buf);
         }
-        draw.one(...br[2], x1, y1, buf);
+        draw.one(br[2][0], br[2][1], br[2][2], x1, y1, buf);
     }
 };
 
@@ -310,7 +314,7 @@ window.onload = function() {
         };
 
         state.wanzer = {
-            position: [7, 7],
+            position: [9, 9],
             bodyHp: [330, 579],
             rarmHp: [60, 295],
             larmHp: [295, 295],
