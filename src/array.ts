@@ -55,7 +55,7 @@ export let min = (source: number[], base: number) => Math.min(...[base, ...sourc
 export let max = (source: number[], base: number) => Math.max(...[base, ...source]);
 export let sum = (source: number[]) => reduce(source, (sum, item) => sum + item, 0);
 
-export let copyTo = (input: ArrayLike<any>, inputIndex: number, output: ArrayLike<any>, outputIndex: number, length: number) => {
+export let copyTo = (input: ArrayLike<any>, inputIndex: number, output: any[], outputIndex: number, length: number) => {
     for (let i = 0; i < length; i++) {
         output[outputIndex + i] = input[inputIndex + i];
     }
@@ -99,7 +99,7 @@ export let destr = (object: { [key: string]: any }, layout: any[], out: any[] = 
     return out;
 };
 
-export let serialize = <T>(objects: ArrayLike<any>, layout: any[], out: ArrayLike<T> = new Array(objects.length * layout.length)) => {
+export let serialize = <T>(objects: ArrayLike<any>, layout: any[], out: T[] = new Array(objects.length * layout.length)) => {
     let temp: any[] = new Array(layout.length);
     forEach(objects, (object, index) => {
         destr(object, layout, temp);
