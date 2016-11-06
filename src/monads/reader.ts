@@ -1,5 +1,5 @@
 import monads = require('../monads');
-import builder = require('../builder');
+import builder = require('fluent-interface-builder');
 
 export let run = <T, U>(reader: monads.Reader<T, U>, args: T) => {
     return reader(args);
