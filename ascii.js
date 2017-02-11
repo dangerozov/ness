@@ -12,28 +12,52 @@ var colors = {
 
 var brush = {
     rect: {
-        get: function(x, y, br) {
-            return br[y * 3 + x];
-        },
         double: function(fore, back) {
-            return [['╔═', fore, back], ['══', fore, back], ['═╗', fore, back],
-                    ['║ ', fore, back], [null, null, null], [' ║', fore, back],
-                    ['╚═', fore, back], ['══', fore, back], ['═╝', fore, back]]
+            return [[['╔═', fore, back], ['══', fore, back], ['═╗', fore, back]],
+                    [['║ ', fore, back], [null, null, null], [' ║', fore, back]],
+                    [['╚═', fore, back], ['══', fore, back], ['═╝', fore, back]]]
         },
         fill: function(char, fore, back) {
-            return [[char, fore, back], [char, fore, back], [char, fore, back],
-                    [char, fore, back], [char, fore, back], [char, fore, back],
-                    [char, fore, back], [char, fore, back], [char, fore, back]];
+            return [[[char, fore, back], [char, fore, back], [char, fore, back]],
+                    [[char, fore, back], [char, fore, back], [char, fore, back]],
+                    [[char, fore, back], [char, fore, back], [char, fore, back]]];
         },
-        outline: function(char, fore, back) {
-            return [[char, fore, back], [char, fore, back], [char, fore, back],
-                    [char, fore, back], [null, null, null], [char, fore, back],
-                    [char, fore, back], [char, fore, back], [char, fore, back]];
+        stroke: function(char, fore, back) {
+            return [[[char, fore, back], [char, fore, back], [char, fore, back]],
+                    [[char, fore, back], [null, null, null], [char, fore, back]],
+                    [[char, fore, back], [char, fore, back], [char, fore, back]]];
         }
     },
     line: {
+        create: function(leftChar, middleChar, rightChar, fore, back) {
+            return [[leftChar, fore, back], [middleChar, fore, back], [rightChar, fore, back]];
+        },
         fill: function(char, fore, back) {
             return [[char, fore, back], [char, fore, back], [char, fore, back]];
+        }
+    },
+    text: {
+        prepare: function(s) {
+            var result = '';
+            for (var i = 0; i < s.length; i++) {
+                result += s[i] == ' ' ? chars.null : s[i];
+            }
+            return result;
+        },
+        align: function(s) {
+            return (s.length % 2 === 0) ? s : s + ' ';
+        },
+        split: function(s, count) {
+
+            var result = [];
+            for (var i = 0; i < s.length / count; i++) {
+                var firstIndex = i * count;
+                var secondIndex = firstIndex + 1;
+                var group = s[firstIndex] + ((secondIndex) < s.length ? s[secondIndex] : '');
+                console.log(group);
+                result.push(group);
+            }
+            return result;
         }
     }
 };
@@ -43,6 +67,7 @@ var createCanvas = (function() {
         var span = document.createElement('span');
         span.style.display = 'inline-block';
         span.style.textAlign = 'center';
+        span.style.textShadow = '0px 0px 8px';
         return span;
     };
 
@@ -52,36 +77,36 @@ var createCanvas = (function() {
         return div;
     };
 
-    var findSpanWidth = function() {
+    var findSpanWidth = function(length) {
         var div = document.body.appendChild(createDiv());        
         var span = div.appendChild(createSpan());        
-        span.innerText = '12';
+        span.innerText = new Array(length + 1).join('1');
         var width = span.offsetWidth;
-        document.body.removeChild(div); 
+        document.body.removeChild(div);
         return width;
     };
     
-    return function(width, height) {
-        var spanWidth = findSpanWidth() + 'px';
+    return function(width, height, charsPerPixel) {
+        var spanWidth = findSpanWidth(charsPerPixel);
+
+        var cssSpanWidth = spanWidth + 'px';
         var pixels = new Array(width * height);
         for (var i = 0; i < pixels.length; i++) {
             var span = createSpan();
-            span.style.width = spanWidth;
+            span.style.width = cssSpanWidth;
             pixels[i] = span;
         }
 
+        var cssDivWidth = (width * spanWidth) + 'px';
         var div = createDiv();
-        for (var row = 0; row < height; row++) {
-            for (var column = 0; column < width; column++) {
-                div.appendChild(pixels[row * width + column]);
-            }
-            div.appendChild(document.createElement('br'));
-        }
-        
+        div.style.width = cssDivWidth;
+        pixels.forEach(pixel => div.appendChild(pixel));       
+
         return {
             width: width,
             height: height,
             pixels: pixels,
+            charsPerPixel: charsPerPixel,
             display: div
         };
     };
@@ -98,19 +123,11 @@ var buffer = {
             fores: new Array(size),
             backs: new Array(size)
         };
-        buffer.clear(chars.null, null, null, buf);
         return buf;
     },
-    clear: function(char, fore, back, buf) {
-        for (var i = 0; i < buf.size; i++) {
-            buf.chars[i] = char;
-            buf.fores[i] = fore;
-            buf.backs[i] = back;
-        }
-    },
     set: function(char, fore, back, x, y, buf) {
-        if (0 > x || x >= buf.width ||
-            0 > y || y >= buf.height) return;
+        if (x < 0 || buf.width <= x ||
+            y < 0 || buf.height <= y) return;
         var i = y * buf.width + x;
         buf.chars[i] = char;
         buf.fores[i] = fore;
@@ -133,96 +150,114 @@ var buffer = {
             0 > y || y >= buf.height) return;
         var i = y * buf.width + x;
         return buf.backs[i];
-    },
-    copy: function(w, h, x0, y0, buf0, x1, y1, buf1) {
-        for (var i = 0; i < Math.min(w, buf0.width); i++) {
-            for (var j = 0; j < Math.min(h, buf0.height); j++) {
-                buffer.set(
-                    buffer.getChar(x0 + i, y0 + j, buf0),
-                    buffer.getFore(x0 + i, y0 + j, buf0),
-                    buffer.getBack(x0 + i, y0 + j, buf0),
-                    x1 + i,
-                    y1 + j,
-                    buf1);
-            }
-        }
     }
 };
 
 var draw = {
-    fill: function(char, fore, back, buf) {
-        for (var x = 0; x < buf.width; x++) {
-            for (var y = 0; y < buf.height; y++) {
-                draw.one(char, fore, back, x, y, buf);
+    fill: function(br, ctx) {
+        for (var x = 0; x < ctx.width; x++) {
+            for (var y = 0; y < ctx.height; y++) {
+                draw.one(br, x, y, ctx);
             }
         }
     },
-    one: function(char, fore, back, x, y, buf) {
-        var ch = buffer.getChar(x, y, buf);
-        var fo = buffer.getFore(x, y, buf);
-        var ba = buffer.getBack(x, y, buf);
-        buffer.set(char || ch, fore || fo, back || ba, x, y, buf);
+    one: function(br, x, y, ctx) {
+        var ch = buffer.getChar(x, y, ctx.buffer);
+        var fo = buffer.getFore(x, y, ctx.buffer);
+        var ba = buffer.getBack(x, y, ctx.buffer);
+        buffer.set(br[0] || ch, br[1] || fo, br[2] || ba, x, y, ctx.buffer);
     },
-    text: function(s, fore, back, x, y, buf) {
-        var flooredX = Math.floor(x); 
-        if (flooredX !== x) {
-            x = flooredX;
-            s = ' ' + s;
-        }
+    textE: (function() {
+        var temp = [null, null, null];
+
+        return function(br, x, y, ctx) {
+            temp[1] = br[1];
+            temp[2] = br[2];
+
+            var str = br[0];
+            for (var i = 0; i < str.length; i++, x++) {
+                var char = str[i];
+                char = char == ' ' ? chars.null : char;
+
+                temp[0] = char;
+                draw.one(temp, x, y, ctx);
+            }
+        };
+    })(),
+    text: (function() {
+        var temp = [null, null, null];
+
+        return function(s, fore, back, x, y, ctx) {
+            temp[1] = fore;
+            temp[2] = back;
+
+            var flooredX = Math.floor(x); 
+            if (flooredX !== x) {
+                x = flooredX;
+                s = ' ' + s;
+            }
+            
+            s = (s.length % 2 === 0) ? s : s + ' ';
+            s = s.replace(/ /g, chars.null);
+            for (var i = 0; i < s.length / 2; i++) {
+                var pair = s[i*2] + ((i*2+1) < s.length ? s[i*2+1] : '');
+                temp[0] = pair;
+                draw.one(temp, x + i, y, ctx);
+            }
+        };
+    })(),
+    wideText: (function() {
+        var temp = [null, null, null];
         
-        s = (s.length % 2 === 0) ? s : s + ' ';
-        s = s.replace(/ /g, chars.null);
-        for (var i = 0; i < s.length / 2; i++) {
-            var pair = s[i*2] + ((i*2+1) < s.length ? s[i*2+1] : '');
-            draw.one(pair, fore, back, x + i, y, buf);
-        }
-    },
-    wideText: function(s, fore, back, x, y, buf) {
-        for (var i = 0; i < s.length; i++) {
-            draw.one(s[i], fore, back, x + i, y, buf);
-        }
-    },
-    rect: function(br, x, y, width, height, buf) {
+        return function(s, fore, back, x, y, buf) {
+            temp[1] = fore;
+            temp[2] = back;
+
+            for (var i = 0; i < s.length; i++) {
+                temp[0] = s[i];
+                draw.one(temp, x + i, y, buf);
+            }
+        };
+    })(),
+    rect: function(br, x, y, width, height, ctx) {
         var x0 = x, y0 = y, x1 = x + width - 1, y1 = y + height - 1;
         
-        var topLeft = brush.rect.get(0, 0, br); 
-        draw.one(topLeft[0], topLeft[1], topLeft[2], x0, y0, buf);
-        var bottomLeft = brush.rect.get(0, 2, br);
-        draw.one(bottomLeft[0], bottomLeft[1], bottomLeft[2], x0, y1, buf);
-        var topRight = brush.rect.get(2, 0, br);
-        draw.one(topRight[0], topRight[1], topRight[2], x1, y0, buf);
-        var bottomRight = brush.rect.get(2, 2, br);
-        draw.one(bottomRight[0], bottomRight[1], bottomRight[2], x1, y1, buf);
+        draw.one(br[0][0], x0, y0, ctx);
+        draw.one(br[2][0], x0, y1, ctx);
+        draw.one(br[0][2], x1, y0, ctx);
+        draw.one(br[2][2], x1, y1, ctx);
 
-        var topCenter = brush.rect.get(1, 0, br);
-        var bottomCenter = brush.rect.get(1, 2, br);
         for (var i = x + 1; i < x1; i++) {
-            draw.one(topCenter[0], topCenter[1], topCenter[2], i, y0, buf);
-            draw.one(bottomCenter[0], bottomCenter[1], bottomCenter[2], i, y1, buf);
+            draw.one(br[0][1], i, y0, ctx);
+            draw.one(br[2][1], i, y1, ctx);
         }
         
-        var middleLeft = brush.rect.get(0, 1, br);
-        var middleRight = brush.rect.get(2, 1, br);
         for (var i = y + 1; i < y1; i++) {
-            draw.one(middleLeft[0], middleLeft[1], middleLeft[2], x0, i, buf);
-            draw.one(middleRight[0], middleRight[1], middleRight[2], x1, i, buf);
+            draw.one(br[1][0], x0, i, ctx);
+            draw.one(br[1][2], x1, i, ctx);
         }
 
-        var center = brush.rect.get(1, 1, br);
         for (var i = x + 1; i < x1; i++)
             for (var j = y + 1; j < y1; j++)
-                draw.one(center[0], center[1], center[2], i, j, buf);
+                draw.one(br[1][1], i, j, ctx);
     },
-    line: function(br, x0, y0, x1, y1, buf) {
-        draw.one(br[0][0], br[0][1], br[0][2], x0, y0, buf);
+    line: function(br, x0, y0, x1, y1, ctx) {
+        draw.one(br[0], x0, y0, ctx);
         if (x0 !== x1) {
             for (var i = x0 + 1; i < x1; i++)
-                draw.one(br[1][0], br[1][1], br[1][2], i, y0, buf);
+                draw.one(br[1], i, y0, ctx);
         } else if (y0 !== y1) {
             for (var i = y0 + 1; i < y1; i++)
-                draw.one(br[1][0], br[1][1], br[1][2], x0, i, buf);
+                draw.one(br[1], x0, i, ctx);
         }
-        draw.one(br[2][0], br[2][1], br[2][2], x1, y1, buf);
+        draw.one(br[2], x1, y1, ctx);
+    },
+    clear: function(char, fore, back,ctx) {
+        for (var i = 0; i < ctx.buffer.size; i++) {
+            ctx.buffer.chars[i] = char;
+            ctx.buffer.fores[i] = fore;
+            ctx.buffer.backs[i] = back;
+        }
     }
 };
 
@@ -230,9 +265,12 @@ var context = {
     create: function(canvas) {
         var ctx = {
             canvas: canvas,
-            buffer: buffer.create(canvas.width, canvas.height)
+            buffer: buffer.create(canvas.width, canvas.height),
+            width: canvas.width,
+            height: canvas.height
         };
-        buffer.clear(chars.null, null, colors.black, ctx.buffer);
+        
+        draw.clear(chars.null, null, colors.black, ctx);
         return ctx;
     },
     render: function(ctx) {
@@ -245,67 +283,66 @@ var context = {
     }
 };
 
-var drawHpBar = function(name, hp, y, buf) {
-    draw.text(name, null, null, 0.5, y, buf);
+var drawHpBar = function(state, name, hp, x, y, ctx) {
+    draw.text(name, 'white', null, x + 0.5, y, ctx);
     var barX0 = Math.floor(name.length / 2) + 1;
-    draw.line(brush.line.fill(null, null, 'gray'), barX0, y, buf.width-1, y, buf);
-    draw.line(brush.line.fill(null, null, 'steelblue'), barX0, y, buf.width - 1 - (buf.width - 1) * (1 - (hp[0] / hp[1])), y, buf);
+    draw.line(state.grayLineBrush, x + barX0, y, x + 16-1, y, ctx);
+    draw.line(state.blueLineBrush, x + barX0, y, x + 16 - 1 - (16 - 1) * (1 - (hp[0] / hp[1])), y, ctx);
     var shp = hp[0] + '/' + hp[1];
-    draw.text(shp, 'white', null, buf.width - 1 - (shp.length / 2)+0.5, y, buf);
+    draw.text(shp, 'white', null, x + 16 - 1 - (shp.length / 2)+0.5, y, ctx);
 };
 
-var drawArmsHpBar = function(lhp, rhp, y, buf) {
-    draw.text('Arm', null, null, 0, y, buf);
-    draw.wideText('L', null, null, 2, y, buf);
-    draw.line(brush.line.fill(null, null, 'grey'), 3, y, 8, y, buf);
-    draw.line(brush.line.fill(null, null, 'steelblue'), 3, y, 8 - 8 * (1 - lhp[0] / lhp[1]), y, buf);
+var drawArmsHpBar = function(state, lhp, rhp, x, y, ctx) {
+    draw.text('Arm', 'white', null, x, y, ctx);
+    draw.wideText('L', 'white', null, x + 2, y, ctx);
+    draw.line(state.grayLineBrush, x + 3, y, x + 8, y, ctx);
+    draw.line(state.blueLineBrush, x + 3, y, x + 8 - 8 * (1 - lhp[0] / lhp[1]), y, ctx);
     var slhp = lhp[0] + '/' + lhp[1];
-    draw.text(slhp, 'white', null, 8 - (slhp.length / 2) + 0.5, y, buf);
+    draw.text(slhp, 'white', null, x + 8 - (slhp.length / 2) + 0.5, y, ctx);
 
-    draw.wideText('R', null, null, 9, y, buf);
-    draw.line(brush.line.fill(null, null, 'grey'), 10, y, 15, y, buf);
-    draw.line(brush.line.fill(null, null, 'steelblue'), 10, y, 15 - 15 * (1 - rhp[0] / rhp[1]), y, buf);
+    draw.wideText('R', 'white', null, x + 9, y, ctx);
+    draw.line(state.grayLineBrush, x + 10, y, x + 15, y, ctx);
+    draw.line(state.blueLineBrush, x + 10, y, x + 15 - 15 * (1 - rhp[0] / rhp[1]), y, ctx);
     var srhp = rhp[0] + '/' + rhp[1];
-    draw.text(srhp, 'white', null, 15 - (srhp.length / 2) + 0.5, y, buf);
+    draw.text(srhp, 'white', null, x + 15 - (srhp.length / 2) + 0.5, y, ctx);
 };
 
-var drawLegHpBar = function(hp, y, buf) {
-    draw.text('Leg', null, null, 1, y, buf);
+var drawLegHpBar = function(state, hp, x, y, ctx) {
+    draw.text('Leg', 'white', null, x + 1, y, ctx);
     var barX0 = 3;
-    draw.line(brush.line.fill(null, null, 'gray'), barX0, y, buf.width-1, y, buf);
-    draw.line(brush.line.fill(null, null, 'steelblue'), barX0, y, buf.width - 1 - (buf.width - 1) * (1 - (hp[0] / hp[1])), y, buf);
+    draw.line(state.grayLineBrush, x + barX0, y, x + 16-1, y, ctx);
+    draw.line(state.blueLineBrush, x + barX0, y, x + 16 - 1 - (16 - 1) * (1 - (hp[0] / hp[1])), y, ctx);
     var shp = hp[0] + '/' + hp[1];
-    draw.text(shp, 'white', null, buf.width - 1 - (shp.length / 2)+0.5, y, buf);
+    draw.text(shp, 'white', null, x + 16 - 1 - (shp.length / 2)+0.5, y, ctx);
 };
 
-var drawWanzerStats = function(state) {
-    draw.one(state.wanzer.pilot.alias[0], state.wanzer.pilot.alias[1], state.wanzer.pilot.alias[2], 0, 0, state.ui);
-    draw.text(state.wanzer.pilot.name, null, null, 1.5, 0, state.ui);
+var drawWanzerStats = function(x, y, state) {
+    draw.one(state.wanzer.pilot.alias, x, y, state.ctx);
+    draw.text(state.wanzer.pilot.name, 'white', null, x + 1.5, y + 0, state.ctx);
 
-    drawHpBar('Body', state.wanzer.bodyHp, 1, state.ui);
-    drawArmsHpBar(state.wanzer.larmHp, state.wanzer.rarmHp, 2, state.ui);
-    drawLegHpBar(state.wanzer.leg, 3, state.ui);
+    drawHpBar(state, 'Body', state.wanzer.bodyHp, x, y + 1, state.ctx);
+    drawArmsHpBar(state, state.wanzer.larmHp, state.wanzer.rarmHp, x, y + 2, state.ctx);
+    drawLegHpBar(state, state.wanzer.leg, x, y + 3, state.ctx);
 };
 
 window.onload = function() {
-    var canvas = createCanvas(64, 36);
+    var canvas = createCanvas(64, 36, 2);
     document.body.appendChild(canvas.display);
 
-    var ctx = context.create(canvas);
-
-    var state = {};
+    var state = {
+        ctx: context.create(canvas)
+    };
 
     var init = function() {
 
-        state.world = buffer.create(20, 20);
-
         state.middotBrush = brush.rect.fill(chars.middot, 'white', 'black');
-        state.diezOutlineBrush = brush.rect.outline('#', 'white', 'black');
+        state.diezOutlineBrush = brush.rect.stroke('#', 'green', 'black');
 
         state.doubleBrush = brush.rect.double('white', 'black');
 
         state.cursor = {
-            position: [10, 10]
+            position: [25, 10],
+            brush: [chars.null, null, 'gray']
         };
 
         state.camera = {
@@ -314,7 +351,7 @@ window.onload = function() {
         };
 
         state.wanzer = {
-            position: [9, 9],
+            position: [24, 9],
             bodyHp: [330, 579],
             rarmHp: [60, 295],
             larmHp: [295, 295],
@@ -325,8 +362,16 @@ window.onload = function() {
             }
         };
 
-        state.ui = buffer.create(16, 34);
-        state.uiLineBrush = brush.line.fill('║ ', 'white', null);
+        state.uiLine = brush.line.create('╦═', '║ ', '╩═', 'white', null);
+
+        state.blackBrush = [chars.null, null, 'black'];
+        state.grayLineBrush = brush.line.fill(null, null, 'gray');
+        state.blueLineBrush = brush.line.fill(null, null, 'steelblue');
+
+        state.grayRect = brush.rect.fill(chars.middot, 'gray', null);
+
+        var txt = brush.text.split(brush.text.prepare(brush.text.align('Welcome World')), 2);
+        state.textBrush = ['Welcome World', 'blue', null];
     };
     
     document.body.addEventListener('keypress', function(ev) {
@@ -343,54 +388,36 @@ window.onload = function() {
     };
 
     var onDraw = function() {
-        draw.rect(state.doubleBrush, 0, 0, canvas.width, canvas.height, ctx.buffer);
+        draw.rect(state.doubleBrush, 0, 0, canvas.width, canvas.height, state.ctx);
 
-        draw.fill(chars.null, null, 'black', state.world);
+        draw.rect(state.grayRect, 15, 1, 20, 20, state.ctx);
+        draw.rect(state.diezOutlineBrush, 15, 1, 20, 20, state.ctx);
 
-        draw.rect(brush.rect.fill(chars.middot, 'gray', null), 0, 0, state.world.width, state.world.height, state.world);
-        draw.rect(state.diezOutlineBrush, 0, 0, state.world.width, state.world.height, state.world);
-
-        draw.one(chars.null, null, 'gray', state.cursor.position[0], state.cursor.position[1], state.world);
+        draw.one(state.cursor.brush, state.cursor.position[0], state.cursor.position[1], state.ctx);
         
-        draw.one(state.wanzer.pilot.alias, 'pink', null, state.wanzer.position[0], state.wanzer.position[1], state.world);
+        draw.one(
+            state.wanzer.pilot.alias,
+            state.wanzer.position[0],
+            state.wanzer.position[1],
+            state.ctx);
 
-        buffer.copy(
-            state.camera.size[0],
-            state.camera.size[1],
-            state.camera.position[0], state.camera.position[1], state.world,
-            1, 1, ctx.buffer);
+        draw.textE(state.textBrush, 18, 3, state.ctx);
 
-        buffer.copy(
-            state.camera.size[0],
-            state.camera.size[1],
-            state.camera.position[0], state.camera.position[1], state.world,
-            25, 1, ctx.buffer);
-
-        draw.one('╦═', null, null, canvas.width - 18, 0, ctx.buffer);
-        draw.one('╩═', null, null, canvas.width - 18, canvas.height - 1, ctx.buffer);
-        draw.line(state.uiLineBrush, canvas.width - 18, 1, canvas.width - 18, canvas.height - 2, ctx.buffer);
-
-        draw.fill(chars.null, 'white', 'black', state.ui);
+        draw.line(state.uiLine, canvas.width - 18, 0, canvas.width - 18, canvas.height - 1, state.ctx);
 
         if (state.cursor.position[0] == state.wanzer.position[0] &&
             state.cursor.position[1] == state.wanzer.position[1]) {
 
-            drawWanzerStats(state);
+            drawWanzerStats(state.ctx.width - 17, 1, state);
         }
-
-        buffer.copy(
-            state.ui.width,
-            state.ui.height,
-            0, 0, state.ui,
-            canvas.width - 17, 1, ctx.buffer);
         
-        context.render(ctx);
+        context.render(state.ctx);
     };
 
     init();
     requestAnimationFrame(function on() {
         onUpdate();
-        buffer.clear(chars.null, null, 'black', ctx.buffer);
+        draw.clear(chars.null, null, 'black', state.ctx);
         onDraw();
         requestAnimationFrame(on);
     });
