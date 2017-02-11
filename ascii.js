@@ -35,30 +35,6 @@ var brush = {
         fill: function(char, fore, back) {
             return [[char, fore, back], [char, fore, back], [char, fore, back]];
         }
-    },
-    text: {
-        prepare: function(s) {
-            var result = '';
-            for (var i = 0; i < s.length; i++) {
-                result += s[i] == ' ' ? chars.null : s[i];
-            }
-            return result;
-        },
-        align: function(s) {
-            return (s.length % 2 === 0) ? s : s + ' ';
-        },
-        split: function(s, count) {
-
-            var result = [];
-            for (var i = 0; i < s.length / count; i++) {
-                var firstIndex = i * count;
-                var secondIndex = firstIndex + 1;
-                var group = s[firstIndex] + ((secondIndex) < s.length ? s[secondIndex] : '');
-                console.log(group);
-                result.push(group);
-            }
-            return result;
-        }
     }
 };
 
@@ -167,7 +143,7 @@ var draw = {
         var ba = buffer.getBack(x, y, ctx.buffer);
         buffer.set(br[0] || ch, br[1] || fo, br[2] || ba, x, y, ctx.buffer);
     },
-    textE: (function() {
+    text: (function() {
         var temp = [null, null, null];
 
         return function(br, x, y, ctx) {
@@ -175,34 +151,23 @@ var draw = {
             temp[2] = br[2];
 
             var str = br[0];
-            for (var i = 0; i < str.length; i++, x++) {
-                var char = str[i];
-                char = char == ' ' ? chars.null : char;
 
-                temp[0] = char;
-                draw.one(temp, x, y, ctx);
-            }
-        };
-    })(),
-    text: (function() {
-        var temp = [null, null, null];
-
-        return function(s, fore, back, x, y, ctx) {
-            temp[1] = fore;
-            temp[2] = back;
-
-            var flooredX = Math.floor(x); 
-            if (flooredX !== x) {
-                x = flooredX;
-                s = ' ' + s;
-            }
+            var spacesToAdd = str.length % ctx.charsPerPixel;
+            spacesToAdd = spacesToAdd === 0 ? 0 : ctx.charsPerPixel - spacesToAdd;
+            for (var i = 0; i < spacesToAdd; i++) str += ' ';
             
-            s = (s.length % 2 === 0) ? s : s + ' ';
-            s = s.replace(/ /g, chars.null);
-            for (var i = 0; i < s.length / 2; i++) {
-                var pair = s[i*2] + ((i*2+1) < s.length ? s[i*2+1] : '');
-                temp[0] = pair;
-                draw.one(temp, x + i, y, ctx);
+            var groups = str.length / ctx.charsPerPixel;
+            for (var i = 0; i < groups; i++, x++) {
+                var group = '';
+                for (var j = 0; j < ctx.charsPerPixel; j++) {
+                    var char = str[i * ctx.charsPerPixel + j];
+                    char = char === ' ' ? chars.null : char;
+
+                    group += char;
+                }
+
+                temp[0] = group;
+                draw.one(temp, x, y, ctx);
             }
         };
     })(),
@@ -214,7 +179,10 @@ var draw = {
             temp[2] = back;
 
             for (var i = 0; i < s.length; i++) {
-                temp[0] = s[i];
+                var char = s[i];
+                char = char === ' ' ? chars.null : char;
+
+                temp[0] = char;
                 draw.one(temp, x + i, y, buf);
             }
         };
@@ -267,7 +235,8 @@ var context = {
             canvas: canvas,
             buffer: buffer.create(canvas.width, canvas.height),
             width: canvas.width,
-            height: canvas.height
+            height: canvas.height,
+            charsPerPixel: canvas.charsPerPixel
         };
         
         draw.clear(chars.null, null, colors.black, ctx);
@@ -283,46 +252,50 @@ var context = {
     }
 };
 
-var drawHpBar = function(state, name, hp, x, y, ctx) {
-    draw.text(name, 'white', null, x + 0.5, y, ctx);
-    var barX0 = Math.floor(name.length / 2) + 1;
+var drawHpBar = function(state, hp, x, y, ctx) {
+    draw.text(state.wanzer.bodyBrush, x, y, ctx);
+    var barX0 = Math.floor(state.wanzer.bodyBrush[0].length / 2) + 1;
     draw.line(state.grayLineBrush, x + barX0, y, x + 16-1, y, ctx);
     draw.line(state.blueLineBrush, x + barX0, y, x + 16 - 1 - (16 - 1) * (1 - (hp[0] / hp[1])), y, ctx);
     var shp = hp[0] + '/' + hp[1];
-    draw.text(shp, 'white', null, x + 16 - 1 - (shp.length / 2)+0.5, y, ctx);
+    state.wanzer.hpTextBrush[0] = shp;
+    draw.text(state.wanzer.hpTextBrush, x + 16 - 1 - (shp.length / 2)+0.5, y, ctx);
 };
 
 var drawArmsHpBar = function(state, lhp, rhp, x, y, ctx) {
-    draw.text('Arm', 'white', null, x, y, ctx);
+    draw.text(state.wanzer.armsBrush, x, y, ctx);
     draw.wideText('L', 'white', null, x + 2, y, ctx);
     draw.line(state.grayLineBrush, x + 3, y, x + 8, y, ctx);
     draw.line(state.blueLineBrush, x + 3, y, x + 8 - 8 * (1 - lhp[0] / lhp[1]), y, ctx);
     var slhp = lhp[0] + '/' + lhp[1];
-    draw.text(slhp, 'white', null, x + 8 - (slhp.length / 2) + 0.5, y, ctx);
+    state.wanzer.hpTextBrush[0] = slhp;
+    draw.text(state.wanzer.hpTextBrush, x + 8 - (slhp.length / 2) + 0.5, y, ctx);
 
     draw.wideText('R', 'white', null, x + 9, y, ctx);
     draw.line(state.grayLineBrush, x + 10, y, x + 15, y, ctx);
     draw.line(state.blueLineBrush, x + 10, y, x + 15 - 15 * (1 - rhp[0] / rhp[1]), y, ctx);
     var srhp = rhp[0] + '/' + rhp[1];
-    draw.text(srhp, 'white', null, x + 15 - (srhp.length / 2) + 0.5, y, ctx);
+    state.wanzer.hpTextBrush[0] = srhp;
+    draw.text(state.wanzer.hpTextBrush, x + 15 - (srhp.length / 2) + 0.5, y, ctx);
 };
 
-var drawLegHpBar = function(state, hp, x, y, ctx) {
-    draw.text('Leg', 'white', null, x + 1, y, ctx);
+var drawLegsHpBar = function(state, hp, x, y, ctx) {
+    draw.text(state.wanzer.legsBrush, x, y, ctx);
     var barX0 = 3;
     draw.line(state.grayLineBrush, x + barX0, y, x + 16-1, y, ctx);
     draw.line(state.blueLineBrush, x + barX0, y, x + 16 - 1 - (16 - 1) * (1 - (hp[0] / hp[1])), y, ctx);
     var shp = hp[0] + '/' + hp[1];
-    draw.text(shp, 'white', null, x + 16 - 1 - (shp.length / 2)+0.5, y, ctx);
+    state.wanzer.hpTextBrush[0] = shp;
+    draw.text(state.wanzer.hpTextBrush, x + 16 - 1 - (shp.length / 2)+0.5, y, ctx);
 };
 
 var drawWanzerStats = function(x, y, state) {
     draw.one(state.wanzer.pilot.alias, x, y, state.ctx);
-    draw.text(state.wanzer.pilot.name, 'white', null, x + 1.5, y + 0, state.ctx);
+    draw.text(state.wanzer.pilot.name, x + 1, y + 0, state.ctx);
 
-    drawHpBar(state, 'Body', state.wanzer.bodyHp, x, y + 1, state.ctx);
+    drawHpBar(state, state.wanzer.bodyHp, x, y + 1, state.ctx);
     drawArmsHpBar(state, state.wanzer.larmHp, state.wanzer.rarmHp, x, y + 2, state.ctx);
-    drawLegHpBar(state, state.wanzer.leg, x, y + 3, state.ctx);
+    drawLegsHpBar(state, state.wanzer.legs, x, y + 3, state.ctx);
 };
 
 window.onload = function() {
@@ -352,13 +325,17 @@ window.onload = function() {
 
         state.wanzer = {
             position: [24, 9],
+            bodyBrush: [' Body', 'white', null],
+            hpTextBrush: [null, 'white', null],
             bodyHp: [330, 579],
+            armsBrush: ['Arm', 'white', null],
             rarmHp: [60, 295],
             larmHp: [295, 295],
-            leg: [400, 440],
+            legsBrush: [' Legs', 'white', null],
+            legs: [400, 440],
             pilot: {
                 alias: ['KT', 'pink', null],
-                name: 'Kazuki Takemura'
+                name: [' Kazuki Takemura', 'white', null]
             }
         };
 
@@ -370,7 +347,6 @@ window.onload = function() {
 
         state.grayRect = brush.rect.fill(chars.middot, 'gray', null);
 
-        var txt = brush.text.split(brush.text.prepare(brush.text.align('Welcome World')), 2);
         state.textBrush = ['Welcome World', 'blue', null];
     };
     
@@ -401,7 +377,7 @@ window.onload = function() {
             state.wanzer.position[1],
             state.ctx);
 
-        draw.textE(state.textBrush, 18, 3, state.ctx);
+        draw.text(state.textBrush, 18, 3, state.ctx);
 
         draw.line(state.uiLine, canvas.width - 18, 0, canvas.width - 18, canvas.height - 1, state.ctx);
 
